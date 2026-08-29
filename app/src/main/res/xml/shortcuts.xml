@@ -10,7 +10,7 @@
         <intent
             android:action="android.intent.action.VIEW"
             android:targetPackage="io.github.kaulith.helpdeskanalytics"
-            android:targetClass="com.example.helpdeskanalytics.MainActivity"
+            android:targetClass="io.github.kaulith.helpdeskanalytics.MainActivity"
             android:data="helpdesk://dashboard" />
     </shortcut>
 
@@ -23,7 +23,7 @@
         <intent
             android:action="android.intent.action.VIEW"
             android:targetPackage="io.github.kaulith.helpdeskanalytics"
-            android:targetClass="com.example.helpdeskanalytics.MainActivity"
+            android:targetClass="io.github.kaulith.helpdeskanalytics.MainActivity"
             android:data="helpdesk://tickets" />
     </shortcut>
 
@@ -36,7 +36,7 @@
         <intent
             android:action="android.intent.action.VIEW"
             android:targetPackage="io.github.kaulith.helpdeskanalytics"
-            android:targetClass="com.example.helpdeskanalytics.MainActivity"
+            android:targetClass="io.github.kaulith.helpdeskanalytics.MainActivity"
             android:data="helpdesk://analytics" />
     </shortcut>
 

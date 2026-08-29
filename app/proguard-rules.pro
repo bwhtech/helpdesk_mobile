@@ -3,9 +3,9 @@
 -keepclassmembers,allowobfuscation class * {
     @com.google.gson.annotations.SerializedName <fields>;
 }
--keep,allowobfuscation,allowshrinking class com.example.helpdeskanalytics.data.remote.dto.** { *; }
--keep,allowobfuscation,allowshrinking class com.example.helpdeskanalytics.data.local.database.entities.** { *; }
--keep,allowobfuscation,allowshrinking class com.example.helpdeskanalytics.domain.model.** { *; }
+-keep,allowobfuscation,allowshrinking class io.github.kaulith.helpdeskanalytics.data.remote.dto.** { *; }
+-keep,allowobfuscation,allowshrinking class io.github.kaulith.helpdeskanalytics.data.local.database.entities.** { *; }
+-keep,allowobfuscation,allowshrinking class io.github.kaulith.helpdeskanalytics.domain.model.** { *; }
 
 # Retrofit
 -keepattributes Signature, InnerClasses, EnclosingMethod, RuntimeVisibleAnnotations, AnnotationDefault

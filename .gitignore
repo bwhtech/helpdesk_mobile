@@ -11,3 +11,7 @@
 local.properties
 /docs/
 app/google-services.json
+
+# Signing keys must never be committed.
+*.jks
+*.keystore

@@ -32,7 +32,7 @@ val appVersionCode = appVersionName.substringBefore('-').split('.').let { parts 
 }
 
 android {
-    namespace = "com.example.helpdeskanalytics"
+    namespace = "io.github.kaulith.helpdeskanalytics"
     compileSdk = 35
 
     defaultConfig {
