@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Helpdesk Analytics</string>
+
+    <!-- Common actions -->
+    <string name="action_retry">Retry</string>
+    <string name="action_back">Back</string>
+    <string name="action_close">Close</string>
+    <string name="action_save">Save</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_open_attachment">Open attachment</string>
+    <string name="action_view_image">View image</string>
+    <string name="action_close_image">Close image</string>
+    <string name="action_open_ticket">Open ticket</string>
+    <string name="action_switch_agent">Switch agent</string>
+    <string name="action_select_agent">Select agent</string>
+    <string name="action_new_report">New report</string>
+    <string name="action_create_report">Create report</string>
+
+    <!-- Connectivity -->
+    <string name="offline_no_connection">No connection</string>
+    <string name="offline_last_sync_prefix"> • Last sync %1$s</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_greeting_morning">Good morning</string>
+    <string name="dashboard_greeting_afternoon">Good afternoon</string>
+    <string name="dashboard_greeting_evening">Good evening</string>
+    <string name="dashboard_greeting_subtitle">Here\'s your day at a glance.</string>
+    <string name="dashboard_quick_open">Open</string>
+    <string name="dashboard_quick_resolved_today">Resolved today</string>
+    <string name="dashboard_quick_overdue">Overdue</string>
+    <string name="dashboard_metric_avg_response">Avg response</string>
+    <string name="dashboard_metric_avg_resolution">Avg resolution</string>
+    <string name="dashboard_metric_urgent_open">Urgent open</string>
+    <string name="dashboard_metric_created_week">Created this week</string>
+    <string name="dashboard_section_overview">Overview</string>
+    <string name="dashboard_section_activity">Activity</string>
+    <string name="dashboard_error_title">Couldn\'t load dashboard</string>
+
+    <!-- Tickets -->
+    <string name="tickets_error_title">Couldn\'t load tickets</string>
+    <string name="tickets_empty_title">No tickets</string>
+    <string name="tickets_empty_description">Adjust filters or try a different search.</string>
+
+    <!-- Ticket detail -->
+    <string name="ticket_detail_error_title">Couldn\'t load ticket</string>
+    <string name="ticket_detail_select_agent_title">Select an agent first</string>
+    <string name="ticket_detail_select_agent_body">Changes are recorded as the selected agent. Pick an active agent in Settings → Active agent before replying or editing this ticket.</string>
+    <string name="ticket_detail_select_agent_dismiss">Got it</string>
+
+    <!-- Analytics -->
+    <string name="analytics_error_title">Couldn\'t load analytics</string>
+
+    <!-- Leaderboard -->
+    <string name="leaderboard_access_title">Access restricted</string>
+    <string name="leaderboard_access_description">You need Team Lead permissions to view the leaderboard.</string>
+    <string name="leaderboard_error_title">Couldn\'t load leaderboard</string>
+    <string name="leaderboard_empty_title">No agents</string>
+    <string name="leaderboard_empty_description">No agent performance data available yet.</string>
+
+    <!-- Reports -->
+    <string name="reports_empty_title">No saved reports</string>
+    <string name="reports_empty_description">Build a report, then save it here to reuse later.</string>
+
+    <!-- Login -->
+    <string name="login_wordmark">Helpdesk</string>
+    <string name="login_subtitle">Sign in to your Frappe Helpdesk site</string>
+    <string name="login_password_show">Show secret</string>
+    <string name="login_password_hide">Hide secret</string>
+
+    <!-- App shortcuts (long-press launcher icon) -->
+    <string name="shortcut_dashboard">Dashboard</string>
+    <string name="shortcut_tickets">Tickets</string>
+    <string name="shortcut_analytics">Analytics</string>
+
+    <!-- Snackbar feedback -->
+    <string name="feedback_status_changed">Status updated</string>
+    <string name="feedback_priority_changed">Priority updated</string>
+    <string name="feedback_reply_sent">Reply sent</string>
+    <string name="feedback_comment_added">Comment added</string>
+    <string name="feedback_undo">Undo</string>
+
+    <!-- Bulk select -->
+    <string name="bulk_selected_count">%1$d selected</string>
+</resources>

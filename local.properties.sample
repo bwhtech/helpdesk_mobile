@@ -1,0 +1,14 @@
+# Sample local.properties — copy to local.properties and fill in.
+# local.properties is gitignored.
+
+# Android SDK location (auto-set by Android Studio).
+sdk.dir=/Users/you/Library/Android/sdk
+
+# Release signing. Generate the keystore once and keep it backed up; every
+# update must be signed with the same key or users cannot install over it.
+#   keytool -genkey -v -keystore ~/keys/helpdesk-release.jks \
+#     -keyalg RSA -keysize 2048 -validity 10000 -alias helpdesk
+release.storeFile=/Users/you/keys/helpdesk-release.jks
+release.storePassword=
+release.keyAlias=helpdesk
+release.keyPassword=

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="240dp"
+    android:height="240dp"
+    android:viewportWidth="240"
+    android:viewportHeight="240">
+
+    <!-- Same ticket glyph as launcher icon, scaled for splash safe zone -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M75,93 L165,93 A14,14 0 0 1 179,107 L179,116 A14,14 0 0 0 179,144 L179,153 A14,14 0 0 1 165,167 L75,167 A14,14 0 0 1 61,153 L61,144 A14,14 0 0 0 61,116 L61,107 A14,14 0 0 1 75,93 Z" />
+
+    <path
+        android:strokeColor="#6846E3"
+        android:strokeWidth="3.5"
+        android:strokeLineCap="round"
+        android:pathData="M97,115 L97,145 M120,115 L120,145 M143,115 L143,145" />
+</vector>
