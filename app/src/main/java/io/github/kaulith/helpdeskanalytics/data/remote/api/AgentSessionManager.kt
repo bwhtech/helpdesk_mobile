@@ -1,17 +1,21 @@
 package io.github.kaulith.helpdeskanalytics.data.remote.api
 
 import io.github.kaulith.helpdeskanalytics.data.local.credentials.CredentialsManager
+import io.github.kaulith.helpdeskanalytics.data.local.preferences.PreferencesManager
 import io.github.kaulith.helpdeskanalytics.util.Result
+import kotlinx.coroutines.flow.first
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 /**
  * Decides which API token each request carries. Reads run as the admin (the
- * login key); writes run as the selected agent. An agent's key is provisioned
- * once from the admin key via frappe's generate_keys and cached encrypted.
+ * login key); writes run as the selected agent. Another agent's key is
+ * provisioned once from the admin key via frappe's generate_keys and cached
+ * encrypted; the signed-in account writes with the key it signed in with.
  */
 class AgentSessionManager(
-    private val credentialsManager: CredentialsManager
+    private val credentialsManager: CredentialsManager,
+    private val preferencesManager: PreferencesManager
 ) {
     @Volatile
     private var activeAgentEmail: String? = credentialsManager.getActiveAgentEmail()
@@ -43,7 +47,9 @@ class AgentSessionManager(
      * read + notifications and the app stays read-only for writes.
      */
     suspend fun activate(email: String): Result<Unit> {
-        if (!credentialsManager.hasAgentKeys(email)) {
+        if (isLoginUser(email)) {
+            adoptLoginKeys(email)
+        } else if (!credentialsManager.hasAgentKeys(email)) {
             mintKeys(email)
         }
         credentialsManager.setActiveAgentEmail(email)
@@ -54,6 +60,20 @@ class AgentSessionManager(
     fun deactivate() {
         credentialsManager.setActiveAgentEmail(null)
         activeAgentEmail = null
+    }
+
+    private suspend fun isLoginUser(email: String): Boolean =
+        email.equals(preferencesManager.loggedInUserEmail.first(), ignoreCase = true)
+
+    /**
+     * generate_keys rotates the user's api_secret, so minting for the account the
+     * app signed in with would invalidate the credentials it is signing in with.
+     * That account writes with its own login key instead.
+     */
+    private fun adoptLoginKeys(email: String) {
+        val key = credentialsManager.getApiKey() ?: return
+        val secret = credentialsManager.getApiSecret() ?: return
+        credentialsManager.saveAgentKeys(email, key, secret)
     }
 
     private suspend fun mintKeys(email: String): Result<Unit> {

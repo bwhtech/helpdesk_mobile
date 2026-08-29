@@ -9,7 +9,7 @@ import org.koin.dsl.module
 
 val networkModule = module {
     single { CredentialsManager(androidContext()) }
-    single { AgentSessionManager(get()) }
+    single { AgentSessionManager(get(), get()) }
     single { ApiServiceProvider(get(), get()) }
     single { NotificationApiClient(get()) }
 }
