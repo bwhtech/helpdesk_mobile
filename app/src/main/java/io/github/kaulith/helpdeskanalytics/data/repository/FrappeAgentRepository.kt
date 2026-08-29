@@ -57,9 +57,12 @@ class FrappeAgentRepository(
         }
     }
 
-    override suspend fun setActiveAgent(agent: Agent?): Result<Unit> {
+    override suspend fun needsWriteKey(agent: Agent): Boolean =
+        agentSessionManager.needsWriteKey(agent.email)
+
+    override suspend fun setActiveAgent(agent: Agent?, provisionWriteKey: Boolean): Result<Unit> {
         if (agent != null) {
-            val activated = agentSessionManager.activate(agent.email)
+            val activated = agentSessionManager.activate(agent.email, provisionWriteKey)
             if (activated is Result.Error) return activated
         } else {
             agentSessionManager.deactivate()

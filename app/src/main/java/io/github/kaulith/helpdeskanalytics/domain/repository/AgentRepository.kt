@@ -8,8 +8,15 @@ interface AgentRepository {
     fun getAgents(): Flow<Result<List<Agent>>>
     fun getActiveAgent(): Flow<Agent?>
 
-    /** Selects an agent and provisions their API key, so writes are attributed to them. */
-    suspend fun setActiveAgent(agent: Agent?): Result<Unit>
+    /** True when writing as this agent would need a key minted for them first. */
+    suspend fun needsWriteKey(agent: Agent): Boolean
+
+    /**
+     * Selects an agent. Pass [provisionWriteKey] to mint their API key so writes
+     * are attributed to them; without it the app reads as them and stays
+     * read-only, because minting replaces the agent's existing API secret.
+     */
+    suspend fun setActiveAgent(agent: Agent?, provisionWriteKey: Boolean = false): Result<Unit>
 
     suspend fun refreshAgents(): Result<List<Agent>>
 }

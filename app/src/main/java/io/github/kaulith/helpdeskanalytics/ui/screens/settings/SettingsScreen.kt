@@ -131,6 +131,29 @@ fun SettingsScreen(
         )
     }
 
+    uiState.writeKeyPromptAgent?.let { agent ->
+        AlertDialog(
+            onDismissRequest = viewModel::dismissWriteKeyPrompt,
+            title = { Text("Write as ${agent.name}?") },
+            text = {
+                Text(
+                    "Frappe issues ${agent.name} a new API secret so replies and edits are " +
+                        "recorded as them. Their old secret stops working, and anything else " +
+                        "using it breaks until it is updated.\n\n" +
+                        "Read only keeps their key untouched; you can still browse their " +
+                        "tickets and receive their notifications."
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = viewModel::confirmWriteKey) { Text("Issue key") }
+            },
+            dismissButton = {
+                TextButton(onClick = viewModel::skipWriteKey) { Text("Read only") }
+            },
+            shape = FrappeRadius.xl2
+        )
+    }
+
     uiState.agentSwitchError?.let { error ->
         AlertDialog(
             onDismissRequest = viewModel::dismissAgentSwitchError,

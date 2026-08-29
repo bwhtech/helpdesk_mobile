@@ -41,15 +41,20 @@ class AgentSessionManager(
         return credentialsManager.hasAgentKeys(email)
     }
 
+    /** True when writing as this agent would need a key minted for them first. */
+    suspend fun needsWriteKey(email: String): Boolean =
+        !isLoginUser(email) && !credentialsManager.hasAgentKeys(email)
+
     /**
-     * Selects an agent. Minting the agent's write key is best-effort: if the login
-     * key lacks System Manager (can't provision), the agent is still selected for
-     * read + notifications and the app stays read-only for writes.
+     * Selects an agent. Minting another agent's write key is opt-in because it
+     * replaces their existing API secret, and is best-effort even then: if the
+     * login key lacks System Manager, the agent is still selected for read +
+     * notifications and the app stays read-only for writes.
      */
-    suspend fun activate(email: String): Result<Unit> {
+    suspend fun activate(email: String, provisionWriteKey: Boolean = false): Result<Unit> {
         if (isLoginUser(email)) {
             adoptLoginKeys(email)
-        } else if (!credentialsManager.hasAgentKeys(email)) {
+        } else if (provisionWriteKey && !credentialsManager.hasAgentKeys(email)) {
             mintKeys(email)
         }
         credentialsManager.setActiveAgentEmail(email)
