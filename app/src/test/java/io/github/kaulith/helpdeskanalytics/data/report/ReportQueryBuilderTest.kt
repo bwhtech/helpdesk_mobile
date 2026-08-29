@@ -170,12 +170,12 @@ class ReportQueryBuilderTest {
             ReportConfig(
                 dateRange = DateRangePreset.ALL,
                 filters = listOf(
-                    ReportFilter(ReportColumn.AGENT, FilterOperator.EQUALS, "rahul@frappe.io")
+                    ReportFilter(ReportColumn.AGENT, FilterOperator.EQUALS, "ann@x.io")
                 )
             )
         )
 
-        assertEquals("""[["_assign","like","%rahul@frappe.io%"]]""", query.filters)
+        assertEquals("""[["_assign","like","%ann@x.io%"]]""", query.filters)
     }
 
     @Test
