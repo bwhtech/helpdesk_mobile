@@ -3,6 +3,16 @@
 An Android app for [Frappe Helpdesk](https://github.com/frappe/helpdesk). Read your
 tickets, reply to them, and look at how the queue is doing, from your phone.
 
+<p>
+  <img src="screenshots/dashboard.jpg" width="24%" alt="Dashboard" />
+  <img src="screenshots/analytics.jpg" width="24%" alt="Analytics" />
+  <img src="screenshots/ranking.jpg" width="24%" alt="Ranking" />
+  <img src="screenshots/settings.jpg" width="24%" alt="Settings" />
+</p>
+
+Dashboard, analytics, agent ranking, and settings. Names are masked in these
+shots; the app shows them as they are.
+
 ## What you need
 
 A Frappe Helpdesk site and an API key and secret from a user on it.
