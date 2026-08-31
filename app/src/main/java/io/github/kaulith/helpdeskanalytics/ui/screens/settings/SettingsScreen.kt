@@ -192,7 +192,7 @@ fun SettingsScreen(
                 SettingsRow(
                     icon = Icons.Outlined.Shield,
                     label = "Role",
-                    value = uiState.userRole.ifEmpty { "Unknown" }
+                    value = uiState.userRole.ifEmpty { "N/A" }
                 )
             }
         }
