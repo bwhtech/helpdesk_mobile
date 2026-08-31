@@ -22,5 +22,5 @@ object Constants {
     // Releases live on GitHub; sideloaded builds have no store to update them.
     const val GITHUB_API_URL = "https://api.github.com/"
     const val RELEASES_OWNER = "kaulith"
-    const val RELEASES_REPO = "HelpdeskAnalytics"
+    const val RELEASES_REPO = "helpdesk-mobile"
 }

@@ -1,7 +1,11 @@
-# Helpdesk Analytics
+# Helpdesk Mobile
 
 An Android app for [Frappe Helpdesk](https://github.com/frappe/helpdesk). Read your
-tickets, reply to them, and look at how the queue is doing, from your phone.
+tickets and see how the queue is doing, from your phone.
+
+Replying, commenting, and changing status or priority need an agent to write as,
+which the app sets up when you pick one in Settings. Until then it stays read
+only. See [Acting as an agent](#acting-as-an-agent).
 
 <p>
   <img src="screenshots/dashboard.jpg" width="24%" alt="Dashboard" />
@@ -28,7 +32,7 @@ dialog.
 
 ## Install
 
-Download the APK from the [latest release](https://github.com/kaulith/HelpdeskAnalytics/releases/latest)
+Download the APK from the [latest release](https://github.com/kaulith/helpdesk-mobile/releases/latest)
 and open it on your phone. Android will ask you to allow installs from your
 browser or file manager the first time.
 

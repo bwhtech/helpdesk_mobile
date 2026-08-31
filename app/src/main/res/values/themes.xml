@@ -7,9 +7,9 @@
     </style>
 
     <style name="Theme.HelpdeskAnalytics.Splash" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">#6846E3</item>
+        <item name="windowSplashScreenBackground">#00B4DB</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash</item>
-        <item name="windowSplashScreenIconBackgroundColor">#6846E3</item>
+        <item name="windowSplashScreenIconBackgroundColor">#00B4DB</item>
         <item name="postSplashScreenTheme">@style/Theme.HelpdeskAnalytics</item>
     </style>
 </resources>

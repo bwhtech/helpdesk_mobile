@@ -5,15 +5,16 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- Ticket shape: rounded rect with two perforation notches at vertical midpoints -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M34,42 L74,42 A6,6 0 0 1 80,48 L80,52 A6,6 0 0 0 80,64 L80,68 A6,6 0 0 1 74,74 L34,74 A6,6 0 0 1 28,68 L28,64 A6,6 0 0 0 28,52 L28,48 A6,6 0 0 1 34,42 Z" />
-
-    <!-- Perforation tick marks inside ticket -->
-    <path
-        android:strokeColor="#6846E3"
-        android:strokeWidth="1.6"
-        android:strokeLineCap="round"
-        android:pathData="M44,53 L44,63 M54,53 L54,63 M64,53 L64,63" />
+    <!-- 16x16 artwork scaled to 56dp and inset by 26 on every side, so the glyph
+         centre lands on the 54,54 canvas centre and stays inside the safe zone. -->
+    <group
+        android:translateX="26"
+        android:translateY="26"
+        android:scaleX="3.5"
+        android:scaleY="3.5">
+        <path
+            android:fillColor="#FFFFFF"
+            android:fillType="evenOdd"
+            android:pathData="M2.75 3A1.75 1.75 0 0 0 1 4.75v1.313a.75.75 0 0 0 .563.726 1.25 1.25 0 0 1 0 2.422.75.75 0 0 0-.563.726v1.313c0 .966.784 1.75 1.75 1.75h10.5A1.75 1.75 0 0 0 15 11.25V9.937a.75.75 0 0 0-.563-.726 1.25 1.25 0 0 1 0-2.422.75.75 0 0 0 .563-.726V4.75A1.75 1.75 0 0 0 13.25 3H2.75ZM2.5 4.75a.25.25 0 0 1 .25-.25h10.5a.25.25 0 0 1 .25.25v.8a2.749 2.749 0 0 0 0 4.9v.8a.25.25 0 0 1-.25.25H2.75a.25.25 0 0 1-.25-.25v-.8a2.75 2.75 0 0 0 0-4.9v-.8Zm4.25 2.5a.75.75 0 0 0 0 1.5h2.5a.75.75 0 0 0 0-1.5h-2.5Z" />
+    </group>
 </vector>

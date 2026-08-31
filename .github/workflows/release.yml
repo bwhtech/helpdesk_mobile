@@ -47,9 +47,9 @@ jobs:
           "$apksigner" verify --print-certs app/build/outputs/apk/release/app-release.apk
 
       - name: Name the APK after the tag
-        run: mv app/build/outputs/apk/release/app-release.apk "HelpdeskAnalytics-${{ github.ref_name }}.apk"
+        run: mv app/build/outputs/apk/release/app-release.apk "HelpdeskMobile-${{ github.ref_name }}.apk"
 
       - uses: softprops/action-gh-release@v2
         with:
-          files: HelpdeskAnalytics-${{ github.ref_name }}.apk
+          files: HelpdeskMobile-${{ github.ref_name }}.apk
           generate_release_notes: true

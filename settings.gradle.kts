@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "HelpdeskAnalytics"
+rootProject.name = "HelpdeskMobile"
 include(":app")
