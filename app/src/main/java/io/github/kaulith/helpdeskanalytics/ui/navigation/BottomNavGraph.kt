@@ -17,7 +17,11 @@ import io.github.kaulith.helpdeskanalytics.ui.screens.tickets.TicketDetailScreen
 import io.github.kaulith.helpdeskanalytics.ui.screens.tickets.TicketsScreen
 
 @Composable
-fun BottomNavGraph(navController: NavHostController, onLogout: () -> Unit = {}) {
+fun BottomNavGraph(
+    navController: NavHostController,
+    onLogout: () -> Unit = {},
+    onSwitchAgent: () -> Unit = {},
+) {
     NavHost(
         navController = navController,
         startDestination = BottomNavScreen.Dashboard.route
@@ -43,6 +47,7 @@ fun BottomNavGraph(navController: NavHostController, onLogout: () -> Unit = {}) 
         composable(BottomNavScreen.Leaderboard.route) { LeaderboardScreen() }
         composable(BottomNavScreen.Settings.route) {
             SettingsScreen(
+                onSwitchAgent = onSwitchAgent,
                 onLogout = onLogout,
                 onOpenReports = { navController.navigate("reports") }
             )

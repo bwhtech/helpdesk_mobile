@@ -68,7 +68,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.kaulith.helpdeskanalytics.BuildConfig
-import io.github.kaulith.helpdeskanalytics.ui.components.AgentSelectorSheet
 import io.github.kaulith.helpdeskanalytics.ui.components.InitialsAvatar
 import io.github.kaulith.helpdeskanalytics.ui.components.OnResume
 import io.github.kaulith.helpdeskanalytics.ui.theme.AppColorScheme
@@ -81,6 +80,7 @@ import org.koin.androidx.compose.koinViewModel
 fun SettingsScreen(
     onLogout: () -> Unit = {},
     onOpenReports: () -> Unit = {},
+    onSwitchAgent: () -> Unit = {},
     viewModel: SettingsViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -122,54 +122,6 @@ fun SettingsScreen(
         )
     }
 
-    if (uiState.showAgentSelector) {
-        AgentSelectorSheet(
-            agents = uiState.agents,
-            activeAgent = uiState.activeAgent,
-            onAgentSelected = { agent -> viewModel.setActiveAgent(agent) },
-            onDismiss = viewModel::dismissAgentSelector
-        )
-    }
-
-    uiState.writeKeyPromptAgent?.let { agent ->
-        AlertDialog(
-            onDismissRequest = viewModel::dismissWriteKeyPrompt,
-            title = { Text("Write as ${agent.name}?") },
-            text = {
-                Text(
-                    "Frappe issues ${agent.name} a new API secret so replies and edits are " +
-                        "recorded as them. Their old secret stops working, and anything else " +
-                        "using it breaks until it is updated.\n\n" +
-                        "Read only keeps their key untouched; you can still browse their " +
-                        "tickets and receive their notifications."
-                )
-            },
-            confirmButton = {
-                TextButton(onClick = viewModel::confirmWriteKey) { Text("Issue key") }
-            },
-            dismissButton = {
-                TextButton(onClick = viewModel::skipWriteKey) { Text("Read only") }
-            },
-            shape = FrappeRadius.xl2
-        )
-    }
-
-    uiState.agentSwitchError?.let { error ->
-        AlertDialog(
-            onDismissRequest = viewModel::dismissAgentSwitchError,
-            title = { Text("Couldn't switch agent") },
-            text = {
-                Text(
-                    "$error\n\nThe admin key needs the System Manager role to provision agent keys."
-                )
-            },
-            confirmButton = {
-                TextButton(onClick = viewModel::dismissAgentSwitchError) { Text("OK") }
-            },
-            shape = FrappeRadius.xl2
-        )
-    }
-
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -202,7 +154,7 @@ fun SettingsScreen(
                 ActiveAgentBlock(
                     name = uiState.activeAgent?.name,
                     email = uiState.activeAgent?.email,
-                    onSwitch = viewModel::showAgentSelector
+                    onSwitch = onSwitchAgent
                 )
             }
         }

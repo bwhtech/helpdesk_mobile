@@ -44,7 +44,9 @@ import androidx.navigation.compose.rememberNavController
 import io.github.kaulith.helpdeskanalytics.data.local.preferences.PreferencesManager
 import io.github.kaulith.helpdeskanalytics.data.update.AppUpdate
 import io.github.kaulith.helpdeskanalytics.data.update.UpdateChecker
-import io.github.kaulith.helpdeskanalytics.domain.repository.AgentRepository
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.kaulith.helpdeskanalytics.ui.agent.AgentSwitcher
+import io.github.kaulith.helpdeskanalytics.ui.agent.AgentSwitcherViewModel
 import io.github.kaulith.helpdeskanalytics.ui.components.AgentChip
 import io.github.kaulith.helpdeskanalytics.ui.components.OfflineIndicator
 import io.github.kaulith.helpdeskanalytics.ui.components.UpdateBanner
@@ -54,6 +56,7 @@ import io.github.kaulith.helpdeskanalytics.ui.navigation.BottomNavScreen
 import io.github.kaulith.helpdeskanalytics.ui.theme.FrappeMotion
 import io.github.kaulith.helpdeskanalytics.util.NetworkMonitor
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,14 +76,13 @@ fun MainScreen(
 
     val networkMonitor: NetworkMonitor = koinInject()
     val preferencesManager: PreferencesManager = koinInject()
-    val agentRepository: AgentRepository = koinInject()
     val updateChecker: UpdateChecker = koinInject()
 
     val isOnline by networkMonitor.isOnline.collectAsState(initial = true)
     val lastSync by preferencesManager.lastSync.collectAsState(initial = 0L)
 
-    val activeAgentFlow = remember { agentRepository.getActiveAgent() }
-    val activeAgent by activeAgentFlow.collectAsState(initial = null)
+    val agentSwitcherViewModel: AgentSwitcherViewModel = koinViewModel()
+    val agentSwitcherState by agentSwitcherViewModel.uiState.collectAsStateWithLifecycle()
 
     val dismissedUpdate by preferencesManager.dismissedUpdateVersion.collectAsState(initial = null)
     var latestUpdate by remember { mutableStateOf<AppUpdate?>(null) }
@@ -130,7 +132,10 @@ fun MainScreen(
                         )
                     },
                     actions = {
-                        AgentChip(agent = activeAgent)
+                        AgentChip(
+                            agent = agentSwitcherState.activeAgent,
+                            onClick = agentSwitcherViewModel::show,
+                        )
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = cs.surface,
@@ -243,8 +248,14 @@ fun MainScreen(
                         scope.launch { preferencesManager.setDismissedUpdateVersion(update.versionName) }
                     },
                 )
-                BottomNavGraph(navController = navController, onLogout = onLogout)
+                BottomNavGraph(
+                    navController = navController,
+                    onLogout = onLogout,
+                    onSwitchAgent = agentSwitcherViewModel::show,
+                )
             }
         }
     }
+
+    AgentSwitcher(viewModel = agentSwitcherViewModel)
 }

@@ -1,12 +1,17 @@
 package io.github.kaulith.helpdeskanalytics.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,10 +22,11 @@ import androidx.compose.ui.unit.dp
 import io.github.kaulith.helpdeskanalytics.domain.model.Agent
 import io.github.kaulith.helpdeskanalytics.ui.theme.Spacing
 
-/** Shows which agent the app is acting as. Switching happens in Settings. */
+/** Shows which agent the app is acting as, and opens the picker to switch. */
 @Composable
 fun AgentChip(
     agent: Agent?,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val cs = MaterialTheme.colorScheme
@@ -30,6 +36,7 @@ fun AgentChip(
             .padding(end = Spacing.sm)
             .clip(shape)
             .background(cs.surfaceContainerHigh)
+            .clickable(onClick = onClick)
             .padding(start = Spacing.xs, end = Spacing.sm, top = Spacing.xs, bottom = Spacing.xs),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
@@ -42,6 +49,12 @@ fun AgentChip(
             color = cs.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
+        )
+        Icon(
+            imageVector = Icons.Default.ArrowDropDown,
+            contentDescription = "Switch agent",
+            tint = cs.onSurfaceVariant,
+            modifier = Modifier.size(18.dp),
         )
     }
 }

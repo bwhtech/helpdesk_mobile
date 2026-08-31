@@ -6,6 +6,7 @@ import io.github.kaulith.helpdeskanalytics.ui.screens.dashboard.DashboardViewMod
 import io.github.kaulith.helpdeskanalytics.ui.screens.leaderboard.LeaderboardViewModel
 import io.github.kaulith.helpdeskanalytics.ui.screens.reports.ReportBuilderViewModel
 import io.github.kaulith.helpdeskanalytics.ui.screens.reports.ReportTemplatesViewModel
+import io.github.kaulith.helpdeskanalytics.ui.agent.AgentSwitcherViewModel
 import io.github.kaulith.helpdeskanalytics.ui.screens.settings.SettingsViewModel
 import io.github.kaulith.helpdeskanalytics.ui.screens.tickets.TicketDetailViewModel
 import io.github.kaulith.helpdeskanalytics.ui.screens.tickets.TicketListViewModel
@@ -20,6 +21,7 @@ val viewModelModule = module {
     viewModel { AnalyticsViewModel(get(), get()) }
     viewModel { LeaderboardViewModel(get(), get(), get()) }
     viewModel { SettingsViewModel(get(), get(), get(), get(), get()) }
+    viewModel { AgentSwitcherViewModel(get()) }
     viewModel { ReportTemplatesViewModel(get()) }
     viewModel { ReportBuilderViewModel(get(), get(), get()) }
 }
