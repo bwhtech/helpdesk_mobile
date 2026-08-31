@@ -5,9 +5,12 @@ on:
     tags:
       - "v*"
 
+permissions: {}
+
 jobs:
   apk:
     runs-on: ubuntu-latest
+    environment: release
     permissions:
       contents: write
 
@@ -21,7 +24,7 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@48b5f213c81028ace310571dc5ec0fbbca0b2947 # v4
 
       - name: Restore build secrets
         env:
@@ -49,7 +52,7 @@ jobs:
       - name: Name the APK after the tag
         run: mv app/build/outputs/apk/release/app-release.apk "HelpdeskMobile-${{ github.ref_name }}.apk"
 
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
         with:
           files: HelpdeskMobile-${{ github.ref_name }}.apk
           generate_release_notes: true
