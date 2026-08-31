@@ -22,7 +22,6 @@ data class DashboardUiState(
     val isRefreshing: Boolean = false,
     val error: String? = null,
     val userName: String? = null,
-    val userEmail: String? = null,
     val activeAgent: Agent? = null
 )
 
@@ -47,9 +46,7 @@ class DashboardViewModel(
                 _uiState.update { it.copy(isRefreshing = true) }
                 repository.refresh()
             }
-            val agent = _uiState.value.activeAgent
-            val email = agent?.email ?: _uiState.value.userEmail
-            loadMetrics(email)
+            loadMetrics(_uiState.value.activeAgent?.email)
         }
     }
 
@@ -57,8 +54,7 @@ class DashboardViewModel(
         viewModelScope.launch {
             agentRepository.getActiveAgent().collect { agent ->
                 _uiState.update { it.copy(activeAgent = agent) }
-                val email = agent?.email ?: _uiState.value.userEmail
-                loadMetrics(email)
+                loadMetrics(agent?.email)
             }
         }
     }
@@ -67,11 +63,7 @@ class DashboardViewModel(
         viewModelScope.launch {
             repository.getCurrentUser().collect { result ->
                 if (result is Result.Success) {
-                    _uiState.update { it.copy(userName = result.data.fullName, userEmail = result.data.email) }
-                    // If no active agent selected, reload metrics with logged-in user's email
-                    if (_uiState.value.activeAgent == null) {
-                        loadMetrics(result.data.email)
-                    }
+                    _uiState.update { it.copy(userName = result.data.fullName) }
                 }
             }
         }

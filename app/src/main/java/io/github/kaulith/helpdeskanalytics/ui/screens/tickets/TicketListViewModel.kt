@@ -70,26 +70,10 @@ class TicketListViewModel(
 
     private val _searchQuery = MutableStateFlow("")
     private var ticketsJob: Job? = null
-    private var loggedInEmail: String? = null
 
     init {
-        loadLoggedInUser()
         observeSearch()
         observeActiveAgent()
-    }
-
-    private fun loadLoggedInUser() {
-        viewModelScope.launch {
-            repository.getCurrentUser().collect { result ->
-                if (result is Result.Success) {
-                    loggedInEmail = result.data.email
-                    // If no active agent, reload with logged-in email
-                    if (_uiState.value.activeAgent == null) {
-                        loadTickets(result.data.email)
-                    }
-                }
-            }
-        }
     }
 
     fun onSearchQueryChange(query: String) {
@@ -184,8 +168,7 @@ class TicketListViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isRefreshing = true) }
             repository.refresh()
-            val email = _uiState.value.activeAgent?.email ?: loggedInEmail
-            loadTickets(email)
+            loadTickets(_uiState.value.activeAgent?.email)
             _uiState.update { it.copy(isRefreshing = false) }
         }
     }
@@ -204,8 +187,7 @@ class TicketListViewModel(
         viewModelScope.launch {
             agentRepository.getActiveAgent().collect { agent ->
                 _uiState.update { it.copy(activeAgent = agent, canWrite = repository.canWrite()) }
-                val email = agent?.email ?: loggedInEmail
-                loadTickets(email)
+                loadTickets(agent?.email)
             }
         }
     }
