@@ -10,8 +10,8 @@ tickets, reply to them, and look at how the queue is doing, from your phone.
   <img src="screenshots/settings.jpg" width="24%" alt="Settings" />
 </p>
 
-Dashboard, analytics, agent ranking, and settings. Names are masked in these
-shots; the app shows them as they are.
+Dashboard, analytics, agent ranking, and settings. Other people's names are
+masked in these shots; the app shows them as they are.
 
 ## What you need
 
