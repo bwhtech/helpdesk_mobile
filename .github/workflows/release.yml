@@ -10,6 +10,7 @@ permissions: {}
 jobs:
   apk:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     environment: release
     permissions:
       contents: write
