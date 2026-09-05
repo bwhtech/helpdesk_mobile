@@ -3,7 +3,7 @@ package io.github.kaulith.helpdeskanalytics.domain.model.filter
 import io.github.kaulith.helpdeskanalytics.domain.model.Priority
 import io.github.kaulith.helpdeskanalytics.domain.model.Status
 import io.github.kaulith.helpdeskanalytics.domain.model.Ticket
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 enum class FilterFieldType { SELECT, TEXT, LINK, NUMBER, DATE }
 

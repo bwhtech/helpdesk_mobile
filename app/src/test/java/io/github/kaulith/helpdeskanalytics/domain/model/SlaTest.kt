@@ -2,7 +2,7 @@ package io.github.kaulith.helpdeskanalytics.domain.model
 
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import io.github.kaulith.helpdeskanalytics.domain.model.Priority
 import io.github.kaulith.helpdeskanalytics.domain.model.Status
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 @Entity(tableName = "tickets")
 data class TicketEntity(

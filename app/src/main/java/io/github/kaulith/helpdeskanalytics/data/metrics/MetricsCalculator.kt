@@ -7,9 +7,9 @@ import io.github.kaulith.helpdeskanalytics.domain.model.ResponseTimePercentiles
 import io.github.kaulith.helpdeskanalytics.domain.model.Status
 import io.github.kaulith.helpdeskanalytics.domain.model.Ticket
 import io.github.kaulith.helpdeskanalytics.domain.model.TicketMetrics
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlinx.datetime.DateTimeUnit
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
@@ -20,7 +20,7 @@ object MetricsCalculator {
         val tz = TimeZone.currentSystemDefault()
         val today = now.toLocalDateTime(tz).date
         val startOfWeek = today.minus(today.dayOfWeek.ordinal, DateTimeUnit.DAY)
-        val startOfMonth = today.minus(today.dayOfMonth - 1, DateTimeUnit.DAY)
+        val startOfMonth = today.minus(today.day - 1, DateTimeUnit.DAY)
 
         val todayTickets = tickets.filter {
             it.createdAt.toLocalDateTime(tz).date == today

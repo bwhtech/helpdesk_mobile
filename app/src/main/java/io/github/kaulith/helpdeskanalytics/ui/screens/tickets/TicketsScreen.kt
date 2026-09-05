@@ -98,7 +98,7 @@ import io.github.kaulith.helpdeskanalytics.ui.theme.FrappeMotion
 import io.github.kaulith.helpdeskanalytics.ui.theme.FrappeRadius
 import io.github.kaulith.helpdeskanalytics.ui.theme.Spacing
 import io.github.kaulith.helpdeskanalytics.util.toRelativeTime
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)

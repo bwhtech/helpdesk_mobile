@@ -50,7 +50,7 @@ import io.github.kaulith.helpdeskanalytics.domain.model.filter.Timespan
 import io.github.kaulith.helpdeskanalytics.domain.model.filter.defaultValueFor
 import io.github.kaulith.helpdeskanalytics.ui.theme.FrappeRadius
 import io.github.kaulith.helpdeskanalytics.ui.theme.Spacing
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 

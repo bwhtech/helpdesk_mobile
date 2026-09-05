@@ -16,7 +16,7 @@ import io.github.kaulith.helpdeskanalytics.domain.repository.TicketRepository
 import io.github.kaulith.helpdeskanalytics.util.Constants
 import io.github.kaulith.helpdeskanalytics.util.Result
 import kotlinx.coroutines.FlowPreview
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow

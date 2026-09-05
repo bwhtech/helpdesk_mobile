@@ -22,11 +22,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
+import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 
 data class ChartData(
@@ -182,7 +183,7 @@ class AnalyticsViewModel(
             .groupBy { it.createdAt.toLocalDateTime(tz).date }
             .toSortedMap()
             .map { (date, dayTickets) ->
-                val label = "%d/%d".format(date.dayOfMonth, date.monthNumber)
+                val label = "%d/%d".format(date.day, date.month.number)
                 ChartData(label = label, value = dayTickets.size.toFloat())
             }
     }

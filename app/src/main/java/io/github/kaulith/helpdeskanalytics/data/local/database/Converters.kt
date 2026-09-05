@@ -5,7 +5,7 @@ import io.github.kaulith.helpdeskanalytics.domain.model.Priority
 import io.github.kaulith.helpdeskanalytics.domain.model.Status
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import java.lang.reflect.Type
 
 private val STRING_LIST_TYPE: Type = object : TypeToken<List<String>>() {}.type

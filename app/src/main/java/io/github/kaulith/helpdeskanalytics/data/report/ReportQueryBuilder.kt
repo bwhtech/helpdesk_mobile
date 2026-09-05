@@ -13,7 +13,7 @@ import io.github.kaulith.helpdeskanalytics.domain.model.report.ReportQuery
 import io.github.kaulith.helpdeskanalytics.domain.model.report.SortDirection
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn

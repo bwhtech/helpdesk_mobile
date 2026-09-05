@@ -1,6 +1,6 @@
 package io.github.kaulith.helpdeskanalytics.domain.model
 
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 /** One email in a ticket's customer-facing conversation. */
 data class Communication(

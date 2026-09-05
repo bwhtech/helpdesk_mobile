@@ -102,7 +102,7 @@ import io.github.kaulith.helpdeskanalytics.ui.theme.Spacing
 import io.github.kaulith.helpdeskanalytics.util.formatResolutionTime
 import io.github.kaulith.helpdeskanalytics.util.formatResponseTime
 import io.github.kaulith.helpdeskanalytics.util.toRelativeTime
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.koin.androidx.compose.koinViewModel
@@ -889,7 +889,7 @@ private fun TicketComposer(
 private fun formatTimestamp(instant: Instant): String {
     val local = instant.toLocalDateTime(TimeZone.currentSystemDefault())
     return "%d %s %d, %02d:%02d".format(
-        local.dayOfMonth,
+        local.day,
         local.month.name.lowercase().replaceFirstChar { it.uppercase() }.take(3),
         local.year,
         local.hour,
