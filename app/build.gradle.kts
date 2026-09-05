@@ -158,8 +158,8 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
 
     // Dependency Injection - Koin
-    implementation("io.insert-koin:koin-android:3.5.3")
-    implementation("io.insert-koin:koin-androidx-compose:3.5.3")
+    implementation("io.insert-koin:koin-android:4.2.2")
+    implementation("io.insert-koin:koin-androidx-compose:4.2.2")
 
     // Local Storage - Room
     implementation("androidx.room:room-runtime:2.8.4")
