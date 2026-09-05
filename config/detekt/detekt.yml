@@ -19,9 +19,14 @@ naming:
   FunctionNaming:
     ignoreAnnotated: ['Composable']
 
+performance:
+  SpreadOperator:
+    excludes: ['**/di/**']
+
 style:
   MagicNumber:
     excludes: ['**/ui/**']
+    ignorePropertyDeclaration: true
   ReturnCount:
     max: 4
     excludeGuardClauses: true
