@@ -59,11 +59,10 @@ class NotificationHelper(private val context: Context) {
         channelId: String = CHANNEL_ID,
         ticketId: String? = null
     ) {
-        val intent = Intent(context, MainActivity::class.java).apply {
-            action = Intent.ACTION_VIEW
-            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-            if (ticketId != null) data = Uri.parse("helpdesk://ticket/${Uri.encode(ticketId)}")
-        }
+        val intent = Intent(context, MainActivity::class.java)
+        intent.action = Intent.ACTION_VIEW
+        intent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+        if (ticketId != null) intent.data = Uri.parse("helpdesk://ticket/${Uri.encode(ticketId)}")
 
         // One request code per ticket, otherwise FLAG_UPDATE_CURRENT hands every
         // notification the extras of whichever one was built first.
