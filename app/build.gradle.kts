@@ -68,6 +68,10 @@ android {
             initWith(getByName("release"))
             versionNameSuffix = "-internal"
             signingConfig = signingConfigs.getByName("debug")
+            // CI builds this variant against the sample Firebase config; app id is a placeholder.
+            configure<com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension> {
+                mappingFileUploadEnabled = false
+            }
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
