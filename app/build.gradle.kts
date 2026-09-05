@@ -134,7 +134,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
-    implementation("com.kizitonwose.calendar:compose:2.6.0")
+    implementation("com.kizitonwose.calendar:compose:2.10.1")
     implementation("androidx.compose.material:material-icons-extended")
 
     implementation(platform("com.google.firebase:firebase-bom:34.18.0"))
