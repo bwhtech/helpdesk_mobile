@@ -19,16 +19,13 @@ masked in these shots; the app shows them as they are.
 
 ## What you need
 
-A Frappe Helpdesk site and an API key and secret from a user on it.
+A Frappe Helpdesk site, and a way to authenticate against it: either an OAuth
+Client record on the site, or an API key and secret from a user on it.
 
-The account has to be a **System User**. Helpdesk blocks most API paths for
-website users, so an agent account with a plain portal login will fail at sign in
-with "Access not allowed for this URL". You can check the user type on the User
+The account has to be a **System User** either way. Helpdesk blocks most API paths
+for website users, so an agent account with a plain portal login will fail at sign
+in with "Access not allowed for this URL". You can check the user type on the User
 record in desk.
-
-To generate the key and secret, open your User record in desk, then API Access,
-then Generate Keys. The secret is shown once, so copy it before closing the
-dialog.
 
 ## Install
 
@@ -48,8 +45,35 @@ one and keeps your data.
 
 ## Signing in
 
-Enter your site URL, API key, and API secret. They are stored in encrypted
-preferences on the device and are not sent anywhere except your site.
+Two ways in. Either stores its credentials in encrypted preferences on the device,
+and neither is sent anywhere except your site.
+
+### With your account
+
+Enter your site URL and tap Sign in. The authorize page opens in a browser tab and
+hands you back to the app, so the app never sees your password. The exchange uses
+PKCE, so there is no client secret to keep on the device.
+
+This needs an OAuth Client on the site, once. If the site runs
+[helpdesk_push](https://github.com/kaulith/helpdesk-push), a System Manager can
+create it by calling `helpdesk_push.api.create_oauth_client`, and the app then
+reads the client ID from the site on its own.
+
+Otherwise create it by hand: search "OAuth Client" in desk and add one with app name
+`Helpdesk Mobile`, scopes `all openid`, redirect URI `helpdesk://oauth/callback`,
+grant type Authorization Code, response type Code, and token endpoint auth method
+`None`. The client ID is the document name, and the app asks for it on the login
+screen when the site does not publish one.
+
+Access tokens expire after an hour; the app refreshes them in the background, so
+you stay signed in. Signing out revokes the token on the site.
+
+### With an API key
+
+Tap "Use an API key instead", then enter your site URL, API key, and API secret.
+
+To generate the key and secret, open your User record in desk, then API Access,
+then Generate Keys. The secret is shown once, so copy it before closing the dialog.
 
 ## Acting as an agent
 
@@ -57,7 +81,7 @@ Reads always run as the account you signed in with. Writes, meaning replies,
 comments, status and priority changes, are attributed to the agent you pick in
 Settings.
 
-Picking yourself works right away, using the key you signed in with.
+Picking yourself works right away, using the session you signed in with.
 
 Picking someone else needs an API key for them, and Frappe only issues one by
 replacing that agent's current secret. So the app asks first. Choose "Issue key"

@@ -1,7 +1,6 @@
 package io.github.kaulith.helpdeskanalytics.ui.screens.auth
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -30,12 +29,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -58,10 +59,17 @@ fun LoginScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val focusManager = LocalFocusManager.current
+    val context = LocalContext.current
     val cs = MaterialTheme.colorScheme
 
     LaunchedEffect(uiState.isLoginSuccess) {
         if (uiState.isLoginSuccess) onLoginSuccess()
+    }
+
+    LaunchedEffect(uiState.authorizationUrl) {
+        val url = uiState.authorizationUrl ?: return@LaunchedEffect
+        if (!launchAuthorization(context, url)) viewModel.onBrowserUnavailable()
+        viewModel.onAuthorizationLaunched()
     }
 
     Box(
@@ -133,56 +141,79 @@ fun LoginScreen(
                 )
             )
 
-            Spacer(Modifier.height(Spacing.md))
+            if (uiState.useApiKey) {
+                Spacer(Modifier.height(Spacing.md))
 
-            OutlinedTextField(
-                value = uiState.apiKey,
-                onValueChange = viewModel::onApiKeyChange,
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text("API Key") },
-                placeholder = { Text("Enter API key") },
-                isError = uiState.apiKeyError != null,
-                supportingText = uiState.apiKeyError?.let { { Text(it) } },
-                singleLine = true,
-                shape = FrappeRadius.lg,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                keyboardActions = KeyboardActions(
-                    onNext = { focusManager.moveFocus(FocusDirection.Down) }
+                OutlinedTextField(
+                    value = uiState.apiKey,
+                    onValueChange = viewModel::onApiKeyChange,
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("API Key") },
+                    placeholder = { Text("Enter API key") },
+                    isError = uiState.apiKeyError != null,
+                    supportingText = uiState.apiKeyError?.let { { Text(it) } },
+                    singleLine = true,
+                    shape = FrappeRadius.lg,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                    keyboardActions = KeyboardActions(
+                        onNext = { focusManager.moveFocus(FocusDirection.Down) }
+                    )
                 )
-            )
 
-            Spacer(Modifier.height(Spacing.md))
+                Spacer(Modifier.height(Spacing.md))
 
-            OutlinedTextField(
-                value = uiState.apiSecret,
-                onValueChange = viewModel::onApiSecretChange,
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text("API Secret") },
-                placeholder = { Text("Enter API secret") },
-                isError = uiState.apiSecretError != null,
-                supportingText = uiState.apiSecretError?.let { { Text(it) } },
-                singleLine = true,
-                shape = FrappeRadius.lg,
-                visualTransformation = if (uiState.isPasswordVisible) VisualTransformation.None
-                else PasswordVisualTransformation(),
-                trailingIcon = {
-                    IconButton(onClick = viewModel::togglePasswordVisibility) {
-                        Icon(
-                            imageVector = if (uiState.isPasswordVisible) Icons.Outlined.Visibility
-                            else Icons.Outlined.VisibilityOff,
-                            contentDescription = if (uiState.isPasswordVisible) "Hide secret" else "Show secret",
-                            tint = cs.onSurfaceVariant
-                        )
-                    }
-                },
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(
-                    onDone = {
-                        focusManager.clearFocus()
-                        viewModel.login()
-                    }
+                OutlinedTextField(
+                    value = uiState.apiSecret,
+                    onValueChange = viewModel::onApiSecretChange,
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("API Secret") },
+                    placeholder = { Text("Enter API secret") },
+                    isError = uiState.apiSecretError != null,
+                    supportingText = uiState.apiSecretError?.let { { Text(it) } },
+                    singleLine = true,
+                    shape = FrappeRadius.lg,
+                    visualTransformation = if (uiState.isPasswordVisible) VisualTransformation.None
+                    else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        IconButton(onClick = viewModel::togglePasswordVisibility) {
+                            Icon(
+                                imageVector = if (uiState.isPasswordVisible) Icons.Outlined.Visibility
+                                else Icons.Outlined.VisibilityOff,
+                                contentDescription = if (uiState.isPasswordVisible) "Hide secret" else "Show secret",
+                                tint = cs.onSurfaceVariant
+                            )
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            focusManager.clearFocus()
+                            viewModel.signInWithApiKey()
+                        }
+                    )
                 )
-            )
+            } else if (uiState.needsClientId) {
+                Spacer(Modifier.height(Spacing.md))
+
+                OutlinedTextField(
+                    value = uiState.clientId,
+                    onValueChange = viewModel::onClientIdChange,
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Client ID") },
+                    placeholder = { Text("From the site's OAuth Client") },
+                    isError = uiState.clientIdError != null,
+                    supportingText = uiState.clientIdError?.let { { Text(it) } },
+                    singleLine = true,
+                    shape = FrappeRadius.lg,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            focusManager.clearFocus()
+                            viewModel.signIn()
+                        }
+                    )
+                )
+            }
 
             uiState.generalError?.let { error ->
                 Spacer(Modifier.height(Spacing.md))
@@ -204,7 +235,10 @@ fun LoginScreen(
             Spacer(Modifier.height(Spacing.xl))
 
             Button(
-                onClick = viewModel::login,
+                onClick = {
+                    focusManager.clearFocus()
+                    if (uiState.useApiKey) viewModel.signInWithApiKey() else viewModel.signIn()
+                },
                 enabled = !uiState.isLoading,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -230,10 +264,26 @@ fun LoginScreen(
                 )
             }
 
-            Spacer(Modifier.height(Spacing.xl))
+            Spacer(Modifier.height(Spacing.sm))
+
+            TextButton(
+                onClick = viewModel::toggleApiKeyEntry,
+                enabled = !uiState.isLoading
+            ) {
+                Text(
+                    text = if (uiState.useApiKey) "Sign in with your account" else "Use an API key instead",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
+            Spacer(Modifier.height(Spacing.lg))
 
             Text(
-                text = "Need help generating API credentials?",
+                text = if (uiState.useApiKey) {
+                    "Need help generating API credentials?"
+                } else {
+                    "Signing in opens your site in the browser"
+                },
                 style = MaterialTheme.typography.bodySmall,
                 color = cs.onSurfaceVariant,
                 textAlign = TextAlign.Center,

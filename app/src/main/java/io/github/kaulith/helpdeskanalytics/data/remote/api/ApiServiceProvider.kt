@@ -3,6 +3,7 @@ package io.github.kaulith.helpdeskanalytics.data.remote.api
 import io.github.kaulith.helpdeskanalytics.BuildConfig
 import io.github.kaulith.helpdeskanalytics.data.local.credentials.CredentialsManager
 import io.github.kaulith.helpdeskanalytics.data.remote.interceptor.AuthInterceptor
+import io.github.kaulith.helpdeskanalytics.data.remote.interceptor.TokenAuthenticator
 import io.github.kaulith.helpdeskanalytics.util.Constants
 import okhttp3.Dispatcher
 import okhttp3.OkHttpClient
@@ -13,7 +14,8 @@ import java.util.concurrent.TimeUnit
 
 class ApiServiceProvider(
     private val credentialsManager: CredentialsManager,
-    private val agentSessionManager: AgentSessionManager
+    private val agentSessionManager: AgentSessionManager,
+    private val oAuthClient: OAuthClient
 ) {
     private var cachedBaseUrl: String? = null
     private var cachedService: FrappeApiService? = null
@@ -43,6 +45,7 @@ class ApiServiceProvider(
             .dispatcher(dispatcher)
             .addInterceptor(AuthInterceptor(agentSessionManager, credentialsManager))
             .addInterceptor(loggingInterceptor)
+            .authenticator(TokenAuthenticator(credentialsManager, oAuthClient))
             .connectTimeout(Constants.NETWORK_TIMEOUT, TimeUnit.MILLISECONDS)
             .readTimeout(Constants.NETWORK_TIMEOUT, TimeUnit.MILLISECONDS)
             .writeTimeout(Constants.NETWORK_TIMEOUT, TimeUnit.MILLISECONDS)
