@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import io.github.kaulith.helpdeskanalytics.util.Constants
+import kotlin.time.Duration.Companion.seconds
 
 class CredentialsManager(context: Context) {
 
@@ -63,7 +64,10 @@ class CredentialsManager(context: Context) {
             .apply {
                 if (refreshToken != null) putString(KEY_REFRESH_TOKEN, refreshToken)
                 if (expiresInSeconds != null) {
-                    putLong(KEY_TOKEN_EXPIRES_AT, System.currentTimeMillis() + expiresInSeconds * 1000)
+                    putLong(
+                        KEY_TOKEN_EXPIRES_AT,
+                        System.currentTimeMillis() + expiresInSeconds.seconds.inWholeMilliseconds
+                    )
                 }
             }
             .apply()

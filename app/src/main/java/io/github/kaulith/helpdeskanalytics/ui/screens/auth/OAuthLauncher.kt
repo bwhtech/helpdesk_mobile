@@ -3,6 +3,7 @@ package io.github.kaulith.helpdeskanalytics.ui.screens.auth
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.browser.customtabs.CustomTabsIntent
 
 /**
@@ -17,5 +18,6 @@ fun launchAuthorization(context: Context, authorizationUrl: String): Boolean =
             .launchUrl(context, Uri.parse(authorizationUrl))
         true
     } catch (e: ActivityNotFoundException) {
+        Log.d("OAuthLauncher", "No browser available for the authorize page", e)
         false
     }
