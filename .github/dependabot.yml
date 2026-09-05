@@ -6,12 +6,6 @@ updates:
       interval: weekly
       day: monday
     open-pull-requests-limit: 5
-    ignore:
-      # Need AGP 9.1 and compileSdk 37; drop both once the toolchain moves.
-      - dependency-name: "androidx.navigation:navigation-compose"
-        versions: [">=2.10.0"]
-      - dependency-name: "androidx.compose:compose-bom"
-        versions: [">=2026.08.00"]
     groups:
       androidx:
         patterns:
