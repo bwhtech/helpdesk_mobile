@@ -2,6 +2,7 @@ package io.github.kaulith.helpdeskanalytics.data.remote.api
 
 import android.net.Uri
 import android.util.Base64
+import android.util.Log
 import io.github.kaulith.helpdeskanalytics.data.local.credentials.CredentialsManager
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.OAuthTokenDto
 import kotlinx.coroutines.runBlocking
@@ -54,6 +55,7 @@ class OAuthClient(private val credentialsManager: CredentialsManager) {
         try {
             service(siteUrl.trimEnd('/')).getClientId().message.clientId?.takeIf { it.isNotBlank() }
         } catch (e: Exception) {
+            Log.d(TAG, "Client id discovery failed", e)
             null
         }
 
@@ -96,6 +98,7 @@ class OAuthClient(private val credentialsManager: CredentialsManager) {
             if (e.code() in REFRESH_REJECTED) credentialsManager.clearOAuthSession()
             null
         } catch (e: Exception) {
+            Log.d(TAG, "Token refresh failed", e)
             null
         }
     }
@@ -138,6 +141,7 @@ class OAuthClient(private val credentialsManager: CredentialsManager) {
         const val REDIRECT_URI = "helpdesk://oauth/callback"
         const val REDIRECT_HOST = "oauth"
 
+        private const val TAG = "OAuthClient"
         private const val AUTHORIZE_PATH = "api/method/frappe.integrations.oauth2.authorize"
         private const val SCOPE = "all"
         private const val VERIFIER_BYTES = 48
