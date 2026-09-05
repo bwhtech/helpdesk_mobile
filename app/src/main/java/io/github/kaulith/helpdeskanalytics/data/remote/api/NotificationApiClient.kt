@@ -2,6 +2,7 @@ package io.github.kaulith.helpdeskanalytics.data.remote.api
 
 import io.github.kaulith.helpdeskanalytics.BuildConfig
 import io.github.kaulith.helpdeskanalytics.data.local.credentials.CredentialsManager
+import io.github.kaulith.helpdeskanalytics.data.remote.interceptor.TokenAuthenticator
 import io.github.kaulith.helpdeskanalytics.util.Constants
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
@@ -18,7 +19,8 @@ import java.util.concurrent.TimeUnit
  * back to the data site's get_logged_user to identify the caller.
  */
 class NotificationApiClient(
-    private val credentialsManager: CredentialsManager
+    private val credentialsManager: CredentialsManager,
+    private val oAuthClient: OAuthClient
 ) {
     val service: NotificationApiService by lazy {
         val loggingInterceptor = HttpLoggingInterceptor().apply {
@@ -33,12 +35,17 @@ class NotificationApiClient(
             .addInterceptor { chain ->
                 val builder = chain.request().newBuilder().header("Accept", "application/json")
                 credentialsManager.getAuthToken()?.let { token ->
-                    val header = if (isPushBackendSite()) "Authorization" else "X-Remote-Token"
+                    val header = if (isPushBackendSite()) {
+                        TokenAuthenticator.AUTHORIZATION_HEADER
+                    } else {
+                        TokenAuthenticator.REMOTE_TOKEN_HEADER
+                    }
                     builder.header(header, token)
                 }
                 chain.proceed(builder.build())
             }
             .addInterceptor(loggingInterceptor)
+            .authenticator(TokenAuthenticator(credentialsManager, oAuthClient))
             .connectTimeout(Constants.NETWORK_TIMEOUT, TimeUnit.MILLISECONDS)
             .readTimeout(Constants.NETWORK_TIMEOUT, TimeUnit.MILLISECONDS)
             .build()
