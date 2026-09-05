@@ -5,6 +5,7 @@ on:
     branches: [main, develop, "version-*"]
   schedule:
     - cron: "0 5 * * 1"
+  workflow_dispatch:
 
 permissions: {}
 
