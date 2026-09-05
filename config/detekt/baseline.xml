@@ -1,0 +1,166 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ComplexCondition:ReportExporter.kt$ReportExporter$cell.any { it == ',' || it == '"' || it == '\n' || it == '\r' }</ID>
+    <ID>ComplexCondition:TicketDetailScreen.kt$ticket.responseBy != null || ticket.resolutionBy != null || ticket.firstResponseTimeMinutes != null || ticket.resolutionTimeHours != null</ID>
+    <ID>CyclomaticComplexMethod:DateRangeSheet.kt$@Composable private fun DayCell( day: CalendarDay, today: LocalDate, start: LocalDate?, end: LocalDate?, onClick: (LocalDate) -&gt; Unit )</ID>
+    <ID>CyclomaticComplexMethod:FilterSheet.kt$@Composable private fun &lt;T&gt; ValueControl(condition: FilterCondition&lt;T&gt;, onValueChange: (String) -&gt; Unit)</ID>
+    <ID>CyclomaticComplexMethod:MainScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MainScreen( pendingTicketId: String? = null, onPendingTicketHandled: () -&gt; Unit = {}, onLogout: () -&gt; Unit = {} )</ID>
+    <ID>CyclomaticComplexMethod:ReportBuilderScreen.kt$@Composable private fun FilterDialog( columns: List&lt;ReportColumn&gt;, initial: ReportFilter?, optionsState: FilterOptionsUiState, onColumnChange: (ReportColumn) -&gt; Unit, onDismiss: () -&gt; Unit, onSubmit: (ReportFilter) -&gt; Unit )</ID>
+    <ID>CyclomaticComplexMethod:ReportBuilderScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ReportBuilderScreen( templateId: Long?, onBack: () -&gt; Unit, viewModel: ReportBuilderViewModel = koinViewModel() )</ID>
+    <ID>CyclomaticComplexMethod:ReportColumn.kt$ReportColumn$fun textValue(t: Ticket): String</ID>
+    <ID>CyclomaticComplexMethod:ReportEngine.kt$ReportEngine$private fun matches(ticket: Ticket, filter: ReportFilter): Boolean</ID>
+    <ID>CyclomaticComplexMethod:ReportExporter.kt$ReportExporter$fun writePdf(result: ReportResult, reportName: String, out: OutputStream)</ID>
+    <ID>CyclomaticComplexMethod:ReportQueryBuilder.kt$ReportQueryBuilder$private fun serverConditions(filter: ReportFilter): List&lt;JsonArray&gt;</ID>
+    <ID>CyclomaticComplexMethod:TicketDetailScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun TicketDetailContent( ticket: Ticket, canWrite: Boolean, comments: List&lt;Comment&gt;, isLoadingComments: Boolean, communications: List&lt;Communication&gt;, isLoadingCommunications: Boolean, communicationsError: String?, isUpdating: Boolean, isAddingComment: Boolean, isSendingReply: Boolean, onStatusChange: (Status) -&gt; Unit, onPriorityChange: (Priority) -&gt; Unit, onAddComment: (String) -&gt; Unit, onSendReply: (String) -&gt; Unit )</ID>
+    <ID>CyclomaticComplexMethod:TicketFilterEvaluator.kt$private fun matchesDate(actual: Instant?, op: FilterOperator, value: String): Boolean</ID>
+    <ID>CyclomaticComplexMethod:TicketFilterEvaluator.kt$private fun matchesNumber(actual: Double?, op: FilterOperator, value: String): Boolean</ID>
+    <ID>CyclomaticComplexMethod:TicketsScreen.kt$@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class) @Composable private fun TicketCard( ticket: Ticket, nowEpochMinute: Long, writeEnabled: Boolean, selected: Boolean, selectionActive: Boolean, onClick: () -&gt; Unit, onLongPress: () -&gt; Unit, onStatusCycle: () -&gt; Unit, onSwipeResolve: () -&gt; Unit, )</ID>
+    <ID>FunctionOnlyReturningConstant:User.kt$User$fun canViewLeaderboard(): Boolean</ID>
+    <ID>LongMethod:ReportExporter.kt$ReportExporter$fun writePdf(result: ReportResult, reportName: String, out: OutputStream)</ID>
+    <ID>LongParameterList:FrappeApiService.kt$FrappeApiService$( @Query("doctype") doctype: String = "HD Ticket", @Query("fields") fields: String, @Query("filters") filters: String? = null, @Query("group_by") groupBy: String? = null, @Query("order_by") orderBy: String? = null, @Query("limit_page_length") limit: Int = 0 )</ID>
+    <ID>MagicNumber:DtoMappers.kt$3600</ID>
+    <ID>MagicNumber:DtoMappers.kt$60</ID>
+    <ID>MagicNumber:Extensions.kt$1440f</ID>
+    <ID>MagicNumber:Extensions.kt$200f</ID>
+    <ID>MagicNumber:Extensions.kt$24f</ID>
+    <ID>MagicNumber:Extensions.kt$2592000</ID>
+    <ID>MagicNumber:Extensions.kt$3600</ID>
+    <ID>MagicNumber:Extensions.kt$60</ID>
+    <ID>MagicNumber:Extensions.kt$604800</ID>
+    <ID>MagicNumber:Extensions.kt$60f</ID>
+    <ID>MagicNumber:Extensions.kt$86400</ID>
+    <ID>MagicNumber:FrappeAuthRepository.kt$FrappeAuthRepository$401</ID>
+    <ID>MagicNumber:FrappeAuthRepository.kt$FrappeAuthRepository$403</ID>
+    <ID>MagicNumber:LeaderboardPeriod.kt$LeaderboardPeriod$7</ID>
+    <ID>MagicNumber:MetricsCalculator.kt$MetricsCalculator$100.0</ID>
+    <ID>MagicNumber:MetricsCalculator.kt$MetricsCalculator$100f</ID>
+    <ID>MagicNumber:MetricsCalculator.kt$MetricsCalculator$50</ID>
+    <ID>MagicNumber:MetricsCalculator.kt$MetricsCalculator$50f</ID>
+    <ID>MagicNumber:MetricsCalculator.kt$MetricsCalculator$90</ID>
+    <ID>MagicNumber:MetricsCalculator.kt$MetricsCalculator$95</ID>
+    <ID>MagicNumber:NetworkErrors.kt$401</ID>
+    <ID>MagicNumber:NetworkErrors.kt$403</ID>
+    <ID>MagicNumber:Priority.kt$Priority.HIGH$3</ID>
+    <ID>MagicNumber:Priority.kt$Priority.URGENT$4</ID>
+    <ID>MagicNumber:ReportColumn.kt$ReportColumn.AVG_RESPONSE_MIN$60.0</ID>
+    <ID>MagicNumber:ReportColumn.kt$ReportColumn.FIRST_RESPONSE_MIN$60.0</ID>
+    <ID>MagicNumber:ReportColumn.kt$ReportColumn.RESOLUTION_HOURS$3600.0</ID>
+    <ID>MagicNumber:ReportConfig.kt$ReportConfig$30</ID>
+    <ID>MagicNumber:ReportConfig.kt$ReportConfig$7</ID>
+    <ID>MagicNumber:ReportConfigGsonTest.kt$ReportConfigGsonTest$2026</ID>
+    <ID>MagicNumber:ReportConfigGsonTest.kt$ReportConfigGsonTest$31</ID>
+    <ID>MagicNumber:ReportExporter.kt$ReportExporter$0.5f</ID>
+    <ID>MagicNumber:ReportExporter.kt$ReportExporter$0.66f</ID>
+    <ID>MagicNumber:ReportExporter.kt$ReportExporter$0.68f</ID>
+    <ID>MagicNumber:ReportExporter.kt$ReportExporter$122</ID>
+    <ID>MagicNumber:ReportExporter.kt$ReportExporter$124</ID>
+    <ID>MagicNumber:ReportExporter.kt$ReportExporter$12f</ID>
+    <ID>MagicNumber:ReportExporter.kt$ReportExporter$130</ID>
+    <ID>MagicNumber:ReportExporter.kt$ReportExporter$14f</ID>
+    <ID>MagicNumber:ReportExporter.kt$ReportExporter$15f</ID>
+    <ID>MagicNumber:ReportExporter.kt$ReportExporter$224</ID>
+    <ID>MagicNumber:ReportExporter.kt$ReportExporter$225</ID>
+    <ID>MagicNumber:ReportExporter.kt$ReportExporter$226</ID>
+    <ID>MagicNumber:ReportExporter.kt$ReportExporter$22f</ID>
+    <ID>MagicNumber:ReportExporter.kt$ReportExporter$241</ID>
+    <ID>MagicNumber:ReportExporter.kt$ReportExporter$242</ID>
+    <ID>MagicNumber:ReportExporter.kt$ReportExporter$24f</ID>
+    <ID>MagicNumber:ReportExporter.kt$ReportExporter$31</ID>
+    <ID>MagicNumber:ReportExporter.kt$ReportExporter$33</ID>
+    <ID>MagicNumber:ReportExporter.kt$ReportExporter$36f</ID>
+    <ID>MagicNumber:ReportExporter.kt$ReportExporter$38</ID>
+    <ID>MagicNumber:ReportExporter.kt$ReportExporter$48</ID>
+    <ID>MagicNumber:ReportExporter.kt$ReportExporter$4f</ID>
+    <ID>MagicNumber:ReportExporter.kt$ReportExporter$55</ID>
+    <ID>MagicNumber:ReportExporter.kt$ReportExporter$58</ID>
+    <ID>MagicNumber:ReportExporter.kt$ReportExporter$595</ID>
+    <ID>MagicNumber:ReportExporter.kt$ReportExporter$6</ID>
+    <ID>MagicNumber:ReportExporter.kt$ReportExporter$64</ID>
+    <ID>MagicNumber:ReportExporter.kt$ReportExporter$8.5f</ID>
+    <ID>MagicNumber:ReportExporter.kt$ReportExporter$842</ID>
+    <ID>MagicNumber:ReportExporter.kt$ReportExporter$8f</ID>
+    <ID>MagicNumber:ReportExporter.kt$ReportExporter$9f</ID>
+    <ID>MagicNumber:ReportQueryBuilderTest.kt$ReportQueryBuilderTest$10</ID>
+    <ID>MagicNumber:ReportQueryBuilderTest.kt$ReportQueryBuilderTest$2026</ID>
+    <ID>MagicNumber:ReportQueryBuilderTest.kt$ReportQueryBuilderTest$31</ID>
+    <ID>MagicNumber:ReportQueryBuilderTest.kt$ReportQueryBuilderTest$7</ID>
+    <ID>MagicNumber:SummaryFolderTest.kt$SummaryFolderTest$10</ID>
+    <ID>MagicNumber:SummaryFolderTest.kt$SummaryFolderTest$10.0</ID>
+    <ID>MagicNumber:SummaryFolderTest.kt$SummaryFolderTest$100</ID>
+    <ID>MagicNumber:SummaryFolderTest.kt$SummaryFolderTest$1e-9</ID>
+    <ID>MagicNumber:SummaryFolderTest.kt$SummaryFolderTest$20</ID>
+    <ID>MagicNumber:SummaryFolderTest.kt$SummaryFolderTest$20.0</ID>
+    <ID>MagicNumber:SummaryFolderTest.kt$SummaryFolderTest$200.0</ID>
+    <ID>MagicNumber:SummaryFolderTest.kt$SummaryFolderTest$3</ID>
+    <ID>MagicNumber:SummaryFolderTest.kt$SummaryFolderTest$3.0</ID>
+    <ID>MagicNumber:SummaryFolderTest.kt$SummaryFolderTest$4</ID>
+    <ID>MagicNumber:SummaryFolderTest.kt$SummaryFolderTest$4.0</ID>
+    <ID>MagicNumber:SummaryFolderTest.kt$SummaryFolderTest$400</ID>
+    <ID>MagicNumber:SummaryFolderTest.kt$SummaryFolderTest$5.0</ID>
+    <ID>MagicNumber:SummaryFolderTest.kt$SummaryFolderTest$500.0</ID>
+    <ID>MagicNumber:SummaryFolderTest.kt$SummaryFolderTest$57000</ID>
+    <ID>MagicNumber:SummaryFolderTest.kt$SummaryFolderTest$57000.0</ID>
+    <ID>MatchingDeclarationName:Color.kt$PaletteFamily</ID>
+    <ID>MatchingDeclarationName:ColorSchemes.kt$AppColorScheme</ID>
+    <ID>MatchingDeclarationName:Motion.kt$FrappeMotion</ID>
+    <ID>MatchingDeclarationName:Shape.kt$FrappeRadius</ID>
+    <ID>MatchingDeclarationName:Sla.kt$SlaState</ID>
+    <ID>MaxLineLength:LeaderboardViewModel.kt$LeaderboardViewModel$_uiState.update { it.copy(agents = result.data, isLoading = false, isRefreshing = false, error = null) }</ID>
+    <ID>MaxLineLength:TicketDetailScreen.kt$"Looking into this" to "Hi, thanks for reaching out. I'm looking into this and will get back to you shortly."</ID>
+    <ID>MaxLineLength:TicketDetailScreen.kt$"Need info" to "Could you share a bit more detail: steps to reproduce, screenshots, or the exact error message?"</ID>
+    <ID>MaxLineLength:TicketDetailScreen.kt$"Resolved" to "This should be resolved now. Please confirm on your end and let me know if anything else is off."</ID>
+    <ID>MaxLineLength:Type.kt$FrappeTextStyles$val base = TextStyle(fontFamily = InterFontFamily, fontWeight = FontWeight(420), fontSize = 14.sp, lineHeight = 16.1.sp, letterSpacing = 0.28.sp)</ID>
+    <ID>MaxLineLength:Type.kt$FrappeTextStyles$val lg = TextStyle(fontFamily = InterFontFamily, fontWeight = FontWeight(400), fontSize = 16.sp, lineHeight = 18.4.sp, letterSpacing = 0.32.sp)</ID>
+    <ID>MaxLineLength:Type.kt$FrappeTextStyles$val sm = TextStyle(fontFamily = InterFontFamily, fontWeight = FontWeight(420), fontSize = 13.sp, lineHeight = 14.95.sp, letterSpacing = 0.26.sp)</ID>
+    <ID>MaxLineLength:Type.kt$FrappeTextStyles$val xl = TextStyle(fontFamily = InterFontFamily, fontWeight = FontWeight(400), fontSize = 18.sp, lineHeight = 20.7.sp, letterSpacing = 0.18.sp)</ID>
+    <ID>MaxLineLength:Type.kt$FrappeTextStyles$val xl2 = TextStyle(fontFamily = InterFontFamily, fontWeight = FontWeight(400), fontSize = 20.sp, lineHeight = 23.sp, letterSpacing = 0.2.sp)</ID>
+    <ID>MaxLineLength:Type.kt$FrappeTextStyles$val xl3 = TextStyle(fontFamily = InterFontFamily, fontWeight = FontWeight(400), fontSize = 24.sp, lineHeight = 27.6.sp, letterSpacing = 0.12.sp)</ID>
+    <ID>MaxLineLength:Type.kt$FrappeTextStyles$val xs = TextStyle(fontFamily = InterFontFamily, fontWeight = FontWeight(420), fontSize = 12.sp, lineHeight = 13.8.sp, letterSpacing = 0.24.sp)</ID>
+    <ID>MaxLineLength:Type.kt$FrappeTextStyles$val xs2 = TextStyle(fontFamily = InterFontFamily, fontWeight = FontWeight(420), fontSize = 11.sp, lineHeight = 12.65.sp, letterSpacing = 0.11.sp)</ID>
+    <ID>MaxLineLength:Type.kt$displayMedium = FrappeTextStyles.xl3.copy(fontWeight = FontWeight(700), fontSize = 28.sp, lineHeight = 32.sp, letterSpacing = (-0.25).sp)</ID>
+    <ID>ReturnCount:AgentSessionManager.kt$AgentSessionManager$private suspend fun mintKeys(email: String): Result&lt;Unit&gt;</ID>
+    <ID>ReturnCount:AuthInterceptor.kt$AuthInterceptor$override fun intercept(chain: Interceptor.Chain): Response</ID>
+    <ID>ReturnCount:CredentialsManager.kt$CredentialsManager$fun getAgentToken(email: String): String?</ID>
+    <ID>ReturnCount:CredentialsManager.kt$CredentialsManager$fun getAuthToken(): String?</ID>
+    <ID>ReturnCount:DeviceTokenManager.kt$DeviceTokenManager$suspend fun registerCurrentDevice(): Boolean</ID>
+    <ID>ReturnCount:NotificationApiClient.kt$NotificationApiClient$private fun isPushBackendSite(): Boolean</ID>
+    <ID>ReturnCount:ReportBuilderScreen.kt$private fun dateRangeLabel(config: ReportConfig): String</ID>
+    <ID>ReturnCount:ReportBuilderViewModel.kt$ReportBuilderViewModel$fun loadFilterOptions(column: ReportColumn)</ID>
+    <ID>ReturnCount:ReportEngine.kt$ReportEngine$private fun matches(ticket: Ticket, filter: ReportFilter): Boolean</ID>
+    <ID>ReturnCount:ReportQueryBuilder.kt$ReportQueryBuilder$private fun serverConditions(filter: ReportFilter): List&lt;JsonArray&gt;</ID>
+    <ID>ReturnCount:Sla.kt$fun Ticket.agentResolutionSla(now: Instant = Clock.System.now()): SlaState</ID>
+    <ID>ReturnCount:SummaryFolder.kt$SummaryFolder$private fun labelsOf(row: JsonObject, query: ReportQuery.Summary): List&lt;String&gt;</ID>
+    <ID>ReturnCount:TicketFilterEvaluator.kt$private fun String.toDatePair(): Pair&lt;LocalDate, LocalDate&gt;?</ID>
+    <ID>ReturnCount:TicketFilterEvaluator.kt$private fun matchesDate(actual: Instant?, op: FilterOperator, value: String): Boolean</ID>
+    <ID>ReturnCount:TicketFilterEvaluator.kt$private fun matchesNumber(actual: Double?, op: FilterOperator, value: String): Boolean</ID>
+    <ID>ReturnCount:UpdateChecker.kt$UpdateChecker$suspend fun availableUpdate(): AppUpdate?</ID>
+    <ID>SwallowedException:FrappeAuthRepository.kt$FrappeAuthRepository$e: IOException</ID>
+    <ID>SwallowedException:FrappeAuthRepository.kt$FrappeAuthRepository$e: SocketTimeoutException</ID>
+    <ID>TooGenericExceptionCaught:AgentSessionManager.kt$AgentSessionManager$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:DeviceTokenManager.kt$DeviceTokenManager$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:FrappeAgentRepository.kt$FrappeAgentRepository$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:FrappeAuthRepository.kt$FrappeAuthRepository$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:FrappeReportDataRepository.kt$FrappeReportDataRepository$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:FrappeTeamRepository.kt$FrappeTeamRepository$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:FrappeTicketRepository.kt$FrappeTicketRepository$e: Exception</ID>
+    <ID>TooManyFunctions:AnalyticsScreen.kt$io.github.kaulith.helpdeskanalytics.ui.screens.analytics.AnalyticsScreen.kt</ID>
+    <ID>TooManyFunctions:AnalyticsViewModel.kt$AnalyticsViewModel : ViewModel</ID>
+    <ID>TooManyFunctions:CredentialsManager.kt$CredentialsManager</ID>
+    <ID>TooManyFunctions:DashboardScreen.kt$io.github.kaulith.helpdeskanalytics.ui.screens.dashboard.DashboardScreen.kt</ID>
+    <ID>TooManyFunctions:DtoMappers.kt$io.github.kaulith.helpdeskanalytics.data.mapper.DtoMappers.kt</ID>
+    <ID>TooManyFunctions:FrappeApiService.kt$FrappeApiService</ID>
+    <ID>TooManyFunctions:FrappeTicketRepository.kt$FrappeTicketRepository : TicketRepository</ID>
+    <ID>TooManyFunctions:ReportBuilderScreen.kt$io.github.kaulith.helpdeskanalytics.ui.screens.reports.ReportBuilderScreen.kt</ID>
+    <ID>TooManyFunctions:ReportBuilderViewModel.kt$ReportBuilderViewModel : ViewModel</ID>
+    <ID>TooManyFunctions:SettingsViewModel.kt$SettingsViewModel : ViewModel</ID>
+    <ID>TooManyFunctions:TicketDetailScreen.kt$io.github.kaulith.helpdeskanalytics.ui.screens.tickets.TicketDetailScreen.kt</ID>
+    <ID>TooManyFunctions:TicketListViewModel.kt$TicketListViewModel : ViewModel</ID>
+    <ID>TooManyFunctions:TicketRepository.kt$TicketRepository</ID>
+    <ID>TooManyFunctions:TicketsScreen.kt$io.github.kaulith.helpdeskanalytics.ui.screens.tickets.TicketsScreen.kt</ID>
+    <ID>UnusedParameter:DashboardScreen.kt$index: Int</ID>
+    <ID>UseCheckOrError:AgentSessionManager.kt$AgentSessionManager$throw IllegalStateException("No site URL configured")</ID>
+    <ID>UseCheckOrError:ApiServiceProvider.kt$ApiServiceProvider$throw IllegalStateException("No site URL configured")</ID>
+  </CurrentIssues>
+</SmellBaseline>
