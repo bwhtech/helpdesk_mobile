@@ -18,13 +18,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import io.github.kaulith.helpdeskanalytics.data.local.preferences.PreferencesManager
+import io.github.kaulith.helpdeskanalytics.data.remote.api.OAuthClient
 import io.github.kaulith.helpdeskanalytics.ui.navigation.AppNavGraph
+import io.github.kaulith.helpdeskanalytics.ui.screens.auth.OAuthRedirectHolder
 import io.github.kaulith.helpdeskanalytics.ui.theme.HelpDeskAnalyticsTheme
 import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
 
     private val preferencesManager: PreferencesManager by inject()
+    private val oAuthRedirectHolder: OAuthRedirectHolder by inject()
 
     // FCM paints the tray itself for messages carrying a notification block, so a tap
     // arrives as intent extras rather than the helpdesk://ticket/{id} deep link.
@@ -39,6 +42,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         requestNotificationPermissionIfNeeded()
         pendingTicketId.value = ticketIdFrom(intent)
+        forwardOAuthRedirect(intent)
         enableEdgeToEdge()
         setContent {
             val themeMode by preferencesManager.themeMode.collectAsState(initial = "system")
@@ -67,6 +71,13 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         pendingTicketId.value = ticketIdFrom(intent)
+        forwardOAuthRedirect(intent)
+    }
+
+    // The browser hands the authorization code back as a deep link, not a result.
+    private fun forwardOAuthRedirect(intent: Intent?) {
+        val uri = intent?.data ?: return
+        if (uri.host == OAuthClient.REDIRECT_HOST) oAuthRedirectHolder.submit(uri)
     }
 
     private fun ticketIdFrom(intent: Intent?): String? =
