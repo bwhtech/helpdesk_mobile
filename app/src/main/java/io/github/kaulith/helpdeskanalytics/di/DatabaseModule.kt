@@ -6,6 +6,9 @@ import io.github.kaulith.helpdeskanalytics.util.Constants
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
+// Versions before 6 shipped without exported schemas, so nothing can migrate them.
+private val PRE_SCHEMA_EXPORT_VERSIONS = intArrayOf(1, 2, 3, 4, 5)
+
 val databaseModule = module {
     single {
         Room.databaseBuilder(
@@ -13,7 +16,7 @@ val databaseModule = module {
             AppDatabase::class.java,
             Constants.DATABASE_NAME
         )
-            .fallbackToDestructiveMigration()
+            .fallbackToDestructiveMigrationFrom(*PRE_SCHEMA_EXPORT_VERSIONS)
             .build()
     }
     single { get<AppDatabase>().ticketDao() }
