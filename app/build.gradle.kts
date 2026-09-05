@@ -38,6 +38,10 @@ val appVersionCode = appVersionName.substringBefore('-').split('.').let { parts 
     (major * 10_000 + minor * 100 + patch).coerceAtLeast(1)
 }
 
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
 android {
     namespace = "io.github.kaulith.helpdeskanalytics"
     compileSdk = 36

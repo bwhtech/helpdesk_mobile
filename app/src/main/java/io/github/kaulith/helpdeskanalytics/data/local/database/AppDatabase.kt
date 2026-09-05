@@ -22,7 +22,7 @@ import io.github.kaulith.helpdeskanalytics.data.local.database.entities.UserEnti
         AgentEntity::class, TeamEntity::class, ReportTemplateEntity::class
     ],
     version = 6,
-    exportSchema = false
+    exportSchema = true
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
