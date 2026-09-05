@@ -3,9 +3,9 @@ package io.github.kaulith.helpdeskanalytics.domain.model.report
 import io.github.kaulith.helpdeskanalytics.domain.model.Ticket
 import com.google.gson.annotations.JsonAdapter
 import com.google.gson.annotations.SerializedName
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlinx.datetime.DateTimeUnit
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
@@ -137,7 +137,7 @@ data class ReportConfig(
         DateRangePreset.TODAY -> today..today
         DateRangePreset.LAST_7 -> today.minus(7, DateTimeUnit.DAY)..today
         DateRangePreset.LAST_30 -> today.minus(30, DateTimeUnit.DAY)..today
-        DateRangePreset.THIS_MONTH -> LocalDate(today.year, today.monthNumber, 1)..today
+        DateRangePreset.THIS_MONTH -> LocalDate(today.year, today.month, 1)..today
         DateRangePreset.CUSTOM -> customStart?.let { start -> customEnd?.let { start..it } }
     }
 

@@ -15,7 +15,7 @@ import io.github.kaulith.helpdeskanalytics.domain.model.report.ReportResult
 import io.github.kaulith.helpdeskanalytics.domain.model.report.SortDirection
 import io.github.kaulith.helpdeskanalytics.domain.model.report.SummaryRow
 import io.github.kaulith.helpdeskanalytics.domain.model.report.formatNumber
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime

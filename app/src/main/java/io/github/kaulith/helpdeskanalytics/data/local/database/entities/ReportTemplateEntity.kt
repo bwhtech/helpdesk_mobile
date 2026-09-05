@@ -2,7 +2,7 @@ package io.github.kaulith.helpdeskanalytics.data.local.database.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 /** A saved report definition. [configJson] is a Gson-serialized ReportConfig. */
 @Entity(tableName = "report_templates")

@@ -5,8 +5,9 @@ import io.github.kaulith.helpdeskanalytics.domain.model.agentResolutionSla
 import io.github.kaulith.helpdeskanalytics.domain.model.firstResponseSla
 import io.github.kaulith.helpdeskanalytics.domain.model.resolutionSla
 import com.google.gson.annotations.SerializedName
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 
 enum class ColumnType { TEXT, NUMBER, DATE, BOOL }
@@ -178,5 +179,5 @@ internal fun formatNumber(v: Double): String =
 private fun formatDate(i: Instant): String {
     val dt = i.toLocalDateTime(TimeZone.currentSystemDefault())
     fun pad(n: Int) = n.toString().padStart(2, '0')
-    return "${dt.year}-${pad(dt.monthNumber)}-${pad(dt.dayOfMonth)} ${pad(dt.hour)}:${pad(dt.minute)}"
+    return "${dt.year}-${pad(dt.month.number)}-${pad(dt.day)} ${pad(dt.hour)}:${pad(dt.minute)}"
 }

@@ -179,7 +179,7 @@ private fun LeaderboardPeriod.chipLabel(): String = when (this) {
 }
 
 private fun LocalDate.shortLabel(): String =
-    "$dayOfMonth ${month.name.take(3).lowercase().replaceFirstChar { it.uppercase() }}"
+    "$day ${month.name.take(3).lowercase().replaceFirstChar { it.uppercase() }}"
 
 @Composable
 private fun LeaderboardSkeletonLoading() {

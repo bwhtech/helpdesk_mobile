@@ -12,7 +12,7 @@ import io.github.kaulith.helpdeskanalytics.domain.repository.ReportRepository
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 
 class ReportTemplateRepositoryImpl(
     private val dao: ReportTemplateDao
