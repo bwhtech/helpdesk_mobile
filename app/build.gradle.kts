@@ -40,7 +40,7 @@ val appVersionCode = appVersionName.substringBefore('-').split('.').let { parts 
 
 android {
     namespace = "io.github.kaulith.helpdeskanalytics"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "io.github.kaulith.helpdeskanalytics"
