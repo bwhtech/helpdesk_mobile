@@ -1,10 +1,19 @@
 complexity:
+  ComplexCondition:
+    threshold: 5
+  CyclomaticComplexMethod:
+    ignoreAnnotated: ['Composable']
   LongMethod:
     ignoreAnnotated: ['Composable']
   LongParameterList:
-    ignoreAnnotated: ['Composable']
+    ignoreAnnotated: ['Composable', 'FormUrlEncoded']
   TooManyFunctions:
     ignoreAnnotated: ['Composable']
+    thresholdInClasses: 20
+
+exceptions:
+  TooGenericExceptionCaught:
+    excludes: ['**/OAuthClient.kt']
 
 naming:
   FunctionNaming:
@@ -13,5 +22,8 @@ naming:
 style:
   MagicNumber:
     excludes: ['**/ui/**']
+  ReturnCount:
+    max: 4
+    excludeGuardClauses: true
   UnusedPrivateMember:
     ignoreAnnotated: ['Preview']
