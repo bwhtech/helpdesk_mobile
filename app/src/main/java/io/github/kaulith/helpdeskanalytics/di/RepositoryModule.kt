@@ -16,7 +16,7 @@ import org.koin.dsl.module
 
 val repositoryModule = module {
     single<TicketRepository> { FrappeTicketRepository(get(), get(), get(), get(), get(), get()) }
-    single<AuthRepository> { FrappeAuthRepository(get(), get(), get()) }
+    single<AuthRepository> { FrappeAuthRepository(get(), get(), get(), get()) }
     single<AgentRepository> { FrappeAgentRepository(get(), get(), get(), get()) }
     single<TeamRepository> { FrappeTeamRepository(get(), get()) }
     single<ReportRepository> { ReportTemplateRepositoryImpl(get()) }
