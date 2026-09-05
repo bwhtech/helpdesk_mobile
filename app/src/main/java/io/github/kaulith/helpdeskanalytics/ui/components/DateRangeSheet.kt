@@ -33,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -66,6 +67,7 @@ fun DateRangeSheet(
     onConfirm: (KotlinLocalDate, KotlinLocalDate) -> Unit
 ) {
     val cs = MaterialTheme.colorScheme
+    val locale = LocalConfiguration.current.locales[0]
     val today = remember { LocalDate.now() }
     val currentMonth = remember { YearMonth.from(today) }
     val weekDays = remember { daysOfWeek() }
@@ -103,7 +105,7 @@ fun DateRangeSheet(
                 ) { Icon(Icons.Outlined.ChevronLeft, contentDescription = "Previous month") }
 
                 Text(
-                    text = "${visibleMonth.month.getDisplayName(TextStyle.FULL, Locale.getDefault())} " +
+                    text = "${visibleMonth.month.getDisplayName(TextStyle.FULL, locale)} " +
                             "${visibleMonth.year}",
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Medium,
@@ -119,7 +121,7 @@ fun DateRangeSheet(
             Row(modifier = Modifier.fillMaxWidth()) {
                 weekDays.forEach { day ->
                     Text(
-                        text = day.getDisplayName(TextStyle.NARROW, Locale.getDefault()),
+                        text = day.getDisplayName(TextStyle.NARROW, locale),
                         style = MaterialTheme.typography.labelSmall,
                         color = cs.onSurfaceVariant,
                         textAlign = TextAlign.Center,
