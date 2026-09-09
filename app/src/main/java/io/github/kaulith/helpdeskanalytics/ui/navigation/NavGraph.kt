@@ -5,14 +5,10 @@ import androidx.compose.runtime.remember
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import io.github.kaulith.helpdeskanalytics.domain.model.TicketFocus
 import io.github.kaulith.helpdeskanalytics.domain.repository.AuthRepository
 import io.github.kaulith.helpdeskanalytics.ui.screens.MainScreen
 import io.github.kaulith.helpdeskanalytics.ui.screens.auth.LoginScreen
 import org.koin.compose.koinInject
-
-/** A notification tap, waiting for the graph to be ready (and for login, on a cold start). */
-data class PendingTicket(val ticketId: String, val focus: TicketFocus? = null)
 
 @Composable
 fun AppNavGraph(
