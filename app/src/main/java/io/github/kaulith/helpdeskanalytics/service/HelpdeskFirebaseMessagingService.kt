@@ -1,5 +1,6 @@
 package io.github.kaulith.helpdeskanalytics.service
 
+import io.github.kaulith.helpdeskanalytics.domain.model.TicketFocus
 import io.github.kaulith.helpdeskanalytics.notifications.DeviceTokenManager
 import io.github.kaulith.helpdeskanalytics.notifications.NotificationHelper
 import com.google.firebase.messaging.FirebaseMessagingService
@@ -26,7 +27,8 @@ class HelpdeskFirebaseMessagingService : FirebaseMessagingService() {
             title = title,
             body = body,
             channelId = channelFor(data["type"]),
-            ticketId = data["ticketId"]
+            ticketId = data["ticketId"],
+            focus = TicketFocus.fromPushType(data["type"])
         )
     }
 

@@ -14,6 +14,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import io.github.kaulith.helpdeskanalytics.MainActivity
 import io.github.kaulith.helpdeskanalytics.R
+import io.github.kaulith.helpdeskanalytics.domain.model.TicketFocus
 
 class NotificationHelper(private val context: Context) {
 
@@ -57,12 +58,13 @@ class NotificationHelper(private val context: Context) {
         title: String,
         body: String,
         channelId: String = CHANNEL_ID,
-        ticketId: String? = null
+        ticketId: String? = null,
+        focus: TicketFocus? = null
     ) {
         val intent = Intent(context, MainActivity::class.java)
         intent.action = Intent.ACTION_VIEW
         intent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-        if (ticketId != null) intent.data = Uri.parse("helpdesk://ticket/${Uri.encode(ticketId)}")
+        if (ticketId != null) intent.data = Uri.parse(ticketDeepLink(ticketId, focus))
 
         // One request code per ticket, otherwise FLAG_UPDATE_CURRENT hands every
         // notification the extras of whichever one was built first.
@@ -95,6 +97,12 @@ class NotificationHelper(private val context: Context) {
     }
 
     companion object {
+        /** Also the shape MainActivity parses back, so both paths agree on the query name. */
+        fun ticketDeepLink(ticketId: String, focus: TicketFocus?): String {
+            val base = "helpdesk://ticket/${Uri.encode(ticketId)}"
+            return if (focus == null) base else "$base?focus=${focus.slug}"
+        }
+
         const val CHANNEL_ID = "helpdesk_tickets_v2"
         private const val LEGACY_CHANNEL_ID = "helpdesk_tickets"
         const val CHANNEL_TICKET_REPLIES = "ticket_replies"
