@@ -50,6 +50,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -88,6 +89,7 @@ import io.github.kaulith.helpdeskanalytics.R
 import io.github.kaulith.helpdeskanalytics.domain.model.Priority
 import io.github.kaulith.helpdeskanalytics.domain.model.Status
 import io.github.kaulith.helpdeskanalytics.domain.model.Ticket
+import io.github.kaulith.helpdeskanalytics.domain.model.TicketPreset
 import io.github.kaulith.helpdeskanalytics.domain.model.filter.FilterCondition
 import io.github.kaulith.helpdeskanalytics.domain.model.filter.FilterOperator
 import io.github.kaulith.helpdeskanalytics.domain.model.filter.TicketFilterFields
@@ -105,8 +107,11 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun TicketsScreen(
     onTicketClick: (String) -> Unit = {},
+    preset: TicketPreset? = null,
     viewModel: TicketListViewModel = koinViewModel()
 ) {
+    LaunchedEffect(preset) { viewModel.onPresetChange(preset) }
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val cs = MaterialTheme.colorScheme
     val snackbarHostState = remember { SnackbarHostState() }
@@ -167,6 +172,7 @@ fun TicketsScreen(
                             onConditionsChange = viewModel::onConditionsChange,
                             onSortOptionChange = viewModel::onSortOptionChange,
                             onTogglePendingOnly = viewModel::togglePendingOnly,
+                            onClearPreset = { viewModel.onPresetChange(null) },
                             onTicketClick = onTicketClick,
                             onStatusCycle = viewModel::cycleStatus,
                             onSelectionToggle = viewModel::toggleSelected,
@@ -203,6 +209,7 @@ private fun TicketsContent(
     onConditionsChange: (List<FilterCondition<Ticket>>) -> Unit,
     onSortOptionChange: (SortOption) -> Unit,
     onTogglePendingOnly: () -> Unit,
+    onClearPreset: () -> Unit,
     onTicketClick: (String) -> Unit,
     onStatusCycle: (Ticket) -> Unit,
     onSelectionToggle: (String) -> Unit,
@@ -296,6 +303,17 @@ private fun TicketsContent(
                         else cs.secondaryContainer
                     )
                 )
+                uiState.preset?.let { preset ->
+                    InputChip(
+                        selected = true,
+                        onClick = onClearPreset,
+                        label = { Text(preset.label) },
+                        trailingIcon = {
+                            Icon(Icons.Outlined.Close, "Clear ${preset.label} filter", Modifier.size(16.dp))
+                        },
+                        shape = FrappeRadius.full,
+                    )
+                }
                 FilterChip(
                     selected = uiState.showPendingOnly,
                     onClick = onTogglePendingOnly,

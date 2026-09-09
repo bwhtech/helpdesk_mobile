@@ -54,6 +54,7 @@ import androidx.compose.ui.res.stringResource
 import io.github.kaulith.helpdeskanalytics.R
 import io.github.kaulith.helpdeskanalytics.domain.model.PeriodMetrics
 import io.github.kaulith.helpdeskanalytics.domain.model.TicketMetrics
+import io.github.kaulith.helpdeskanalytics.domain.model.TicketPreset
 import androidx.compose.material.icons.outlined.ErrorOutline
 import io.github.kaulith.helpdeskanalytics.ui.components.EmptyBlock
 import io.github.kaulith.helpdeskanalytics.ui.components.OnResume
@@ -70,7 +71,10 @@ import java.time.LocalTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DashboardScreen(viewModel: DashboardViewModel = koinViewModel()) {
+fun DashboardScreen(
+    onOpenPreset: (TicketPreset) -> Unit = {},
+    viewModel: DashboardViewModel = koinViewModel()
+) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     OnResume { viewModel.refresh() }
 
@@ -96,7 +100,8 @@ fun DashboardScreen(viewModel: DashboardViewModel = koinViewModel()) {
                     uiState.metrics?.let { metrics ->
                         DashboardContent(
                             metrics = metrics,
-                            userName = uiState.activeAgent?.name ?: uiState.userName
+                            userName = uiState.activeAgent?.name ?: uiState.userName,
+                            onOpenPreset = onOpenPreset,
                         )
                     }
                 }
@@ -167,7 +172,11 @@ private sealed interface DashboardItem {
 }
 
 @Composable
-private fun DashboardContent(metrics: TicketMetrics, userName: String?) {
+private fun DashboardContent(
+    metrics: TicketMetrics,
+    userName: String?,
+    onOpenPreset: (TicketPreset) -> Unit,
+) {
     val statusBarInset = WindowInsets.statusBars.asPaddingValues()
         .calculateTopPadding()
 
@@ -177,7 +186,7 @@ private fun DashboardContent(metrics: TicketMetrics, userName: String?) {
         verticalArrangement = Arrangement.spacedBy(Spacing.lg)
     ) {
         item(key = "hero") { HeroHeader(userName = userName, topInset = statusBarInset) }
-        item(key = "quick") { QuickStatsRow(metrics = metrics) }
+        item(key = "quick") { QuickStatsRow(metrics = metrics, onOpenPreset = onOpenPreset) }
         item(key = "overview-title") {
             SectionTitle(stringResource(R.string.dashboard_section_overview))
         }
@@ -260,10 +269,11 @@ private fun HeroHeader(userName: String?, topInset: androidx.compose.ui.unit.Dp)
 // ---------------------------------------------------------------------------
 
 @Composable
-private fun QuickStatsRow(metrics: TicketMetrics) {
+private fun QuickStatsRow(metrics: TicketMetrics, onOpenPreset: (TicketPreset) -> Unit) {
     val items = listOf(
         QuickStat(
             value = metrics.openTicketsCount,
+            preset = TicketPreset.OPEN,
             label = "Open",
             icon = Icons.Outlined.Inbox,
             container = MaterialTheme.colorScheme.primaryContainer,
@@ -271,6 +281,7 @@ private fun QuickStatsRow(metrics: TicketMetrics) {
         ),
         QuickStat(
             value = metrics.today.ticketsResolved,
+            preset = TicketPreset.RESOLVED_TODAY,
             label = "Resolved today",
             icon = Icons.Outlined.Timer,
             container = MaterialTheme.colorScheme.tertiaryContainer,
@@ -278,6 +289,7 @@ private fun QuickStatsRow(metrics: TicketMetrics) {
         ),
         QuickStat(
             value = metrics.overdueCount,
+            preset = TicketPreset.OVERDUE,
             label = "Overdue",
             icon = Icons.Outlined.WarningAmber,
             container = if (metrics.overdueCount > 0)
@@ -296,13 +308,16 @@ private fun QuickStatsRow(metrics: TicketMetrics) {
         horizontalArrangement = Arrangement.spacedBy(Spacing.md)
     ) {
         items.forEach { stat ->
-            Box(modifier = Modifier.weight(1f)) { QuickStatCard(stat = stat) }
+            Box(modifier = Modifier.weight(1f)) {
+                QuickStatCard(stat = stat, onClick = { onOpenPreset(stat.preset) })
+            }
         }
     }
 }
 
 private data class QuickStat(
     val value: Int,
+    val preset: TicketPreset,
     val label: String,
     val icon: ImageVector,
     val container: Color,
@@ -310,13 +325,14 @@ private data class QuickStat(
 )
 
 @Composable
-private fun QuickStatCard(stat: QuickStat) {
+private fun QuickStatCard(stat: QuickStat, onClick: () -> Unit) {
     val displayValue = animatedCount(stat.value)
     Surface(
+        onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
             .semantics(mergeDescendants = true) {
-                contentDescription = "${stat.label}: ${stat.value}"
+                contentDescription = "${stat.label}: ${stat.value}, opens the ticket list"
             },
         color = stat.container,
         contentColor = stat.onContainer,

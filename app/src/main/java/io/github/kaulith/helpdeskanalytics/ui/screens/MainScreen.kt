@@ -68,7 +68,8 @@ fun MainScreen(
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
+    // Routes carry optional args (?preset=), so the bar keys off the base route.
+    val currentRoute = navBackStackEntry?.destination?.route?.substringBefore("?")
     val cs = MaterialTheme.colorScheme
 
     val bottomNavRoutes = remember { BottomNavScreen.items.map { it.route }.toSet() }

@@ -6,6 +6,7 @@ import io.github.kaulith.helpdeskanalytics.domain.model.Agent
 import io.github.kaulith.helpdeskanalytics.domain.model.Priority
 import io.github.kaulith.helpdeskanalytics.domain.model.Status
 import io.github.kaulith.helpdeskanalytics.domain.model.Ticket
+import io.github.kaulith.helpdeskanalytics.domain.model.TicketPreset
 import io.github.kaulith.helpdeskanalytics.domain.model.filter.FilterCondition
 import io.github.kaulith.helpdeskanalytics.domain.model.filter.FilterOperator
 import io.github.kaulith.helpdeskanalytics.domain.model.filter.FilterableField
@@ -46,6 +47,7 @@ data class TicketListUiState(
     val conditions: List<FilterCondition<Ticket>> = emptyList(),
     val sortOption: SortOption = SortOption.NEWEST,
     val showPendingOnly: Boolean = false,
+    val preset: TicketPreset? = null,
     val activeAgent: Agent? = null,
     val canWrite: Boolean = false,
     val selectedTicketIds: Set<String> = emptySet(),
@@ -104,7 +106,13 @@ class TicketListViewModel(
     }
 
     fun clearFilters() {
-        _uiState.update { it.copy(conditions = emptyList()) }
+        _uiState.update { it.copy(conditions = emptyList(), preset = null) }
+        applyFilters()
+    }
+
+    /** Dashboard quick stat handoff: show exactly the tickets that card counted. */
+    fun onPresetChange(preset: TicketPreset?) {
+        _uiState.update { it.copy(preset = preset) }
         applyFilters()
     }
 
@@ -215,6 +223,9 @@ class TicketListViewModel(
     private fun applyFilters() {
         val state = _uiState.value
         var filtered = state.tickets
+
+        // Dashboard preset, same predicate the quick stat counted with
+        state.preset?.let { preset -> filtered = filtered.filter { preset.matches(it) } }
 
         // Pending only filter (Open or Replied, not yet resolved/closed)
         if (state.showPendingOnly) {
