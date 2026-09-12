@@ -12,7 +12,7 @@ import org.koin.compose.koinInject
 
 @Composable
 fun AppNavGraph(
-    pendingTicketId: String? = null,
+    pendingTicket: PendingTicket? = null,
     onPendingTicketHandled: () -> Unit = {}
 ) {
     val authRepository: AuthRepository = koinInject()
@@ -33,7 +33,7 @@ fun AppNavGraph(
         }
         composable(Screen.Main.route) {
             MainScreen(
-                pendingTicketId = pendingTicketId,
+                pendingTicket = pendingTicket,
                 onPendingTicketHandled = onPendingTicketHandled,
                 onLogout = {
                     navController.navigate(Screen.Login.route) {

@@ -7,6 +7,7 @@ import io.github.kaulith.helpdeskanalytics.domain.model.ResponseTimePercentiles
 import io.github.kaulith.helpdeskanalytics.domain.model.Status
 import io.github.kaulith.helpdeskanalytics.domain.model.Ticket
 import io.github.kaulith.helpdeskanalytics.domain.model.TicketMetrics
+import io.github.kaulith.helpdeskanalytics.domain.model.TicketPreset
 import kotlin.time.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlin.time.Instant
@@ -32,9 +33,10 @@ object MetricsCalculator {
             it.createdAt.toLocalDateTime(tz).date >= startOfMonth
         }
 
-        val openTickets = tickets.filter { it.status == Status.OPEN }
+        // Shared with the ticket list, so a quick-stat count always matches the list it opens.
+        val openTickets = tickets.filter { TicketPreset.OPEN.matches(it, now, tz) }
         val urgentOpen = openTickets.filter { it.priority == Priority.URGENT }
-        val overdueTickets = tickets.filter { it.isOverdue(now) }
+        val overdueTickets = tickets.filter { TicketPreset.OVERDUE.matches(it, now, tz) }
 
         val dueToday = openTickets.count { ticket ->
             ticket.resolutionBy?.let {
@@ -69,9 +71,7 @@ object MetricsCalculator {
         val byAgent = ticketsByAgent(tickets)
 
         return byAgent.map { (agentEmail, agentTickets) ->
-            val resolved = agentTickets.count {
-                it.status == Status.RESOLVED || it.status == Status.CLOSED
-            }
+            val resolved = agentTickets.count { it.isResolved() }
             agentPerformance(agentEmail, resolved, agentTickets, agentNames, currentUserEmail)
         }.rankByTicketsResolved()
     }
@@ -124,9 +124,7 @@ object MetricsCalculator {
             .mapIndexed { index, perf -> perf.copy(rank = index + 1) }
 
     private fun periodMetrics(tickets: List<Ticket>): PeriodMetrics {
-        val resolved = tickets.count {
-            it.status == Status.RESOLVED || it.status == Status.CLOSED
-        }
+        val resolved = tickets.count { it.isResolved() }
         val open = tickets.count {
             it.status == Status.OPEN || it.status == Status.REPLIED
         }

@@ -53,6 +53,7 @@ import io.github.kaulith.helpdeskanalytics.ui.components.UpdateBanner
 import io.github.kaulith.helpdeskanalytics.ui.components.openWebLink
 import io.github.kaulith.helpdeskanalytics.ui.navigation.BottomNavGraph
 import io.github.kaulith.helpdeskanalytics.ui.navigation.BottomNavScreen
+import io.github.kaulith.helpdeskanalytics.ui.navigation.PendingTicket
 import io.github.kaulith.helpdeskanalytics.ui.theme.FrappeMotion
 import io.github.kaulith.helpdeskanalytics.util.NetworkMonitor
 import kotlinx.coroutines.launch
@@ -62,13 +63,14 @@ import org.koin.compose.koinInject
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
-    pendingTicketId: String? = null,
+    pendingTicket: PendingTicket? = null,
     onPendingTicketHandled: () -> Unit = {},
     onLogout: () -> Unit = {}
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
+    // Routes carry optional args (?preset=, ?focus=); the bar keys off the base route.
+    val currentRoute = navBackStackEntry?.destination?.route?.substringBefore("?")
     val cs = MaterialTheme.colorScheme
 
     val bottomNavRoutes = remember { BottomNavScreen.items.map { it.route }.toSet() }
@@ -108,9 +110,10 @@ fun MainScreen(
         }
     }
 
-    LaunchedEffect(pendingTicketId) {
-        val ticketId = pendingTicketId ?: return@LaunchedEffect
-        navController.navigate("ticket_detail/$ticketId") { launchSingleTop = true }
+    LaunchedEffect(pendingTicket) {
+        val pending = pendingTicket ?: return@LaunchedEffect
+        val focus = pending.focus?.let { "?focus=${it.slug}" }.orEmpty()
+        navController.navigate("ticket_detail/${pending.ticketId}$focus") { launchSingleTop = true }
         onPendingTicketHandled()
     }
 

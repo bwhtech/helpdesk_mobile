@@ -89,6 +89,7 @@ import io.github.kaulith.helpdeskanalytics.domain.model.Communication
 import io.github.kaulith.helpdeskanalytics.domain.model.Priority
 import io.github.kaulith.helpdeskanalytics.domain.model.Status
 import io.github.kaulith.helpdeskanalytics.domain.model.Ticket
+import io.github.kaulith.helpdeskanalytics.domain.model.TicketFocus
 import io.github.kaulith.helpdeskanalytics.domain.model.agentResolutionSla
 import io.github.kaulith.helpdeskanalytics.ui.components.EmptyBlock
 import io.github.kaulith.helpdeskanalytics.ui.components.HtmlText
@@ -103,6 +104,7 @@ import io.github.kaulith.helpdeskanalytics.util.formatResolutionTime
 import io.github.kaulith.helpdeskanalytics.util.formatResponseTime
 import io.github.kaulith.helpdeskanalytics.util.toRelativeTime
 import kotlin.time.Instant
+import kotlinx.coroutines.delay
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.koin.androidx.compose.koinViewModel
@@ -112,6 +114,7 @@ import org.koin.androidx.compose.koinViewModel
 fun TicketDetailScreen(
     ticketId: String,
     onBack: () -> Unit,
+    focus: TicketFocus? = null,
     viewModel: TicketDetailViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -191,6 +194,7 @@ fun TicketDetailScreen(
                 )
                 uiState.ticket != null -> TicketDetailContent(
                     ticket = uiState.ticket!!,
+                    focus = focus,
                     canWrite = uiState.canWrite,
                     comments = uiState.comments,
                     isLoadingComments = uiState.isLoadingComments,
@@ -226,6 +230,7 @@ fun TicketDetailScreen(
 @Composable
 private fun TicketDetailContent(
     ticket: Ticket,
+    focus: TicketFocus?,
     canWrite: Boolean,
     comments: List<Comment>,
     isLoadingComments: Boolean,
@@ -241,13 +246,26 @@ private fun TicketDetailContent(
     onSendReply: (String) -> Unit
 ) {
     val cs = MaterialTheme.colorScheme
-    var activeTab by remember { mutableStateOf(0) }
+    var activeTab by remember { mutableStateOf(if (focus == TicketFocus.COMMENT) 1 else 0) }
+    val scrollState = rememberScrollState()
+
+    // A notification points at one item, so land on it rather than the top of the ticket.
+    val focusedItems = if (focus == TicketFocus.COMMENT) comments.map { it.name to it.createdAt }
+    else communications.map { it.name to it.createdAt }
+    var highlightedId by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(focus, focusedItems.size) {
+        if (focus == null || focusedItems.isEmpty()) return@LaunchedEffect
+        highlightedId = focusedItems.maxByOrNull { it.second }?.first
+        scrollState.animateScrollTo(scrollState.maxValue)
+        delay(HIGHLIGHT_MILLIS)
+        highlightedId = null
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .weight(1f)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
                 .padding(horizontal = Spacing.base, vertical = Spacing.sm),
             verticalArrangement = Arrangement.spacedBy(Spacing.base)
         ) {
@@ -358,9 +376,14 @@ private fun TicketDetailContent(
                     0 -> CommunicationsList(
                         communications = communications,
                         isLoading = isLoadingCommunications,
-                        error = communicationsError
+                        error = communicationsError,
+                        highlightedId = highlightedId.takeIf { focus == TicketFocus.REPLY }
                     )
-                    1 -> CommentsList(comments = comments, isLoading = isLoadingComments)
+                    1 -> CommentsList(
+                        comments = comments,
+                        isLoading = isLoadingComments,
+                        highlightedId = highlightedId.takeIf { focus == TicketFocus.COMMENT }
+                    )
                 }
             }
         }
@@ -507,7 +530,11 @@ private fun PriorityPicker(current: Priority, isUpdating: Boolean, onChange: (Pr
 }
 
 @Composable
-private fun CommentsList(comments: List<Comment>, isLoading: Boolean) {
+private fun CommentsList(
+    comments: List<Comment>,
+    isLoading: Boolean,
+    highlightedId: String? = null
+) {
     val cs = MaterialTheme.colorScheme
     when {
         isLoading && comments.isEmpty() -> Box(
@@ -521,13 +548,13 @@ private fun CommentsList(comments: List<Comment>, isLoading: Boolean) {
             modifier = Modifier.padding(Spacing.md)
         )
         else -> Column(verticalArrangement = Arrangement.spacedBy(Spacing.md)) {
-            comments.forEach { CommentBubble(it) }
+            comments.forEach { CommentBubble(it, highlighted = it.name == highlightedId) }
         }
     }
 }
 
 @Composable
-private fun CommentBubble(comment: Comment) {
+private fun CommentBubble(comment: Comment, highlighted: Boolean = false) {
     val cs = MaterialTheme.colorScheme
     Row(
         horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
@@ -535,7 +562,7 @@ private fun CommentBubble(comment: Comment) {
     ) {
         InitialsAvatar(name = comment.commentedBy, size = 32.dp)
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().highlightBorder(highlighted),
             shape = FrappeRadius.lg,
             colors = CardDefaults.cardColors(containerColor = cs.surfaceContainerLow)
         ) {
@@ -573,7 +600,8 @@ private fun CommentBubble(comment: Comment) {
 private fun CommunicationsList(
     communications: List<Communication>,
     isLoading: Boolean,
-    error: String?
+    error: String?,
+    highlightedId: String? = null
 ) {
     val cs = MaterialTheme.colorScheme
     when {
@@ -594,13 +622,13 @@ private fun CommunicationsList(
             modifier = Modifier.padding(Spacing.md)
         )
         else -> Column(verticalArrangement = Arrangement.spacedBy(Spacing.md)) {
-            communications.forEach { CommunicationBubble(it) }
+            communications.forEach { CommunicationBubble(it, highlighted = it.name == highlightedId) }
         }
     }
 }
 
 @Composable
-private fun CommunicationBubble(communication: Communication) {
+private fun CommunicationBubble(communication: Communication, highlighted: Boolean = false) {
     val cs = MaterialTheme.colorScheme
     // Agent replies sit on a tinted surface to set them apart from inbound mail.
     val container = if (communication.sentByAgent) cs.primaryContainer else cs.surfaceContainerLow
@@ -611,7 +639,7 @@ private fun CommunicationBubble(communication: Communication) {
     ) {
         InitialsAvatar(name = communication.sender, size = 32.dp)
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().highlightBorder(highlighted),
             shape = FrappeRadius.lg,
             colors = CardDefaults.cardColors(containerColor = container, contentColor = onContainer)
         ) {
@@ -928,3 +956,10 @@ private fun TicketDetailSkeleton() {
         repeat(2) { SkeletonCard() }
     }
 }
+
+/** Marks the item a notification pointed at, until [HIGHLIGHT_MILLIS] has passed. */
+@Composable
+private fun Modifier.highlightBorder(highlighted: Boolean): Modifier =
+    if (highlighted) border(2.dp, MaterialTheme.colorScheme.primary, FrappeRadius.lg) else this
+
+private const val HIGHLIGHT_MILLIS = 2500L

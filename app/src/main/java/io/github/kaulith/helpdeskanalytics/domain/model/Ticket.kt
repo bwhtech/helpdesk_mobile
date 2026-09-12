@@ -44,6 +44,10 @@ data class Ticket(
         return (currentTime - createdAt).inWholeHours
     }
 
+    fun isResolved(): Boolean {
+        return status == Status.RESOLVED || status == Status.CLOSED
+    }
+
     fun isUrgentOpen(): Boolean {
         return priority == Priority.URGENT &&
                 (status == Status.OPEN || status == Status.REPLIED)

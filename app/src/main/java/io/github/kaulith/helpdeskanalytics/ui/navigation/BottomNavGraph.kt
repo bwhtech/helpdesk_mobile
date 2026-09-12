@@ -7,6 +7,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
+import io.github.kaulith.helpdeskanalytics.domain.model.TicketFocus
+import io.github.kaulith.helpdeskanalytics.domain.model.TicketPreset
 import io.github.kaulith.helpdeskanalytics.ui.screens.analytics.AnalyticsScreen
 import io.github.kaulith.helpdeskanalytics.ui.screens.dashboard.DashboardScreen
 import io.github.kaulith.helpdeskanalytics.ui.screens.leaderboard.LeaderboardScreen
@@ -29,15 +31,29 @@ fun BottomNavGraph(
         composable(
             route = BottomNavScreen.Dashboard.route,
             deepLinks = listOf(navDeepLink { uriPattern = "helpdesk://dashboard" }),
-        ) { DashboardScreen() }
-        composable(
-            route = BottomNavScreen.Tickets.route,
-            deepLinks = listOf(navDeepLink { uriPattern = "helpdesk://tickets" }),
         ) {
+            DashboardScreen(
+                onOpenPreset = { preset ->
+                    navController.navigate("${BottomNavScreen.Tickets.route}?preset=${preset.slug}")
+                }
+            )
+        }
+        composable(
+            route = "${BottomNavScreen.Tickets.route}?preset={preset}",
+            arguments = listOf(
+                navArgument("preset") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            ),
+            deepLinks = listOf(navDeepLink { uriPattern = "helpdesk://tickets" }),
+        ) { backStackEntry ->
             TicketsScreen(
                 onTicketClick = { ticketId ->
                     navController.navigate("ticket_detail/$ticketId")
-                }
+                },
+                preset = TicketPreset.fromSlug(backStackEntry.arguments?.getString("preset")),
             )
         }
         composable(
@@ -53,13 +69,24 @@ fun BottomNavGraph(
             )
         }
         composable(
-            route = "ticket_detail/{ticketId}",
-            arguments = listOf(navArgument("ticketId") { type = NavType.StringType }),
-            deepLinks = listOf(navDeepLink { uriPattern = "helpdesk://ticket/{ticketId}" }),
+            route = "ticket_detail/{ticketId}?focus={focus}",
+            arguments = listOf(
+                navArgument("ticketId") { type = NavType.StringType },
+                navArgument("focus") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                },
+            ),
+            deepLinks = listOf(
+                navDeepLink { uriPattern = "helpdesk://ticket/{ticketId}?focus={focus}" },
+                navDeepLink { uriPattern = "helpdesk://ticket/{ticketId}" },
+            ),
         ) { backStackEntry ->
             val ticketId = backStackEntry.arguments?.getString("ticketId") ?: return@composable
             TicketDetailScreen(
                 ticketId = ticketId,
+                focus = TicketFocus.fromSlug(backStackEntry.arguments?.getString("focus")),
                 onBack = { navController.popBackStack() }
             )
         }

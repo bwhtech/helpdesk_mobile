@@ -6,6 +6,7 @@ import io.github.kaulith.helpdeskanalytics.domain.model.Agent
 import io.github.kaulith.helpdeskanalytics.domain.model.Priority
 import io.github.kaulith.helpdeskanalytics.domain.model.Status
 import io.github.kaulith.helpdeskanalytics.domain.model.Ticket
+import io.github.kaulith.helpdeskanalytics.domain.model.TicketPreset
 import io.github.kaulith.helpdeskanalytics.domain.model.filter.FilterCondition
 import io.github.kaulith.helpdeskanalytics.domain.model.filter.FilterOperator
 import io.github.kaulith.helpdeskanalytics.domain.model.filter.FilterableField
@@ -27,6 +28,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.datetime.TimeZone
 
 enum class SortOption(val label: String) {
     NEWEST("Newest First"),
@@ -46,6 +48,7 @@ data class TicketListUiState(
     val conditions: List<FilterCondition<Ticket>> = emptyList(),
     val sortOption: SortOption = SortOption.NEWEST,
     val showPendingOnly: Boolean = false,
+    val preset: TicketPreset? = null,
     val activeAgent: Agent? = null,
     val canWrite: Boolean = false,
     val selectedTicketIds: Set<String> = emptySet(),
@@ -70,6 +73,7 @@ class TicketListViewModel(
 
     private val _searchQuery = MutableStateFlow("")
     private var ticketsJob: Job? = null
+    private var presetApplied = false
 
     init {
         observeSearch()
@@ -104,8 +108,24 @@ class TicketListViewModel(
     }
 
     fun clearFilters() {
-        _uiState.update { it.copy(conditions = emptyList()) }
+        _uiState.update { it.copy(conditions = emptyList(), preset = null) }
         applyFilters()
+    }
+
+    /** Dashboard quick stat handoff: show exactly the tickets that card counted. */
+    fun onPresetChange(preset: TicketPreset?) {
+        _uiState.update { it.copy(preset = preset) }
+        applyFilters()
+    }
+
+    /**
+     * The preset the screen was opened with. Applied once: a later call is the same
+     * back stack entry recomposing, which must not restore a chip the user cleared.
+     */
+    fun openWithPreset(preset: TicketPreset?) {
+        if (presetApplied) return
+        presetApplied = true
+        onPresetChange(preset)
     }
 
     fun onSortOptionChange(option: SortOption) {
@@ -215,6 +235,14 @@ class TicketListViewModel(
     private fun applyFilters() {
         val state = _uiState.value
         var filtered = state.tickets
+
+        // Dashboard preset, same predicate the quick stat counted with. One clock for the
+        // whole pass, so a ticket cannot fall on both sides of its deadline mid-filter.
+        state.preset?.let { preset ->
+            val now = Clock.System.now()
+            val zone = TimeZone.currentSystemDefault()
+            filtered = filtered.filter { preset.matches(it, now, zone) }
+        }
 
         // Pending only filter (Open or Replied, not yet resolved/closed)
         if (state.showPendingOnly) {
