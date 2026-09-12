@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.datetime.TimeZone
 
 enum class SortOption(val label: String) {
     NEWEST("Newest First"),
@@ -72,6 +73,7 @@ class TicketListViewModel(
 
     private val _searchQuery = MutableStateFlow("")
     private var ticketsJob: Job? = null
+    private var presetApplied = false
 
     init {
         observeSearch()
@@ -114,6 +116,16 @@ class TicketListViewModel(
     fun onPresetChange(preset: TicketPreset?) {
         _uiState.update { it.copy(preset = preset) }
         applyFilters()
+    }
+
+    /**
+     * The preset the screen was opened with. Applied once: a later call is the same
+     * back stack entry recomposing, which must not restore a chip the user cleared.
+     */
+    fun openWithPreset(preset: TicketPreset?) {
+        if (presetApplied) return
+        presetApplied = true
+        onPresetChange(preset)
     }
 
     fun onSortOptionChange(option: SortOption) {
@@ -224,8 +236,13 @@ class TicketListViewModel(
         val state = _uiState.value
         var filtered = state.tickets
 
-        // Dashboard preset, same predicate the quick stat counted with
-        state.preset?.let { preset -> filtered = filtered.filter { preset.matches(it) } }
+        // Dashboard preset, same predicate the quick stat counted with. One clock for the
+        // whole pass, so a ticket cannot fall on both sides of its deadline mid-filter.
+        state.preset?.let { preset ->
+            val now = Clock.System.now()
+            val zone = TimeZone.currentSystemDefault()
+            filtered = filtered.filter { preset.matches(it, now, zone) }
+        }
 
         // Pending only filter (Open or Replied, not yet resolved/closed)
         if (state.showPendingOnly) {

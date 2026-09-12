@@ -22,7 +22,7 @@ enum class TicketPreset(val slug: String, val label: String) {
         OPEN -> ticket.status == Status.OPEN
         RESOLVED_TODAY ->
             ticket.createdAt.toLocalDateTime(zone).date == now.toLocalDateTime(zone).date &&
-                (ticket.status == Status.RESOLVED || ticket.status == Status.CLOSED)
+                ticket.isResolved()
         OVERDUE -> ticket.isOverdue(now)
     }
 

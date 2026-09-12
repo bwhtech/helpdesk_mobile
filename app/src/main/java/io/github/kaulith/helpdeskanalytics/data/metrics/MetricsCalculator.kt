@@ -71,9 +71,7 @@ object MetricsCalculator {
         val byAgent = ticketsByAgent(tickets)
 
         return byAgent.map { (agentEmail, agentTickets) ->
-            val resolved = agentTickets.count {
-                it.status == Status.RESOLVED || it.status == Status.CLOSED
-            }
+            val resolved = agentTickets.count { it.isResolved() }
             agentPerformance(agentEmail, resolved, agentTickets, agentNames, currentUserEmail)
         }.rankByTicketsResolved()
     }
@@ -126,9 +124,7 @@ object MetricsCalculator {
             .mapIndexed { index, perf -> perf.copy(rank = index + 1) }
 
     private fun periodMetrics(tickets: List<Ticket>): PeriodMetrics {
-        val resolved = tickets.count {
-            it.status == Status.RESOLVED || it.status == Status.CLOSED
-        }
+        val resolved = tickets.count { it.isResolved() }
         val open = tickets.count {
             it.status == Status.OPEN || it.status == Status.REPLIED
         }

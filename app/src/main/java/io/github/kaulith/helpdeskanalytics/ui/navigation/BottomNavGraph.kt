@@ -41,7 +41,11 @@ fun BottomNavGraph(
         composable(
             route = "${BottomNavScreen.Tickets.route}?preset={preset}",
             arguments = listOf(
-                navArgument("preset") { type = NavType.StringType; nullable = true; defaultValue = null }
+                navArgument("preset") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
             ),
             deepLinks = listOf(navDeepLink { uriPattern = "helpdesk://tickets" }),
         ) { backStackEntry ->
@@ -68,7 +72,11 @@ fun BottomNavGraph(
             route = "ticket_detail/{ticketId}?focus={focus}",
             arguments = listOf(
                 navArgument("ticketId") { type = NavType.StringType },
-                navArgument("focus") { type = NavType.StringType; nullable = true; defaultValue = null },
+                navArgument("focus") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                },
             ),
             deepLinks = listOf(
                 navDeepLink { uriPattern = "helpdesk://ticket/{ticketId}?focus={focus}" },

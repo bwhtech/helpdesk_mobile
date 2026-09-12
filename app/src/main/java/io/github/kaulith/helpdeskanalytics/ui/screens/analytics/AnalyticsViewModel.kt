@@ -132,7 +132,7 @@ class AnalyticsViewModel(
                     tickets.count { t -> t.status == Status.OPEN || t.status == Status.REPLIED }
                         .toFloat() / tickets.size * 100 else 0f,
                 resolvedPercentage = if (tickets.isNotEmpty())
-                    tickets.count { t -> t.status == Status.RESOLVED || t.status == Status.CLOSED }
+                    tickets.count { t -> t.isResolved() }
                         .toFloat() / tickets.size * 100 else 0f,
                 responseTimePercentiles = metrics.responseTimePercentiles,
                 slaCompliance = sla,

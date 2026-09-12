@@ -97,8 +97,8 @@ class NotificationHelper(private val context: Context) {
     }
 
     companion object {
-        /** Also the shape MainActivity parses back, so both paths agree on the query name. */
-        fun ticketDeepLink(ticketId: String, focus: TicketFocus?): String {
+        /** Matched by the navDeepLink patterns in BottomNavGraph, which read the focus back. */
+        private fun ticketDeepLink(ticketId: String, focus: TicketFocus?): String {
             val base = "helpdesk://ticket/${Uri.encode(ticketId)}"
             return if (focus == null) base else "$base?focus=${focus.slug}"
         }

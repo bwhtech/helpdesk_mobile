@@ -110,7 +110,7 @@ fun TicketsScreen(
     preset: TicketPreset? = null,
     viewModel: TicketListViewModel = koinViewModel()
 ) {
-    LaunchedEffect(preset) { viewModel.onPresetChange(preset) }
+    LaunchedEffect(preset) { viewModel.openWithPreset(preset) }
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val cs = MaterialTheme.colorScheme
