@@ -153,9 +153,9 @@ dependencies {
     // Networking - Retrofit + OkHttp + Gson
     implementation("com.squareup.retrofit2:retrofit:3.0.0")
     implementation("com.squareup.retrofit2:converter-gson:3.0.0")
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
-    implementation("com.google.code.gson:gson:2.10.1")
+    implementation("com.squareup.okhttp3:okhttp:5.5.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:5.5.0")
+    implementation("com.google.code.gson:gson:2.14.0")
 
     // Dependency Injection - Koin
     implementation("io.insert-koin:koin-android:4.2.2")
