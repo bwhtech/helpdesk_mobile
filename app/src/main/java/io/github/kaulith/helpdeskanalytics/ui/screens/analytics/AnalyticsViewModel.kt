@@ -115,7 +115,8 @@ class AnalyticsViewModel(
     }
 
     private suspend fun recompute(tickets: List<Ticket>, range: TimeRange) = withContext(Dispatchers.Default) {
-        val metrics = MetricsCalculator.computeMetrics(allTickets)
+        val thisMonth = MetricsCalculator.computeMetrics(allTickets).thisMonth
+        val rangeMetrics = MetricsCalculator.computeMetrics(tickets)
         val sla = calculateSlaCompliance(tickets)
 
         _uiState.update {
@@ -134,9 +135,9 @@ class AnalyticsViewModel(
                 resolvedPercentage = if (tickets.isNotEmpty())
                     tickets.count { t -> t.isResolved() }
                         .toFloat() / tickets.size * 100 else 0f,
-                responseTimePercentiles = metrics.responseTimePercentiles,
+                responseTimePercentiles = rangeMetrics.responseTimePercentiles,
                 slaCompliance = sla,
-                thisMonth = metrics.thisMonth
+                thisMonth = thisMonth
             )
         }
     }
