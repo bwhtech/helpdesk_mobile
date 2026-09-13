@@ -126,17 +126,11 @@ class FrappeTicketRepository(
     ): Flow<Result<List<Ticket>>> = flow {
         emit(Result.Loading)
 
-        val matches = { ticket: Ticket ->
-            (status == null || ticket.status == status) &&
-                    (priority == null || ticket.priority == priority) &&
-                    (assignedTo == null || ticket.isAssignedTo(assignedTo))
-        }
-
         // Emit cached data first: the agent's own fetch if there is one, else Room
         val agentCached = assignedTo?.let { agentTicketsMutex.withLock { agentTicketsByEmail[it] } }
         val cached = agentCached?.tickets ?: ticketDao.getAllTickets().first().map { it.toDomain() }
         if (cached.isNotEmpty()) {
-            emit(Result.Success(cached.filter(matches)))
+            emit(Result.Success(cached.filter { it.matches(status, priority, assignedTo) }))
         }
 
         // Check TTL
@@ -149,7 +143,7 @@ class FrappeTicketRepository(
         // Fetch tickets from API with server-side filter when agent is specified
         try {
             val tickets = if (assignedTo == null) fetchAllTickets() else fetchAgentTickets(assignedTo)
-            emit(Result.Success(tickets.filter(matches)))
+            emit(Result.Success(tickets.filter { it.matches(status, priority, assignedTo) }))
         } catch (e: Exception) {
             if (cached.isNotEmpty()) {
                 // Already emitted cached data above
@@ -337,6 +331,11 @@ class FrappeTicketRepository(
 
     private fun jsonArray(vararg conditions: String) =
         conditions.joinToString(",", prefix = "[", postfix = "]")
+
+    private fun Ticket.matches(status: Status?, priority: Priority?, assignedTo: String?): Boolean =
+        (status == null || this.status == status) &&
+                (priority == null || this.priority == priority) &&
+                (assignedTo == null || isAssignedTo(assignedTo))
 
     private fun Ticket.finishedWithin(bounds: ClosedRange<LocalDate>): Boolean {
         val finished = resolvedAt ?: modifiedAt.takeIf { status == Status.CLOSED } ?: return false
