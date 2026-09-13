@@ -103,18 +103,16 @@ class LeaderboardViewModel(
         }
     }
 
-    private fun loadAgents(force: Boolean) {
-        viewModelScope.launch {
-            repository.getAgentPerformances(_uiState.value.period, force).collect { result ->
-                when (result) {
-                    is Result.Loading -> _uiState.update { it.copy(isLoading = true) }
-                    is Result.Success -> {
-                        _uiState.update { it.copy(agents = result.data, isLoading = false, isRefreshing = false, error = null) }
-                        applyFilters()
-                    }
-                    is Result.Error -> _uiState.update {
-                        it.copy(isLoading = false, isRefreshing = false, error = result.exception.message)
-                    }
+    private suspend fun loadAgents(force: Boolean) {
+        repository.getAgentPerformances(_uiState.value.period, force).collect { result ->
+            when (result) {
+                is Result.Loading -> _uiState.update { it.copy(isLoading = true) }
+                is Result.Success -> {
+                    _uiState.update { it.copy(agents = result.data, isLoading = false, isRefreshing = false, error = null) }
+                    applyFilters()
+                }
+                is Result.Error -> _uiState.update {
+                    it.copy(isLoading = false, isRefreshing = false, error = result.exception.message)
                 }
             }
         }
