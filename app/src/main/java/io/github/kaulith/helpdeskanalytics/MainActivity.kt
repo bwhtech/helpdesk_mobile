@@ -48,7 +48,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val themeMode by preferencesManager.themeMode.collectAsState(initial = "system")
-            val dynamicColor by preferencesManager.dynamicColor.collectAsState(initial = false)
+            val dynamicColor by preferencesManager.dynamicColor.collectAsState(initial = true)
             val colorScheme by preferencesManager.colorScheme.collectAsState(initial = "ocean")
 
             HelpDeskAnalyticsTheme(

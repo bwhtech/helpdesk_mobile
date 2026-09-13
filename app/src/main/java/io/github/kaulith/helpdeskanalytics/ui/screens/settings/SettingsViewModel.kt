@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 
 data class SettingsUiState(
     val themeMode: String = "system",
-    val dynamicColor: Boolean = false,
+    val dynamicColor: Boolean = true,
     val colorScheme: String = "ocean",
     val showLogoutDialog: Boolean = false,
     val showClearCacheDialog: Boolean = false,
