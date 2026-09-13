@@ -9,7 +9,7 @@ major version of the app.
 major version ships, and release tags (`v1.4.0`, `v1.4.1`) are created on it. Nothing
 lands on a release line except fixes for that line.
 
-At the time of writing the app is pre v1, so `develop` and `main` are the only branches;
+At the time of writing the app is pre v1, so `develop` is the only long lived branch;
 `version-1` gets cut once the auth work and the surrounding polish are done.
 
 When the Frappe UI native rework ships as v2, `version-2` is cut from `develop`, and
