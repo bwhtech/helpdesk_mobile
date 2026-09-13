@@ -11,6 +11,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
+import kotlinx.datetime.TimeZone
 
 class ApiServiceProvider(
     private val credentialsManager: CredentialsManager,
@@ -19,6 +20,9 @@ class ApiServiceProvider(
 ) {
     private var cachedBaseUrl: String? = null
     private var cachedService: FrappeApiService? = null
+
+    @Volatile
+    private var cachedTimeZone: TimeZone? = null
 
     @Synchronized
     fun getService(): FrappeApiService {
@@ -61,17 +65,32 @@ class ApiServiceProvider(
 
         cachedBaseUrl = currentUrl
         cachedService = retrofit.create(FrappeApiService::class.java)
+        cachedTimeZone = null
         return cachedService!!
     }
 
     fun invalidate() {
         cachedService = null
         cachedBaseUrl = null
+        cachedTimeZone = null
+    }
+
+    /** Frappe returns datetimes as wall clock time in the site's system timezone. */
+    suspend fun siteTimeZone(): TimeZone {
+        cachedTimeZone?.let { return it }
+        val service = getService()
+        return TimeZone.of(service.getTimeZone().message.timeZone ?: DEFAULT_SITE_TIME_ZONE)
+            .also { cachedTimeZone = it }
     }
 
     /** Site URL with a trailing slash, for resolving relative file URLs. */
     fun siteBaseUrl(): String? {
         val url = credentialsManager.getSiteUrl() ?: return null
         return if (url.endsWith("/")) url else "$url/"
+    }
+
+    private companion object {
+        // Frappe's own fallback in get_system_timezone when System Settings has none.
+        const val DEFAULT_SITE_TIME_ZONE = "Asia/Kolkata"
     }
 }

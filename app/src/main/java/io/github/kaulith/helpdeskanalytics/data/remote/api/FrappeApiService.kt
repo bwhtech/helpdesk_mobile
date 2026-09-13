@@ -9,6 +9,7 @@ import io.github.kaulith.helpdeskanalytics.data.remote.dto.RunDocMethodRequest
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.TeamDto
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.TicketActivitiesDto
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.TicketDto
+import io.github.kaulith.helpdeskanalytics.data.remote.dto.TimeZoneDto
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.UpdateTicketRequest
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.UserApiKeyDto
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.UserDto
@@ -26,6 +27,9 @@ interface FrappeApiService {
 
     @GET("api/method/frappe.auth.get_logged_user")
     suspend fun getLoggedUser(): FrappeMethodResponse<String>
+
+    @GET("api/method/frappe.client.get_time_zone")
+    suspend fun getTimeZone(): FrappeMethodResponse<TimeZoneDto>
 
     @GET("api/resource/User/{email}")
     suspend fun getUser(@Path("email") email: String): FrappeSingleResponse<UserDto>

@@ -105,8 +105,9 @@ class FrappeTicketRepository(
         // Fetch from API
         try {
             val service = apiServiceProvider.getService()
+            val siteTimeZone = apiServiceProvider.siteTimeZone()
             val response = service.getTickets()
-            val tickets = response.data.map { dto -> dto.toDomain() }
+            val tickets = response.data.map { dto -> dto.toDomain(siteTimeZone) }
             ticketDao.replaceAll(tickets.map { it.toEntity() })
             preferencesManager.setLastSync(System.currentTimeMillis())
             emit(Result.Success(tickets))
@@ -183,8 +184,9 @@ class FrappeTicketRepository(
         // Fetch from API
         try {
             val service = apiServiceProvider.getService()
+            val siteTimeZone = apiServiceProvider.siteTimeZone()
             val response = service.getTickets()
-            val tickets = response.data.map { dto -> dto.toDomain() }
+            val tickets = response.data.map { dto -> dto.toDomain(siteTimeZone) }
             ticketDao.replaceAll(tickets.map { it.toEntity() })
             preferencesManager.setLastSync(System.currentTimeMillis())
             val metrics = MetricsCalculator.computeMetrics(tickets)
@@ -383,7 +385,7 @@ class FrappeTicketRepository(
         return try {
             val service = apiServiceProvider.getService()
             val dto = service.getTicket(id).data
-            val ticket = dto.toDomain()
+            val ticket = dto.toDomain(apiServiceProvider.siteTimeZone())
             ticketDao.upsertTickets(listOf(ticket.toEntity()))
             Result.Success(ticket)
         } catch (e: Exception) {
@@ -402,16 +404,18 @@ class FrappeTicketRepository(
     }
 
     private suspend fun fetchAllTickets(): List<Ticket> {
-        val tickets = apiServiceProvider.getService().getTickets().data.map { dto -> dto.toDomain() }
+        val siteTimeZone = apiServiceProvider.siteTimeZone()
+        val tickets = apiServiceProvider.getService().getTickets().data.map { dto -> dto.toDomain(siteTimeZone) }
         ticketDao.replaceAll(tickets.map { it.toEntity() })
         preferencesManager.setLastSync(System.currentTimeMillis())
         return tickets
     }
 
     private suspend fun fetchAgentTickets(agentEmail: String): List<Ticket> {
+        val siteTimeZone = apiServiceProvider.siteTimeZone()
         val tickets = apiServiceProvider.getService()
             .getTickets(filters = """[["_assign","like","%$agentEmail%"]]""")
-            .data.map { dto -> dto.toDomain() }
+            .data.map { dto -> dto.toDomain(siteTimeZone) }
         agentTicketsMutex.withLock {
             agentTicketsByEmail[agentEmail] = TimestampedTickets(tickets, System.currentTimeMillis())
         }
@@ -444,7 +448,7 @@ class FrappeTicketRepository(
         return try {
             val service = apiServiceProvider.getService()
             val dto = service.updateTicket(ticketId, UpdateTicketRequest(status = status.value)).data
-            val ticket = dto.toDomain()
+            val ticket = dto.toDomain(apiServiceProvider.siteTimeZone())
             ticketDao.upsertTickets(listOf(ticket.toEntity()))
             replaceInAgentTickets(ticket)
             Result.Success(ticket)
@@ -467,7 +471,7 @@ class FrappeTicketRepository(
         return try {
             val service = apiServiceProvider.getService()
             val dto = service.updateTicket(ticketId, UpdateTicketRequest(priority = priority.value)).data
-            val ticket = dto.toDomain()
+            val ticket = dto.toDomain(apiServiceProvider.siteTimeZone())
             ticketDao.upsertTickets(listOf(ticket.toEntity()))
             replaceInAgentTickets(ticket)
             Result.Success(ticket)
@@ -489,7 +493,7 @@ class FrappeTicketRepository(
         return try {
             val service = apiServiceProvider.getService()
             val dto = service.updateTicket(ticketId, UpdateTicketRequest(agent = agentEmail)).data
-            val ticket = dto.toDomain()
+            val ticket = dto.toDomain(apiServiceProvider.siteTimeZone())
             ticketDao.upsertTickets(listOf(ticket.toEntity()))
             replaceInAgentTickets(ticket)
             Result.Success(ticket)
@@ -515,7 +519,8 @@ class FrappeTicketRepository(
             val service = apiServiceProvider.getService()
             val activities = service.getTicketActivities(ticketId).message
             val baseUrl = apiServiceProvider.siteBaseUrl().orEmpty()
-            val comments = activities.comments.orEmpty().map { it.toDomain(baseUrl) }
+            val siteTimeZone = apiServiceProvider.siteTimeZone()
+            val comments = activities.comments.orEmpty().map { it.toDomain(baseUrl, siteTimeZone) }
             commentDao.deleteCommentsForTicket(ticketId)
             commentDao.upsertComments(comments.map { it.toEntity(ticketId) })
             emit(Result.Success(comments))
@@ -548,7 +553,8 @@ class FrappeTicketRepository(
             val service = apiServiceProvider.getService()
             val activities = service.getTicketActivities(ticketId).message
             val baseUrl = apiServiceProvider.siteBaseUrl().orEmpty()
-            Result.Success(activities.communications.orEmpty().map { it.toDomain(baseUrl) })
+            val siteTimeZone = apiServiceProvider.siteTimeZone()
+            Result.Success(activities.communications.orEmpty().map { it.toDomain(baseUrl, siteTimeZone) })
         } catch (e: Exception) {
             Result.Error(mapException(e))
         }

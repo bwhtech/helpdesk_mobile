@@ -27,10 +27,10 @@ import kotlinx.datetime.toInstant
 private val gson = Gson()
 private val stringListType: Type = object : TypeToken<List<String>>() {}.type
 
-fun TicketDto.toDomain(): Ticket {
+fun TicketDto.toDomain(siteTimeZone: TimeZone): Ticket {
     val assignees = parseAssignees(assign)
-    val createdInstant = parseFrappeDateTime(creation)
-    val modifiedInstant = parseFrappeDateTime(modified)
+    val createdInstant = parseFrappeDateTime(creation, siteTimeZone)
+    val modifiedInstant = parseFrappeDateTime(modified, siteTimeZone)
     val resolvedAgent = agent ?: assignees.firstOrNull()
 
     return Ticket(
@@ -41,14 +41,14 @@ fun TicketDto.toDomain(): Ticket {
         assignedTo = resolvedAgent,
         createdAt = createdInstant,
         modifiedAt = modifiedInstant,
-        firstRespondedAt = firstRespondedOn?.let { parseFrappeDateTimeOrNull(it) },
-        resolvedAt = resolutionDate?.let { parseFrappeDateTimeOrNull(it) },
-        lastAgentResponseAt = lastAgentResponse?.let { parseFrappeDateTimeOrNull(it) },
+        firstRespondedAt = firstRespondedOn?.let { parseFrappeDateTimeOrNull(it, siteTimeZone) },
+        resolvedAt = resolutionDate?.let { parseFrappeDateTimeOrNull(it, siteTimeZone) },
+        lastAgentResponseAt = lastAgentResponse?.let { parseFrappeDateTimeOrNull(it, siteTimeZone) },
         customerName = contact,
         customerId = customer ?: raisedBy,
         assignees = assignees,
-        responseBy = responseBy?.let { parseFrappeDateTimeOrNull(it) },
-        resolutionBy = resolutionBy?.let { parseFrappeDateTimeOrNull(it) },
+        responseBy = responseBy?.let { parseFrappeDateTimeOrNull(it, siteTimeZone) },
+        resolutionBy = resolutionBy?.let { parseFrappeDateTimeOrNull(it, siteTimeZone) },
         firstResponseTimeMinutes = firstResponseTime?.let { (it / 60).toFloat() },
         avgResponseTimeMinutes = avgResponseTime?.let { (it / 60).toFloat() },
         resolutionTimeHours = resolutionTime?.let { (it / 3600).toFloat() },
@@ -69,16 +69,16 @@ fun UserDto.toDomain(): User {
     )
 }
 
-private fun parseFrappeDateTime(dateStr: String?): Instant {
+private fun parseFrappeDateTime(dateStr: String?, siteTimeZone: TimeZone): Instant {
     if (dateStr.isNullOrBlank()) return Instant.DISTANT_PAST
-    return parseFrappeDateTimeOrNull(dateStr) ?: Instant.DISTANT_PAST
+    return parseFrappeDateTimeOrNull(dateStr, siteTimeZone) ?: Instant.DISTANT_PAST
 }
 
-private fun parseFrappeDateTimeOrNull(dateStr: String): Instant? {
+private fun parseFrappeDateTimeOrNull(dateStr: String, siteTimeZone: TimeZone): Instant? {
     return try {
         val normalized = dateStr.trim().replace(" ", "T")
         val ldt = LocalDateTime.parse(normalized)
-        ldt.toInstant(TimeZone.UTC)
+        ldt.toInstant(siteTimeZone)
     } catch (_: Exception) {
         null
     }
@@ -122,21 +122,21 @@ fun AgentDto.toDomain(): Agent = Agent(
     avatarUrl = userImage
 )
 
-fun CommentDto.toDomain(baseUrl: String): Comment = Comment(
+fun CommentDto.toDomain(baseUrl: String, siteTimeZone: TimeZone): Comment = Comment(
     name = name,
     content = content ?: "",
     commentedBy = commentedBy ?: "Unknown",
-    createdAt = parseFrappeDateTime(creation),
+    createdAt = parseFrappeDateTime(creation, siteTimeZone),
     commentType = "Comment",
     attachments = mergeAttachments(attachments, content, baseUrl)
 )
 
-fun CommunicationDto.toDomain(baseUrl: String): Communication = Communication(
+fun CommunicationDto.toDomain(baseUrl: String, siteTimeZone: TimeZone): Communication = Communication(
     name = name,
     content = content ?: "",
     sender = sender ?: "Unknown",
     sentByAgent = sentOrReceived.equals("Sent", ignoreCase = true),
-    createdAt = parseFrappeDateTime(creation),
+    createdAt = parseFrappeDateTime(creation, siteTimeZone),
     subject = subject,
     attachments = mergeAttachments(attachments, content, baseUrl)
 )
