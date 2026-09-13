@@ -12,13 +12,14 @@ import io.github.kaulith.helpdeskanalytics.domain.repository.ReportDataRepositor
 import io.github.kaulith.helpdeskanalytics.domain.repository.ReportRepository
 import io.github.kaulith.helpdeskanalytics.domain.repository.TeamRepository
 import io.github.kaulith.helpdeskanalytics.domain.repository.TicketRepository
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val repositoryModule = module {
-    single<TicketRepository> { FrappeTicketRepository(get(), get(), get(), get(), get(), get()) }
-    single<AuthRepository> { FrappeAuthRepository(get(), get(), get(), get()) }
-    single<AgentRepository> { FrappeAgentRepository(get(), get(), get(), get()) }
-    single<TeamRepository> { FrappeTeamRepository(get(), get()) }
-    single<ReportRepository> { ReportTemplateRepositoryImpl(get()) }
-    single<ReportDataRepository> { FrappeReportDataRepository(get()) }
+    single { FrappeTicketRepository(get(), get(), get(), get(), get(), get()) } bind TicketRepository::class
+    single { FrappeAuthRepository(get(), get(), get(), get()) } bind AuthRepository::class
+    single { FrappeAgentRepository(get(), get(), get(), get()) } bind AgentRepository::class
+    single { FrappeTeamRepository(get(), get()) } bind TeamRepository::class
+    single { ReportTemplateRepositoryImpl(get()) } bind ReportRepository::class
+    single { FrappeReportDataRepository(get()) } bind ReportDataRepository::class
 }
