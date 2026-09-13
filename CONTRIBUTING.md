@@ -33,16 +33,21 @@ internal builds.
 
 ## Checks
 
-Every pull request runs two required workflows:
+Every pull request must pass three checks before it can merge, and must be up to date
+with `develop`:
 
-- `build`: gradle wrapper validation, `assembleDebug`, `lintDebug`, `testDebugUnitTest`,
-  and `assembleInternal`. The last one is the minified variant, so R8 and resource
+- `build`: gradle wrapper validation, `assembleDebug`, a check that the exported Room
+  schema under `app/schemas` is committed, `lintDebug`, `testDebugUnitTest`, and
+  `assembleInternal`. The last one is the minified variant, so R8 and resource
   shrinking run against `proguard-rules.pro` on every change rather than for the first
   time at the release tag.
-- `secret-scan`: gitleaks over the full history, pinned by version and SHA256.
+- `detekt`: static analysis against `config/detekt/detekt.yml`, in its own job of the
+  `build` workflow.
+- `gitleaks`: the `secret-scan` workflow, gitleaks over the full history, pinned by
+  version and SHA256.
 
-Lint is gated on errors only; warnings do not fail the build. Fix a new lint error
-rather than adding it to a baseline.
+Lint is gated on errors only; warnings do not fail the build. Fix a new lint error or
+detekt finding rather than adding it to a baseline.
 
 ## Local setup
 
