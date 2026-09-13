@@ -2,7 +2,7 @@ name: codeql
 
 on:
   push:
-    branches: [main, develop, "version-*"]
+    branches: [develop, "version-*"]
   schedule:
     - cron: "0 5 * * 1"
   workflow_dispatch:
