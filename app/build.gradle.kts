@@ -27,10 +27,11 @@ val localProperties = Properties().apply {
 fun signingSecret(propertyKey: String, envKey: String): String? =
     localProperties.getProperty(propertyKey) ?: System.getenv(envKey)
 
-fun latestGitTag(): String? = runCatching {
-    providers.exec { commandLine("git", "describe", "--tags", "--abbrev=0") }
-        .standardOutput.asText.get().trim().removePrefix("v").ifEmpty { null }
-}.getOrNull()
+fun latestGitTag(): String? =
+    providers.exec {
+        commandLine("git", "describe", "--tags", "--abbrev=0")
+        isIgnoreExitValue = true
+    }.standardOutput.asText.get().trim().removePrefix("v").ifEmpty { null }
 
 val appVersionName = latestGitTag() ?: "0.0.0"
 val appVersionCode = appVersionName.substringBefore('-').split('.').let { parts ->
