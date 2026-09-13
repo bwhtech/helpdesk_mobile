@@ -1,0 +1,23 @@
+name: Feature request
+description: Something the app should do that it does not do yet.
+labels: [feature-request]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What you are trying to get done from your phone, and what gets in the way today.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: How you would like the app to handle it.
+    validations:
+      required: true
+  - type: textarea
+    id: helpdesk-web
+    attributes:
+      label: How the Helpdesk web app handles it
+      description: If the web app already does this, describe or screenshot it; the app follows its behaviour.
