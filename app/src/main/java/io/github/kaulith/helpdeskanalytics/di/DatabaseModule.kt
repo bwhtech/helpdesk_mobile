@@ -1,6 +1,7 @@
 package io.github.kaulith.helpdeskanalytics.di
 
 import androidx.room.Room
+import io.github.kaulith.helpdeskanalytics.data.local.database.ALL_MIGRATIONS
 import io.github.kaulith.helpdeskanalytics.data.local.database.AppDatabase
 import io.github.kaulith.helpdeskanalytics.util.Constants
 import org.koin.android.ext.koin.androidContext
@@ -16,6 +17,7 @@ val databaseModule = module {
             AppDatabase::class.java,
             Constants.DATABASE_NAME
         )
+            .addMigrations(*ALL_MIGRATIONS)
             .fallbackToDestructiveMigrationFrom(*PRE_SCHEMA_EXPORT_VERSIONS)
             .build()
     }
