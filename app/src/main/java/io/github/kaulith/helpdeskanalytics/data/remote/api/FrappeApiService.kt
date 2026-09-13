@@ -65,12 +65,13 @@ interface FrappeApiService {
         @Body request: UpdateTicketRequest
     ): FrappeSingleResponse<TicketDto>
 
-    // Helpdesk's own endpoint for a ticket's conversation. Returns comments +
-    // communications together, and runs server-side so it isn't blocked by the
-    // generic REST permissions on the Communication doctype.
-    @GET("api/method/helpdesk.helpdesk.doctype.hd_ticket.api.get_ticket_activities")
+    // Helpdesk's own endpoint for a ticket. Returns comments + communications
+    // together, and runs server-side so it isn't blocked by the generic REST
+    // permissions on the Communication doctype. Helpdesk develop removed
+    // get_ticket_activities; get_one carries the same keys on main and develop.
+    @GET("api/method/helpdesk.helpdesk.doctype.hd_ticket.api.get_one")
     suspend fun getTicketActivities(
-        @Query("ticket") ticket: String
+        @Query("name") ticket: String
     ): FrappeMethodResponse<TicketActivitiesDto>
 
     // Runs a whitelisted HD Ticket controller method (reply_via_agent, new_comment).
