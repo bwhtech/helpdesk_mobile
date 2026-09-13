@@ -21,7 +21,7 @@ naming:
 
 performance:
   SpreadOperator:
-    excludes: ['**/di/**']
+    excludes: ['**/di/**', '**/test/**']
 
 style:
   MagicNumber:
