@@ -25,6 +25,7 @@ class PreferencesManager(private val context: Context) {
         val LOGGED_IN_USER_EMAIL = stringPreferencesKey("logged_in_user_email")
         val AGENT_COUNTS = stringPreferencesKey("agent_counts")
         val AGENT_COUNTS_SYNCED_AT = longPreferencesKey("agent_counts_synced_at")
+        val USER_SYNCED_AT = longPreferencesKey("user_synced_at")
         val DISMISSED_UPDATE_VERSION = stringPreferencesKey("dismissed_update_version")
     }
 
@@ -58,6 +59,14 @@ class PreferencesManager(private val context: Context) {
 
     suspend fun setLastSync(timestamp: Long) {
         context.dataStore.edit { it[Keys.LAST_SYNC] = timestamp }
+    }
+
+    val userSyncedAt: Flow<Long> = context.dataStore.data.map { prefs ->
+        prefs[Keys.USER_SYNCED_AT] ?: 0L
+    }
+
+    suspend fun setUserSyncedAt(timestamp: Long) {
+        context.dataStore.edit { it[Keys.USER_SYNCED_AT] = timestamp }
     }
 
     val agentCounts: Flow<String?> = context.dataStore.data.map { prefs ->
