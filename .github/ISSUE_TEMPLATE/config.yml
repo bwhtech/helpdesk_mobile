@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a vulnerability
+    url: https://github.com/bwhtech/helpdesk_mobile/security/advisories/new
+    about: Report security issues privately, not as a public issue.
+  - name: Frappe Helpdesk bug
+    url: https://github.com/frappe/helpdesk/issues
+    about: Bugs that also happen in the Helpdesk web app belong upstream.
