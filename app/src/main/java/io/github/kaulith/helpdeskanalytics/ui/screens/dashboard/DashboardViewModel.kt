@@ -2,6 +2,7 @@ package io.github.kaulith.helpdeskanalytics.ui.screens.dashboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.kaulith.helpdeskanalytics.data.metrics.MetricsCalculator
 import io.github.kaulith.helpdeskanalytics.domain.model.Agent
 import io.github.kaulith.helpdeskanalytics.domain.model.TicketMetrics
 import io.github.kaulith.helpdeskanalytics.domain.repository.AgentRepository
@@ -79,8 +80,7 @@ class DashboardViewModel(
                     }
                     is Result.Success -> {
                         val metrics = withContext(Dispatchers.Default) {
-                            io.github.kaulith.helpdeskanalytics.data.metrics.MetricsCalculator
-                                .computeMetrics(result.data)
+                            MetricsCalculator.computeMetrics(result.data)
                         }
                         _uiState.update {
                             it.copy(

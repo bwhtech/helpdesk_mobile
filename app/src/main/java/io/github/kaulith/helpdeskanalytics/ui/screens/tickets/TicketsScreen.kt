@@ -342,11 +342,11 @@ private fun TicketsContent(
                 )
                 Status.entries.forEach { s ->
                     FilterChip(
-                        selected = statusFilter == s.displayName,
+                        selected = statusFilter == s.value,
                         onClick = {
-                            onStatusFilterChange(if (statusFilter == s.displayName) null else s)
+                            onStatusFilterChange(if (statusFilter == s.value) null else s)
                         },
-                        label = { Text(s.displayName) },
+                        label = { Text(s.value) },
                         shape = FrappeRadius.full,
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = statusContainerColor(s),
@@ -470,8 +470,8 @@ private fun TicketCard(
         buildString {
             append(ticket.id); append(", ")
             append(ticket.subject); append(", ")
-            append("status "); append(ticket.status.displayName); append(", ")
-            append("priority "); append(ticket.priority.displayName); append(", ")
+            append("status "); append(ticket.status.value); append(", ")
+            append("priority "); append(ticket.priority.value); append(", ")
             append("updated "); append(ticket.modifiedAt.toRelativeTime())
             if (isOverdue) append(", overdue")
             else if (isApproachingSLA) append(", SLA approaching")
@@ -660,7 +660,7 @@ internal fun TonalPill(
 @Composable
 internal fun StatusPill(status: Status) {
     TonalPill(
-        label = status.displayName,
+        label = status.value,
         container = statusContainerColor(status),
         onContainer = statusOnContainerColor(status),
         leadingIcon = statusIcon(status),
@@ -670,7 +670,7 @@ internal fun StatusPill(status: Status) {
 @Composable
 internal fun PriorityPill(priority: Priority) {
     TonalPill(
-        label = priority.displayName,
+        label = priority.value,
         container = priorityContainerColor(priority),
         onContainer = priorityOnContainerColor(priority),
         leadingIcon = priorityIcon(priority),

@@ -1,11 +1,11 @@
 package io.github.kaulith.helpdeskanalytics.domain.model
 
-enum class Status(val value: String, val displayName: String) {
-    OPEN("Open", "Open"),
-    REPLIED("Replied", "Replied"),
-    AWAITING_APPROVAL("Awaiting Approval", "Awaiting Approval"),
-    RESOLVED("Resolved", "Resolved"),
-    CLOSED("Closed", "Closed");
+enum class Status(val value: String) {
+    OPEN("Open"),
+    REPLIED("Replied"),
+    AWAITING_APPROVAL("Awaiting Approval"),
+    RESOLVED("Resolved"),
+    CLOSED("Closed");
 
     companion object {
         fun fromValue(value: String): Status {

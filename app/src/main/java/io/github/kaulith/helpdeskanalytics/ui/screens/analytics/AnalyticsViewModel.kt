@@ -163,7 +163,7 @@ class AnalyticsViewModel(
     private fun calculateStatusDistribution(tickets: List<Ticket>): List<ChartData> {
         return Status.entries.map { status ->
             ChartData(
-                label = status.displayName,
+                label = status.value,
                 value = tickets.count { it.status == status }.toFloat()
             )
         }.filter { it.value > 0 }
@@ -172,7 +172,7 @@ class AnalyticsViewModel(
     private fun calculatePriorityDistribution(tickets: List<Ticket>): List<ChartData> {
         return Priority.entries.map { priority ->
             ChartData(
-                label = priority.displayName,
+                label = priority.value,
                 value = tickets.count { it.priority == priority }.toFloat()
             )
         }.filter { it.value > 0 }

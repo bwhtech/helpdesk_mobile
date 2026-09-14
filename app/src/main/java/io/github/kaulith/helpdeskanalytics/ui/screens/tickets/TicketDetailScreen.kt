@@ -468,7 +468,7 @@ private fun StatusPicker(current: Status, isUpdating: Boolean, onChange: (Status
     Box {
         AssistChip(
             onClick = { if (!isUpdating) expanded = true },
-            label = { Text(current.displayName) },
+            label = { Text(current.value) },
             enabled = !isUpdating,
             shape = FrappeRadius.full,
             colors = AssistChipDefaults.assistChipColors(
@@ -483,7 +483,7 @@ private fun StatusPicker(current: Status, isUpdating: Boolean, onChange: (Status
         ) {
             Status.entries.forEach { s ->
                 DropdownMenuItem(
-                    text = { Text(s.displayName) },
+                    text = { Text(s.value) },
                     onClick = {
                         onChange(s)
                         expanded = false
@@ -503,7 +503,7 @@ private fun PriorityPicker(current: Priority, isUpdating: Boolean, onChange: (Pr
     Box {
         AssistChip(
             onClick = { if (!isUpdating) expanded = true },
-            label = { Text(current.displayName) },
+            label = { Text(current.value) },
             enabled = !isUpdating,
             shape = FrappeRadius.full,
             colors = AssistChipDefaults.assistChipColors(
@@ -518,7 +518,7 @@ private fun PriorityPicker(current: Priority, isUpdating: Boolean, onChange: (Pr
         ) {
             Priority.entries.reversed().forEach { p ->
                 DropdownMenuItem(
-                    text = { Text(p.displayName) },
+                    text = { Text(p.value) },
                     onClick = {
                         onChange(p)
                         expanded = false
