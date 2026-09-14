@@ -81,6 +81,8 @@ class FrappeTicketRepository(
     private val agentTicketsMutex = Mutex()
     private val agentTicketsByEmail = mutableMapOf<String, TimestampedTickets>()
 
+    private val ticketFetchMutex = Mutex()
+
     override fun canWrite(): Boolean = agentSessionManager.canWrite()
 
     private fun readOnlyError() =
@@ -109,7 +111,7 @@ class FrappeTicketRepository(
 
         // Fetch tickets from API with server-side filter when agent is specified
         try {
-            val tickets = if (assignedTo == null) fetchAllTickets() else fetchAgentTickets(assignedTo)
+            val tickets = fetchTicketsUnlessSyncedSince(assignedTo, syncedAt)
             emit(Result.Success(tickets.filter { it.matches(status, priority, assignedTo) }))
         } catch (e: Exception) {
             if (cached.isNotEmpty()) {
@@ -324,6 +326,22 @@ class FrappeTicketRepository(
             Result.Error(mapException(e))
         }
     }
+
+    // Screens opening together on a stale cache all get here; the first one fetches and
+    // the rest, once it releases the lock, read what it stored instead of fetching again.
+    private suspend fun fetchTicketsUnlessSyncedSince(assignedTo: String?, syncedAt: Long): List<Ticket> =
+        ticketFetchMutex.withLock {
+            if (assignedTo == null) {
+                if (preferencesManager.lastSync.first() == syncedAt) {
+                    fetchAllTickets()
+                } else {
+                    ticketDao.getAllTickets().first().map { it.toDomain() }
+                }
+            } else {
+                val stored = agentTicketsMutex.withLock { agentTicketsByEmail[assignedTo] }
+                if (stored == null || stored.fetchedAt == syncedAt) fetchAgentTickets(assignedTo) else stored.tickets
+            }
+        }
 
     private suspend fun fetchAllTickets(): List<Ticket> {
         val siteTimeZone = apiServiceProvider.siteTimeZone()
