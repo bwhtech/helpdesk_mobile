@@ -96,8 +96,13 @@ import io.github.kaulith.helpdeskanalytics.ui.components.HtmlText
 import io.github.kaulith.helpdeskanalytics.ui.components.InitialsAvatar
 import io.github.kaulith.helpdeskanalytics.ui.components.SkeletonBox
 import io.github.kaulith.helpdeskanalytics.ui.components.SkeletonCard
+import io.github.kaulith.helpdeskanalytics.ui.components.TonalPill
 import io.github.kaulith.helpdeskanalytics.ui.components.htmlHasContent
 import io.github.kaulith.helpdeskanalytics.ui.components.openWebLink
+import io.github.kaulith.helpdeskanalytics.ui.components.priorityContainerColor
+import io.github.kaulith.helpdeskanalytics.ui.components.priorityOnContainerColor
+import io.github.kaulith.helpdeskanalytics.ui.components.statusContainerColor
+import io.github.kaulith.helpdeskanalytics.ui.components.statusOnContainerColor
 import io.github.kaulith.helpdeskanalytics.ui.theme.FrappeRadius
 import io.github.kaulith.helpdeskanalytics.ui.theme.Spacing
 import io.github.kaulith.helpdeskanalytics.util.formatResolutionTime
@@ -458,52 +463,48 @@ private fun DetailRow(label: String, value: String) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun StatusPicker(current: Status, isUpdating: Boolean, onChange: (Status) -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
-    val cs = MaterialTheme.colorScheme
-    val container = statusContainerColor(current)
-    val onContainer = statusOnContainerColor(current)
-    Box {
-        AssistChip(
-            onClick = { if (!isUpdating) expanded = true },
-            label = { Text(current.value) },
-            enabled = !isUpdating,
-            shape = FrappeRadius.full,
-            colors = AssistChipDefaults.assistChipColors(
-                containerColor = container,
-                labelColor = onContainer
-            ),
-            border = null
-        )
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            Status.entries.forEach { s ->
-                DropdownMenuItem(
-                    text = { Text(s.value) },
-                    onClick = {
-                        onChange(s)
-                        expanded = false
-                    }
-                )
-            }
-        }
-    }
+    ChipPicker(
+        current = current,
+        options = Status.entries,
+        label = { it.value },
+        container = statusContainerColor(current),
+        onContainer = statusOnContainerColor(current),
+        isUpdating = isUpdating,
+        onChange = onChange
+    )
+}
+
+@Composable
+private fun PriorityPicker(current: Priority, isUpdating: Boolean, onChange: (Priority) -> Unit) {
+    ChipPicker(
+        current = current,
+        options = Priority.entries.reversed(),
+        label = { it.value },
+        container = priorityContainerColor(current),
+        onContainer = priorityOnContainerColor(current),
+        isUpdating = isUpdating,
+        onChange = onChange
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun PriorityPicker(current: Priority, isUpdating: Boolean, onChange: (Priority) -> Unit) {
+private fun <T> ChipPicker(
+    current: T,
+    options: List<T>,
+    label: (T) -> String,
+    container: Color,
+    onContainer: Color,
+    isUpdating: Boolean,
+    onChange: (T) -> Unit
+) {
     var expanded by remember { mutableStateOf(false) }
-    val container = priorityContainerColor(current)
-    val onContainer = priorityOnContainerColor(current)
     Box {
         AssistChip(
             onClick = { if (!isUpdating) expanded = true },
-            label = { Text(current.value) },
+            label = { Text(label(current)) },
             enabled = !isUpdating,
             shape = FrappeRadius.full,
             colors = AssistChipDefaults.assistChipColors(
@@ -516,11 +517,11 @@ private fun PriorityPicker(current: Priority, isUpdating: Boolean, onChange: (Pr
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            Priority.entries.reversed().forEach { p ->
+            options.forEach { option ->
                 DropdownMenuItem(
-                    text = { Text(p.value) },
+                    text = { Text(label(option)) },
                     onClick = {
-                        onChange(p)
+                        onChange(option)
                         expanded = false
                     }
                 )

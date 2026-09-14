@@ -157,7 +157,6 @@
     <ID>TooManyFunctions:TicketDetailScreen.kt$io.github.kaulith.helpdeskanalytics.ui.screens.tickets.TicketDetailScreen.kt</ID>
     <ID>TooManyFunctions:TicketListViewModel.kt$TicketListViewModel : ViewModel</ID>
     <ID>TooManyFunctions:TicketRepository.kt$TicketRepository</ID>
-    <ID>TooManyFunctions:TicketsScreen.kt$io.github.kaulith.helpdeskanalytics.ui.screens.tickets.TicketsScreen.kt</ID>
     <ID>UnusedParameter:DashboardScreen.kt$index: Int</ID>
     <ID>UseCheckOrError:FrappeAgentSessionManager.kt$FrappeAgentSessionManager$throw IllegalStateException("No site URL configured")</ID>
     <ID>UseCheckOrError:FrappeApiServiceProvider.kt$FrappeApiServiceProvider$throw IllegalStateException("No site URL configured")</ID>
