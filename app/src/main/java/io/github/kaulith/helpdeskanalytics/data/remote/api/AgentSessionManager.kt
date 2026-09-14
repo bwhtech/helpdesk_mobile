@@ -1,7 +1,5 @@
 package io.github.kaulith.helpdeskanalytics.data.remote.api
 
-import io.github.kaulith.helpdeskanalytics.util.Result
-
 /**
  * Decides which API token each request carries. Reads run as the signed-in user;
  * writes run as the selected agent. Another agent's key is provisioned once from
@@ -17,8 +15,6 @@ interface AgentSessionManager {
      */
     fun tokenForRequest(isWrite: Boolean): String?
 
-    fun hasActiveAgent(): Boolean
-
     /** True only when the active agent has a token of their own, so writes can be attributed. */
     fun canWrite(): Boolean
 
@@ -33,7 +29,7 @@ interface AgentSessionManager {
      * is best-effort even then: if the signed-in user lacks System Manager, the agent
      * is still selected for read + notifications and the app stays read-only for writes.
      */
-    suspend fun activate(email: String, provisionWriteKey: Boolean = false): Result<Unit>
+    suspend fun activate(email: String, provisionWriteKey: Boolean = false)
 
     fun deactivate()
 }

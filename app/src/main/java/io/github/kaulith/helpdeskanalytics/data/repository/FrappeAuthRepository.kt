@@ -61,7 +61,7 @@ class FrappeAuthRepository(
             val token = oAuthClient.exchangeCode(siteUrl, clientId, code, codeVerifier)
             val accessToken = token.accessToken ?: error("Server returned no access token")
 
-            credentialsManager.saveOAuthSession(accessToken, token.refreshToken, token.expiresIn)
+            credentialsManager.saveOAuthSession(accessToken, token.refreshToken)
             credentialsManager.clearOAuthRequest()
             apiServiceProvider.invalidate()
 

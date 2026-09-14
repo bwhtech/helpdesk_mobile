@@ -103,8 +103,7 @@ fun CommentEntity.toDomain(): Comment = Comment(
     name = name,
     content = content,
     commentedBy = commentedBy,
-    createdAt = createdAt,
-    commentType = commentType
+    createdAt = createdAt
 )
 
 fun Comment.toEntity(ticketId: String): CommentEntity = CommentEntity(
@@ -113,5 +112,5 @@ fun Comment.toEntity(ticketId: String): CommentEntity = CommentEntity(
     content = content,
     commentedBy = commentedBy,
     createdAt = createdAt,
-    commentType = commentType
+    commentType = "Comment"
 )

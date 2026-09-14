@@ -62,25 +62,11 @@ class FrappeAgentRepository(
 
     override suspend fun setActiveAgent(agent: Agent?, provisionWriteKey: Boolean): Result<Unit> {
         if (agent != null) {
-            val activated = agentSessionManager.activate(agent.email, provisionWriteKey)
-            if (activated is Result.Error) return activated
+            agentSessionManager.activate(agent.email, provisionWriteKey)
         } else {
             agentSessionManager.deactivate()
         }
         preferencesManager.setActiveAgent(agent?.email, agent?.name)
         return Result.Success(Unit)
-    }
-
-    override suspend fun refreshAgents(): Result<List<Agent>> {
-        return try {
-            val service = apiServiceProvider.getService()
-            val response = service.getAgents()
-            val agents = response.data.map { it.toDomain() }
-            agentDao.deleteAll()
-            agentDao.insertAll(agents.map { it.toEntity() })
-            Result.Success(agents)
-        } catch (e: Exception) {
-            Result.Error(e)
-        }
     }
 }

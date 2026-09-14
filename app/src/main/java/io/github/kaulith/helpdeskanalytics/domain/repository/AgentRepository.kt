@@ -17,6 +17,4 @@ interface AgentRepository {
      * read-only, because minting replaces the agent's existing API secret.
      */
     suspend fun setActiveAgent(agent: Agent?, provisionWriteKey: Boolean = false): Result<Unit>
-
-    suspend fun refreshAgents(): Result<List<Agent>>
 }

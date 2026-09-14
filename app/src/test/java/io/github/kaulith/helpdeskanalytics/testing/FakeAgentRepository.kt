@@ -21,6 +21,4 @@ class FakeAgentRepository : AgentRepository {
         activeAgent.value = agent
         return Result.Success(Unit)
     }
-
-    override suspend fun refreshAgents(): Result<List<Agent>> = Result.Success(emptyList())
 }

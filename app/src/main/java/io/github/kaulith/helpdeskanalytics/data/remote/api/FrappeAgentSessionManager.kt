@@ -22,8 +22,6 @@ class FrappeAgentSessionManager(
         return credentialsManager.getAuthToken()
     }
 
-    override fun hasActiveAgent(): Boolean = activeAgentEmail != null
-
     override fun canWrite(): Boolean {
         val email = activeAgentEmail ?: return false
         return credentialsManager.hasAgentKeys(email)
@@ -32,7 +30,7 @@ class FrappeAgentSessionManager(
     override suspend fun needsWriteKey(email: String): Boolean =
         !isLoginUser(email) && !credentialsManager.hasAgentKeys(email)
 
-    override suspend fun activate(email: String, provisionWriteKey: Boolean): Result<Unit> {
+    override suspend fun activate(email: String, provisionWriteKey: Boolean) {
         if (isLoginUser(email)) {
             credentialsManager.setAgentUsesLoginSession(email)
         } else if (provisionWriteKey && !credentialsManager.hasAgentKeys(email)) {
@@ -40,7 +38,6 @@ class FrappeAgentSessionManager(
         }
         credentialsManager.setActiveAgentEmail(email)
         activeAgentEmail = email
-        return Result.Success(Unit)
     }
 
     override fun deactivate() {

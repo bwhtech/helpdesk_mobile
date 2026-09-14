@@ -7,6 +7,5 @@ data class Comment(
     val content: String,
     val commentedBy: String,
     val createdAt: Instant,
-    val commentType: String,
     val attachments: List<Attachment> = emptyList()
 )

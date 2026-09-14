@@ -88,8 +88,7 @@ class OAuthClient(private val credentialsManager: CredentialsManager) {
             val accessToken = token.accessToken ?: return null
             credentialsManager.saveOAuthSession(
                 accessToken = accessToken,
-                refreshToken = token.refreshToken ?: refreshToken,
-                expiresInSeconds = token.expiresIn
+                refreshToken = token.refreshToken ?: refreshToken
             )
             "Bearer $accessToken"
         } catch (e: HttpException) {

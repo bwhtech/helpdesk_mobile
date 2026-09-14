@@ -127,7 +127,6 @@ fun CommentDto.toDomain(baseUrl: String, siteTimeZone: TimeZone): Comment = Comm
     content = content ?: "",
     commentedBy = commentedBy ?: "Unknown",
     createdAt = parseFrappeDateTime(creation, siteTimeZone),
-    commentType = "Comment",
     attachments = mergeAttachments(attachments, content, baseUrl)
 )
 
