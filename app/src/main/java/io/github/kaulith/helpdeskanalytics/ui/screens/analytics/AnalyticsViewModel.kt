@@ -130,7 +130,7 @@ class AnalyticsViewModel(
                 ticketsByDay = calculateTicketsByDay(tickets),
                 totalTickets = tickets.size,
                 openPercentage = if (tickets.isNotEmpty())
-                    tickets.count { t -> t.status == Status.OPEN || t.status == Status.REPLIED }
+                    tickets.count { t -> t.isPending() }
                         .toFloat() / tickets.size * 100 else 0f,
                 resolvedPercentage = if (tickets.isNotEmpty())
                     tickets.count { t -> t.isResolved() }

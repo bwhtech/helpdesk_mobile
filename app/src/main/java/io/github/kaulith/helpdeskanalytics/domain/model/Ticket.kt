@@ -32,16 +32,15 @@ data class Ticket(
     }
 
     fun isOverdue(currentTime: Instant = Clock.System.now()): Boolean {
-        return when (status) {
-            Status.OPEN, Status.REPLIED -> {
-                responseBy?.let { currentTime > it } ?: false
-            }
-            else -> false
-        }
+        return isPending() && responseBy?.let { currentTime > it } == true
     }
 
     fun ageInHours(currentTime: Instant = Clock.System.now()): Long {
         return (currentTime - createdAt).inWholeHours
+    }
+
+    fun isPending(): Boolean {
+        return status == Status.OPEN || status == Status.REPLIED
     }
 
     fun isResolved(): Boolean {

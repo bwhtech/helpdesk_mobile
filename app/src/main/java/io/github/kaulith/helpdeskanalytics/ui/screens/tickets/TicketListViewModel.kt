@@ -259,9 +259,7 @@ class TicketListViewModel(
 
         // Pending only filter (Open or Replied, not yet resolved/closed)
         if (state.showPendingOnly) {
-            filtered = filtered.filter {
-                it.status == Status.OPEN || it.status == Status.REPLIED
-            }
+            filtered = filtered.filter { it.isPending() }
         }
 
         // Field conditions (quick chips + advanced builder), AND-combined
