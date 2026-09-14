@@ -5,13 +5,11 @@ import io.github.kaulith.helpdeskanalytics.data.local.preferences.PreferencesMan
 import io.github.kaulith.helpdeskanalytics.data.mapper.toDomain
 import io.github.kaulith.helpdeskanalytics.data.remote.api.ApiServiceProvider
 import io.github.kaulith.helpdeskanalytics.data.remote.api.OAuthClient
+import io.github.kaulith.helpdeskanalytics.data.remote.toNetworkError
 import io.github.kaulith.helpdeskanalytics.domain.model.User
 import io.github.kaulith.helpdeskanalytics.domain.repository.AuthRepository
 import io.github.kaulith.helpdeskanalytics.util.NetworkError
 import io.github.kaulith.helpdeskanalytics.util.Result
-import retrofit2.HttpException
-import java.io.IOException
-import java.net.SocketTimeoutException
 
 class FrappeAuthRepository(
     private val credentialsManager: CredentialsManager,
@@ -32,7 +30,7 @@ class FrappeAuthRepository(
         } catch (e: Exception) {
             credentialsManager.clearCredentials()
             apiServiceProvider.invalidate()
-            Result.Error(toNetworkError(e))
+            Result.Error(e.toNetworkError())
         }
     }
 
@@ -70,7 +68,7 @@ class FrappeAuthRepository(
             credentialsManager.clearOAuthSession()
             credentialsManager.clearOAuthRequest()
             apiServiceProvider.invalidate()
-            Result.Error(toNetworkError(e))
+            Result.Error(e.toNetworkError())
         }
     }
 
@@ -98,15 +96,5 @@ class FrappeAuthRepository(
         val siteUrl = credentialsManager.getSiteUrl() ?: return
         val accessToken = credentialsManager.getAccessToken() ?: return
         runCatching { oAuthClient.revoke(siteUrl, accessToken) }
-    }
-
-    private fun toNetworkError(e: Exception): NetworkError = when (e) {
-        is HttpException -> when (e.code()) {
-            401, 403 -> NetworkError.Unauthorized
-            else -> NetworkError.ApiError(e.code(), e.message())
-        }
-        is SocketTimeoutException -> NetworkError.Timeout
-        is IOException -> NetworkError.NoInternet
-        else -> NetworkError.Unknown(e)
     }
 }

@@ -33,19 +33,11 @@ class Converters {
     fun fromStatus(value: Status): String = value.value
 
     @TypeConverter
-    fun toStatus(value: String): Status = try {
-        Status.fromValue(value)
-    } catch (_: IllegalArgumentException) {
-        Status.OPEN
-    }
+    fun toStatus(value: String): Status = Status.fromValue(value)
 
     @TypeConverter
     fun fromPriority(value: Priority): String = value.value
 
     @TypeConverter
-    fun toPriority(value: String): Priority = try {
-        Priority.fromValue(value)
-    } catch (_: IllegalArgumentException) {
-        Priority.MEDIUM
-    }
+    fun toPriority(value: String): Priority = Priority.fromValue(value)
 }

@@ -4,7 +4,6 @@ import io.github.kaulith.helpdeskanalytics.domain.model.AgentPerformance
 import io.github.kaulith.helpdeskanalytics.domain.model.PeriodMetrics
 import io.github.kaulith.helpdeskanalytics.domain.model.Priority
 import io.github.kaulith.helpdeskanalytics.domain.model.ResponseTimePercentiles
-import io.github.kaulith.helpdeskanalytics.domain.model.Status
 import io.github.kaulith.helpdeskanalytics.domain.model.Ticket
 import io.github.kaulith.helpdeskanalytics.domain.model.TicketMetrics
 import io.github.kaulith.helpdeskanalytics.domain.model.TicketPreset
@@ -125,9 +124,7 @@ object MetricsCalculator {
 
     private fun periodMetrics(tickets: List<Ticket>): PeriodMetrics {
         val resolved = tickets.count { it.isResolved() }
-        val open = tickets.count {
-            it.status == Status.OPEN || it.status == Status.REPLIED
-        }
+        val open = tickets.count { it.isPending() }
         val total = tickets.size
         val trendPct = if (total > 0) {
             ((resolved.toFloat() / total) * 100f) - 50f

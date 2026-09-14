@@ -435,7 +435,7 @@ private fun SortMenu(currentSort: SortOption, onSortChange: (SortOption) -> Unit
     }
 }
 
-private data class SlaState(val overdue: Boolean, val approaching: Boolean)
+private data class SlaFlags(val overdue: Boolean, val approaching: Boolean)
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -453,18 +453,17 @@ private fun TicketCard(
     val cs = MaterialTheme.colorScheme
 
     // SLA flags computed once per (ticket, minute tick), so no per-frame Clock reads.
-    val slaState = remember(ticket, nowEpochMinute) {
+    val slaFlags = remember(ticket, nowEpochMinute) {
         val now = Instant.fromEpochMilliseconds(nowEpochMinute * 60_000L)
         val overdue = ticket.isOverdue(now)
         val approaching = !overdue && ticket.responseBy?.let { sla ->
             val timeLeft = sla - now
-            timeLeft.inWholeHours in 0..2 &&
-                    (ticket.status == Status.OPEN || ticket.status == Status.REPLIED)
+            timeLeft.inWholeHours in 0..2 && ticket.isPending()
         } == true
-        SlaState(overdue, approaching)
+        SlaFlags(overdue, approaching)
     }
-    val isOverdue = slaState.overdue
-    val isApproachingSLA = slaState.approaching
+    val isOverdue = slaFlags.overdue
+    val isApproachingSLA = slaFlags.approaching
 
     val a11yLabel = remember(ticket, isOverdue, isApproachingSLA) {
         buildString {

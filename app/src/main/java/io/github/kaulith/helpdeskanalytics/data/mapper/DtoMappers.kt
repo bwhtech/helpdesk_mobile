@@ -36,8 +36,8 @@ fun TicketDto.toDomain(siteTimeZone: TimeZone): Ticket {
     return Ticket(
         id = name,
         subject = subject ?: "(No subject)",
-        status = parseStatus(status),
-        priority = parsePriority(priority),
+        status = Status.fromValue(status),
+        priority = Priority.fromValue(priority),
         assignedTo = resolvedAgent,
         createdAt = createdInstant,
         modifiedAt = modifiedInstant,
@@ -81,24 +81,6 @@ private fun parseFrappeDateTimeOrNull(dateStr: String, siteTimeZone: TimeZone): 
         ldt.toInstant(siteTimeZone)
     } catch (_: Exception) {
         null
-    }
-}
-
-private fun parseStatus(value: String?): Status {
-    if (value.isNullOrBlank()) return Status.OPEN
-    return try {
-        Status.fromValue(value)
-    } catch (_: IllegalArgumentException) {
-        Status.OPEN
-    }
-}
-
-private fun parsePriority(value: String?): Priority {
-    if (value.isNullOrBlank()) return Priority.MEDIUM
-    return try {
-        Priority.fromValue(value)
-    } catch (_: IllegalArgumentException) {
-        Priority.MEDIUM
     }
 }
 
