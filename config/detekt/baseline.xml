@@ -125,7 +125,6 @@
     <ID>ReturnCount:CredentialsManager.kt$CredentialsManager$fun getAuthToken(): String?</ID>
     <ID>ReturnCount:DeviceTokenManager.kt$DeviceTokenManager$suspend fun registerCurrentDevice(): Boolean</ID>
     <ID>ReturnCount:FrappeAgentSessionManager.kt$FrappeAgentSessionManager$private suspend fun mintKeys(email: String): Result&lt;Unit&gt;</ID>
-    <ID>ReturnCount:NotificationApiClient.kt$NotificationApiClient$private fun isPushBackendSite(): Boolean</ID>
     <ID>ReturnCount:ReportBuilderScreen.kt$private fun dateRangeLabel(config: ReportConfig): String</ID>
     <ID>ReturnCount:ReportBuilderViewModel.kt$ReportBuilderViewModel$fun loadFilterOptions(column: ReportColumn)</ID>
     <ID>ReturnCount:ReportEngine.kt$ReportEngine$private fun matches(ticket: Ticket, filter: ReportFilter): Boolean</ID>

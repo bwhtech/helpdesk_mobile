@@ -41,7 +41,7 @@ class HelpdeskAnalyticsApp : Application(), ImageLoaderFactory {
 
     // Coil loader that carries the API key/secret, so private ticket attachments load.
     override fun newImageLoader(): ImageLoader {
-        val authedClient = OkHttpClient.Builder()
+        val authedClient = get<OkHttpClient>().newBuilder()
             .addInterceptor(AuthInterceptor(get<AgentSessionManager>(), get<CredentialsManager>()))
             .build()
         return ImageLoader.Builder(this)

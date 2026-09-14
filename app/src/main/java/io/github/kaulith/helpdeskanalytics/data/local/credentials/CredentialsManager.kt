@@ -30,6 +30,8 @@ class CredentialsManager(context: Context) {
 
     fun getSiteUrl(): String? = prefs.getString(KEY_SITE_URL, null)
 
+    fun siteBaseUrl(): String? = getSiteUrl()?.let { "$it/" }
+
     fun saveSiteUrl(siteUrl: String) {
         prefs.edit().putString(KEY_SITE_URL, siteUrl.trimEnd('/')).apply()
     }
