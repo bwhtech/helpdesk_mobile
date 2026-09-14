@@ -3,6 +3,7 @@ package io.github.kaulith.helpdeskanalytics.data.repository
 import io.github.kaulith.helpdeskanalytics.data.local.database.dao.CommentDao
 import io.github.kaulith.helpdeskanalytics.data.local.database.dao.TicketDao
 import io.github.kaulith.helpdeskanalytics.data.local.database.dao.UserDao
+import io.github.kaulith.helpdeskanalytics.data.local.database.entities.TicketEntity
 import io.github.kaulith.helpdeskanalytics.data.local.preferences.PreferencesManager
 import io.github.kaulith.helpdeskanalytics.data.mapper.toDomain
 import io.github.kaulith.helpdeskanalytics.data.mapper.toEntity
@@ -358,40 +359,25 @@ class FrappeTicketRepository(
         return Result.Success(Unit)
     }
 
-    override suspend fun updateTicketStatus(ticketId: String, status: Status): Result<Ticket> {
-        if (!agentSessionManager.canWrite()) return readOnlyError()
-        // Optimistic update: update Room immediately
-        val existing = ticketDao.getTicketById(ticketId)
-        if (existing != null) {
-            ticketDao.upsertTickets(listOf(existing.copy(status = status)))
-        }
+    override suspend fun updateTicketStatus(ticketId: String, status: Status): Result<Ticket> =
+        updateTicket(ticketId, UpdateTicketRequest(status = status.value)) { it.copy(status = status) }
 
-        return try {
-            val service = apiServiceProvider.getService()
-            val dto = service.updateTicket(ticketId, UpdateTicketRequest(status = status.value)).data
-            val ticket = dto.toDomain(apiServiceProvider.siteTimeZone())
-            ticketDao.upsertTickets(listOf(ticket.toEntity()))
-            replaceInAgentTickets(ticket)
-            Result.Success(ticket)
-        } catch (e: Exception) {
-            // Rollback
-            if (existing != null) {
-                ticketDao.upsertTickets(listOf(existing))
-            }
-            Result.Error(mapException(e))
-        }
-    }
+    override suspend fun updateTicketPriority(ticketId: String, priority: Priority): Result<Ticket> =
+        updateTicket(ticketId, UpdateTicketRequest(priority = priority.value)) { it.copy(priority = priority) }
 
-    override suspend fun updateTicketPriority(ticketId: String, priority: Priority): Result<Ticket> {
+    private suspend fun updateTicket(
+        ticketId: String,
+        request: UpdateTicketRequest,
+        optimisticChange: (TicketEntity) -> TicketEntity
+    ): Result<Ticket> {
         if (!agentSessionManager.canWrite()) return readOnlyError()
         val existing = ticketDao.getTicketById(ticketId)
         if (existing != null) {
-            ticketDao.upsertTickets(listOf(existing.copy(priority = priority)))
+            ticketDao.upsertTickets(listOf(optimisticChange(existing)))
         }
 
         return try {
-            val service = apiServiceProvider.getService()
-            val dto = service.updateTicket(ticketId, UpdateTicketRequest(priority = priority.value)).data
+            val dto = apiServiceProvider.getService().updateTicket(ticketId, request).data
             val ticket = dto.toDomain(apiServiceProvider.siteTimeZone())
             ticketDao.upsertTickets(listOf(ticket.toEntity()))
             replaceInAgentTickets(ticket)
@@ -430,22 +416,8 @@ class FrappeTicketRepository(
         }
     }
 
-    override suspend fun addComment(ticketId: String, content: String): Result<Unit> {
-        if (!agentSessionManager.canWrite()) return readOnlyError()
-        return try {
-            val service = apiServiceProvider.getService()
-            service.runDocMethod(
-                RunDocMethodRequest(
-                    dn = ticketId,
-                    method = "new_comment",
-                    args = mapOf("content" to content)
-                )
-            )
-            Result.Success(Unit)
-        } catch (e: Exception) {
-            Result.Error(mapException(e))
-        }
-    }
+    override suspend fun addComment(ticketId: String, content: String): Result<Unit> =
+        runTicketMethod(ticketId, method = "new_comment", args = mapOf("content" to content))
 
     override suspend fun getCommunications(ticketId: String): Result<List<Communication>> {
         return try {
@@ -459,17 +431,14 @@ class FrappeTicketRepository(
         }
     }
 
-    override suspend fun sendReply(ticketId: String, message: String): Result<Unit> {
+    override suspend fun sendReply(ticketId: String, message: String): Result<Unit> =
+        runTicketMethod(ticketId, method = "reply_via_agent", args = mapOf("message" to message))
+
+    private suspend fun runTicketMethod(ticketId: String, method: String, args: Map<String, String>): Result<Unit> {
         if (!agentSessionManager.canWrite()) return readOnlyError()
         return try {
-            val service = apiServiceProvider.getService()
-            service.runDocMethod(
-                RunDocMethodRequest(
-                    dn = ticketId,
-                    method = "reply_via_agent",
-                    args = mapOf("message" to message)
-                )
-            )
+            val request = RunDocMethodRequest(dn = ticketId, method = method, args = args)
+            apiServiceProvider.getService().runDocMethod(request)
             Result.Success(Unit)
         } catch (e: Exception) {
             Result.Error(mapException(e))
