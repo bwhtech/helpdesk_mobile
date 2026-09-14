@@ -2,11 +2,11 @@ package io.github.kaulith.helpdeskanalytics.testing
 
 import io.github.kaulith.helpdeskanalytics.domain.model.AgentPerformance
 import io.github.kaulith.helpdeskanalytics.domain.model.Comment
-import io.github.kaulith.helpdeskanalytics.domain.model.Communication
 import io.github.kaulith.helpdeskanalytics.domain.model.LeaderboardPeriod
 import io.github.kaulith.helpdeskanalytics.domain.model.Priority
 import io.github.kaulith.helpdeskanalytics.domain.model.Status
 import io.github.kaulith.helpdeskanalytics.domain.model.Ticket
+import io.github.kaulith.helpdeskanalytics.domain.model.TicketConversation
 import io.github.kaulith.helpdeskanalytics.domain.model.User
 import io.github.kaulith.helpdeskanalytics.domain.repository.TicketRepository
 import io.github.kaulith.helpdeskanalytics.util.Result
@@ -54,12 +54,12 @@ class FakeTicketRepository : TicketRepository {
     override suspend fun updateTicketPriority(ticketId: String, priority: Priority) =
         update(ticketId) { it.copy(priority = priority) }
 
-    override fun getComments(ticketId: String): Flow<Result<List<Comment>>> = flowOf(Result.Success(emptyList()))
+    override suspend fun getCachedComments(ticketId: String): List<Comment> = emptyList()
+
+    override suspend fun getConversation(ticketId: String): Result<TicketConversation> =
+        Result.Success(TicketConversation(emptyList(), emptyList()))
 
     override suspend fun addComment(ticketId: String, content: String): Result<Unit> = Result.Success(Unit)
-
-    override suspend fun getCommunications(ticketId: String): Result<List<Communication>> =
-        Result.Success(emptyList())
 
     override suspend fun sendReply(ticketId: String, message: String): Result<Unit> = Result.Success(Unit)
 

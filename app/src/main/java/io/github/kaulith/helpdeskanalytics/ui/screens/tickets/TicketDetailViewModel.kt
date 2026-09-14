@@ -70,8 +70,7 @@ class TicketDetailViewModel(
             when (val result = repository.getTicketById(ticketId)) {
                 is Result.Success -> {
                     _uiState.update { it.copy(ticket = result.data, isLoading = false) }
-                    loadComments(ticketId)
-                    loadCommunications(ticketId)
+                    loadConversation(ticketId)
                 }
                 is Result.Error -> _uiState.update {
                     it.copy(isLoading = false, error = result.exception.message ?: "Failed to load ticket")
@@ -81,39 +80,29 @@ class TicketDetailViewModel(
         }
     }
 
-    private fun loadComments(ticketId: String) {
+    private fun loadConversation(ticketId: String) {
         viewModelScope.launch {
-            repository.getComments(ticketId).collect { result ->
-                when (result) {
-                    is Result.Loading -> _uiState.update {
-                        it.copy(isLoadingComments = it.comments.isEmpty())
-                    }
-                    is Result.Success -> _uiState.update {
-                        it.copy(comments = result.data, isLoadingComments = false)
-                    }
-                    is Result.Error -> _uiState.update {
-                        it.copy(isLoadingComments = false)
-                    }
-                }
-            }
-        }
-    }
-
-    private fun loadCommunications(ticketId: String) {
-        viewModelScope.launch {
+            val cachedComments = repository.getCachedComments(ticketId)
             _uiState.update {
-                it.copy(isLoadingCommunications = it.communications.isEmpty(), communicationsError = null)
+                it.copy(
+                    comments = cachedComments,
+                    isLoadingComments = cachedComments.isEmpty(),
+                    isLoadingCommunications = it.communications.isEmpty(),
+                    communicationsError = null
+                )
             }
-            when (val result = repository.getCommunications(ticketId)) {
+            when (val result = repository.getConversation(ticketId)) {
                 is Result.Success -> _uiState.update {
                     it.copy(
-                        communications = result.data,
-                        isLoadingCommunications = false,
-                        communicationsError = null
+                        comments = result.data.comments,
+                        isLoadingComments = false,
+                        communications = result.data.communications,
+                        isLoadingCommunications = false
                     )
                 }
                 is Result.Error -> _uiState.update {
                     it.copy(
+                        isLoadingComments = false,
                         isLoadingCommunications = false,
                         communicationsError = result.exception.message ?: "Couldn't load replies"
                     )
@@ -129,7 +118,7 @@ class TicketDetailViewModel(
         failureMessage = "Failed to send reply",
         write = { repository.sendReply(ticketId, message) }
     ) {
-        loadCommunications(ticketId)
+        loadConversation(ticketId)
         // reply_via_agent moves the ticket to "Replied", so refresh quietly
         val fresh = repository.getTicketById(ticketId, force = true)
         if (fresh is Result.Success) {
@@ -161,7 +150,7 @@ class TicketDetailViewModel(
         failureMessage = "Failed to add comment",
         write = { repository.addComment(ticketId, content) }
     ) {
-        loadComments(ticketId)
+        loadConversation(ticketId)
     }
 
     private fun <T> runWrite(

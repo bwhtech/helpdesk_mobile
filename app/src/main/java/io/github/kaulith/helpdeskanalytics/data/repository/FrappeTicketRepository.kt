@@ -16,11 +16,11 @@ import io.github.kaulith.helpdeskanalytics.data.remote.dto.UpdateTicketRequest
 import io.github.kaulith.helpdeskanalytics.data.remote.toNetworkError
 import io.github.kaulith.helpdeskanalytics.domain.model.AgentPerformance
 import io.github.kaulith.helpdeskanalytics.domain.model.Comment
-import io.github.kaulith.helpdeskanalytics.domain.model.Communication
 import io.github.kaulith.helpdeskanalytics.domain.model.LeaderboardPeriod
 import io.github.kaulith.helpdeskanalytics.domain.model.Priority
 import io.github.kaulith.helpdeskanalytics.domain.model.Status
 import io.github.kaulith.helpdeskanalytics.domain.model.Ticket
+import io.github.kaulith.helpdeskanalytics.domain.model.TicketConversation
 import io.github.kaulith.helpdeskanalytics.domain.model.User
 import io.github.kaulith.helpdeskanalytics.domain.repository.TicketRepository
 import io.github.kaulith.helpdeskanalytics.util.Constants
@@ -390,46 +390,26 @@ class FrappeTicketRepository(
         }
     }
 
-    override fun getComments(ticketId: String): Flow<Result<List<Comment>>> = flow {
-        emit(Result.Loading)
+    override suspend fun getCachedComments(ticketId: String): List<Comment> =
+        commentDao.getCommentsForTicket(ticketId).first().map { it.toDomain() }
 
-        // Emit cached comments first
-        val cached = commentDao.getCommentsForTicket(ticketId).first()
-        if (cached.isNotEmpty()) {
-            emit(Result.Success(cached.map { it.toDomain() }))
-        }
-
-        // Fetch from API
-        try {
-            val service = apiServiceProvider.getService()
-            val activities = service.getTicketActivities(ticketId).message
+    override suspend fun getConversation(ticketId: String): Result<TicketConversation> {
+        return try {
+            val activities = apiServiceProvider.getService().getTicketActivities(ticketId).message
             val baseUrl = apiServiceProvider.siteBaseUrl().orEmpty()
             val siteTimeZone = apiServiceProvider.siteTimeZone()
             val comments = activities.comments.orEmpty().map { it.toDomain(baseUrl, siteTimeZone) }
             commentDao.deleteCommentsForTicket(ticketId)
             commentDao.upsertComments(comments.map { it.toEntity(ticketId) })
-            emit(Result.Success(comments))
+            val communications = activities.communications.orEmpty().map { it.toDomain(baseUrl, siteTimeZone) }
+            Result.Success(TicketConversation(comments, communications))
         } catch (e: Exception) {
-            if (cached.isEmpty()) {
-                emit(Result.Error(mapException(e)))
-            }
+            Result.Error(mapException(e))
         }
     }
 
     override suspend fun addComment(ticketId: String, content: String): Result<Unit> =
         runTicketMethod(ticketId, method = "new_comment", args = mapOf("content" to content))
-
-    override suspend fun getCommunications(ticketId: String): Result<List<Communication>> {
-        return try {
-            val service = apiServiceProvider.getService()
-            val activities = service.getTicketActivities(ticketId).message
-            val baseUrl = apiServiceProvider.siteBaseUrl().orEmpty()
-            val siteTimeZone = apiServiceProvider.siteTimeZone()
-            Result.Success(activities.communications.orEmpty().map { it.toDomain(baseUrl, siteTimeZone) })
-        } catch (e: Exception) {
-            Result.Error(mapException(e))
-        }
-    }
 
     override suspend fun sendReply(ticketId: String, message: String): Result<Unit> =
         runTicketMethod(ticketId, method = "reply_via_agent", args = mapOf("message" to message))
