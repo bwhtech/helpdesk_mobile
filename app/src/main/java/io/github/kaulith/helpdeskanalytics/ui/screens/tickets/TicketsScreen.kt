@@ -22,19 +22,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Bolt
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.FilterAlt
-import androidx.compose.material.icons.outlined.HourglassEmpty
 import androidx.compose.material.icons.outlined.Inbox
-import androidx.compose.material.icons.outlined.KeyboardArrowDown
-import androidx.compose.material.icons.outlined.Lock
-import androidx.compose.material.icons.outlined.PriorityHigh
-import androidx.compose.material.icons.outlined.RadioButtonUnchecked
-import androidx.compose.material.icons.outlined.Remove
-import androidx.compose.material.icons.automirrored.outlined.Reply
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.SwapVert
 import androidx.compose.material3.AssistChip
@@ -86,7 +78,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.res.stringResource
 import io.github.kaulith.helpdeskanalytics.R
-import io.github.kaulith.helpdeskanalytics.domain.model.Priority
 import io.github.kaulith.helpdeskanalytics.domain.model.Status
 import io.github.kaulith.helpdeskanalytics.domain.model.Ticket
 import io.github.kaulith.helpdeskanalytics.domain.model.TicketPreset
@@ -95,7 +86,12 @@ import io.github.kaulith.helpdeskanalytics.domain.model.filter.FilterOperator
 import io.github.kaulith.helpdeskanalytics.domain.model.filter.TicketFilterFields
 import io.github.kaulith.helpdeskanalytics.ui.components.EmptyBlock
 import io.github.kaulith.helpdeskanalytics.ui.components.FilterSheet
+import io.github.kaulith.helpdeskanalytics.ui.components.PriorityPill
 import io.github.kaulith.helpdeskanalytics.ui.components.SkeletonCard
+import io.github.kaulith.helpdeskanalytics.ui.components.StatusPill
+import io.github.kaulith.helpdeskanalytics.ui.components.TonalPill
+import io.github.kaulith.helpdeskanalytics.ui.components.statusContainerColor
+import io.github.kaulith.helpdeskanalytics.ui.components.statusOnContainerColor
 import io.github.kaulith.helpdeskanalytics.ui.theme.FrappeMotion
 import io.github.kaulith.helpdeskanalytics.ui.theme.FrappeRadius
 import io.github.kaulith.helpdeskanalytics.ui.theme.Spacing
@@ -613,127 +609,3 @@ private fun TicketCard(
         }
     }
 }
-
-// ---------------------------------------------------------------------------
-// Pills: tonal mini-badges that follow colorScheme container roles.
-// ---------------------------------------------------------------------------
-
-@Composable
-internal fun TonalPill(
-    label: String,
-    container: Color,
-    onContainer: Color,
-    leadingIcon: androidx.compose.ui.graphics.vector.ImageVector? = null,
-) {
-    Surface(
-        shape = FrappeRadius.full,
-        color = container,
-        contentColor = onContainer
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(3.dp),
-            modifier = Modifier.padding(
-                start = if (leadingIcon != null) 6.dp else 8.dp,
-                end = 8.dp,
-                top = 2.dp,
-                bottom = 2.dp,
-            )
-        ) {
-            if (leadingIcon != null) {
-                Icon(
-                    leadingIcon,
-                    contentDescription = null,
-                    modifier = Modifier.size(12.dp),
-                )
-            }
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.Medium,
-            )
-        }
-    }
-}
-
-@Composable
-internal fun StatusPill(status: Status) {
-    TonalPill(
-        label = status.value,
-        container = statusContainerColor(status),
-        onContainer = statusOnContainerColor(status),
-        leadingIcon = statusIcon(status),
-    )
-}
-
-@Composable
-internal fun PriorityPill(priority: Priority) {
-    TonalPill(
-        label = priority.value,
-        container = priorityContainerColor(priority),
-        onContainer = priorityOnContainerColor(priority),
-        leadingIcon = priorityIcon(priority),
-    )
-}
-
-internal fun statusIcon(status: Status): androidx.compose.ui.graphics.vector.ImageVector = when (status) {
-    Status.OPEN -> Icons.Outlined.RadioButtonUnchecked
-    Status.REPLIED -> Icons.AutoMirrored.Outlined.Reply
-    Status.AWAITING_APPROVAL -> Icons.Outlined.HourglassEmpty
-    Status.RESOLVED -> Icons.Outlined.CheckCircle
-    Status.CLOSED -> Icons.Outlined.Lock
-}
-
-internal fun priorityIcon(priority: Priority): androidx.compose.ui.graphics.vector.ImageVector = when (priority) {
-    Priority.URGENT -> Icons.Outlined.Bolt
-    Priority.HIGH -> Icons.Outlined.PriorityHigh
-    Priority.MEDIUM -> Icons.Outlined.Remove
-    Priority.LOW -> Icons.Outlined.KeyboardArrowDown
-}
-
-@Composable
-internal fun statusContainerColor(status: Status): Color {
-    val cs = MaterialTheme.colorScheme
-    return when (status) {
-        Status.OPEN -> cs.errorContainer
-        Status.REPLIED -> cs.tertiaryContainer
-        Status.AWAITING_APPROVAL -> cs.secondaryContainer
-        Status.RESOLVED -> cs.primaryContainer
-        Status.CLOSED -> cs.surfaceContainerHighest
-    }
-}
-
-@Composable
-internal fun statusOnContainerColor(status: Status): Color {
-    val cs = MaterialTheme.colorScheme
-    return when (status) {
-        Status.OPEN -> cs.onErrorContainer
-        Status.REPLIED -> cs.onTertiaryContainer
-        Status.AWAITING_APPROVAL -> cs.onSecondaryContainer
-        Status.RESOLVED -> cs.onPrimaryContainer
-        Status.CLOSED -> cs.onSurfaceVariant
-    }
-}
-
-@Composable
-internal fun priorityContainerColor(priority: Priority): Color {
-    val cs = MaterialTheme.colorScheme
-    return when (priority) {
-        Priority.URGENT -> cs.errorContainer
-        Priority.HIGH -> cs.tertiaryContainer
-        Priority.MEDIUM -> cs.secondaryContainer
-        Priority.LOW -> cs.surfaceContainerHighest
-    }
-}
-
-@Composable
-internal fun priorityOnContainerColor(priority: Priority): Color {
-    val cs = MaterialTheme.colorScheme
-    return when (priority) {
-        Priority.URGENT -> cs.onErrorContainer
-        Priority.HIGH -> cs.onTertiaryContainer
-        Priority.MEDIUM -> cs.onSecondaryContainer
-        Priority.LOW -> cs.onSurfaceVariant
-    }
-}
-
