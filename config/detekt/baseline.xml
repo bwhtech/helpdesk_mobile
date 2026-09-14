@@ -120,11 +120,11 @@
     <ID>MaxLineLength:Type.kt$FrappeTextStyles$val xs = TextStyle(fontFamily = InterFontFamily, fontWeight = FontWeight(420), fontSize = 12.sp, lineHeight = 13.8.sp, letterSpacing = 0.24.sp)</ID>
     <ID>MaxLineLength:Type.kt$FrappeTextStyles$val xs2 = TextStyle(fontFamily = InterFontFamily, fontWeight = FontWeight(420), fontSize = 11.sp, lineHeight = 12.65.sp, letterSpacing = 0.11.sp)</ID>
     <ID>MaxLineLength:Type.kt$displayMedium = FrappeTextStyles.xl3.copy(fontWeight = FontWeight(700), fontSize = 28.sp, lineHeight = 32.sp, letterSpacing = (-0.25).sp)</ID>
-    <ID>ReturnCount:AgentSessionManager.kt$AgentSessionManager$private suspend fun mintKeys(email: String): Result&lt;Unit&gt;</ID>
     <ID>ReturnCount:AuthInterceptor.kt$AuthInterceptor$override fun intercept(chain: Interceptor.Chain): Response</ID>
     <ID>ReturnCount:CredentialsManager.kt$CredentialsManager$fun getAgentToken(email: String): String?</ID>
     <ID>ReturnCount:CredentialsManager.kt$CredentialsManager$fun getAuthToken(): String?</ID>
     <ID>ReturnCount:DeviceTokenManager.kt$DeviceTokenManager$suspend fun registerCurrentDevice(): Boolean</ID>
+    <ID>ReturnCount:FrappeAgentSessionManager.kt$FrappeAgentSessionManager$private suspend fun mintKeys(email: String): Result&lt;Unit&gt;</ID>
     <ID>ReturnCount:NotificationApiClient.kt$NotificationApiClient$private fun isPushBackendSite(): Boolean</ID>
     <ID>ReturnCount:ReportBuilderScreen.kt$private fun dateRangeLabel(config: ReportConfig): String</ID>
     <ID>ReturnCount:ReportBuilderViewModel.kt$ReportBuilderViewModel$fun loadFilterOptions(column: ReportColumn)</ID>
@@ -138,9 +138,9 @@
     <ID>ReturnCount:UpdateChecker.kt$UpdateChecker$suspend fun availableUpdate(): AppUpdate?</ID>
     <ID>SwallowedException:FrappeAuthRepository.kt$FrappeAuthRepository$e: IOException</ID>
     <ID>SwallowedException:FrappeAuthRepository.kt$FrappeAuthRepository$e: SocketTimeoutException</ID>
-    <ID>TooGenericExceptionCaught:AgentSessionManager.kt$AgentSessionManager$e: Exception</ID>
     <ID>TooGenericExceptionCaught:DeviceTokenManager.kt$DeviceTokenManager$e: Exception</ID>
     <ID>TooGenericExceptionCaught:FrappeAgentRepository.kt$FrappeAgentRepository$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:FrappeAgentSessionManager.kt$FrappeAgentSessionManager$e: Exception</ID>
     <ID>TooGenericExceptionCaught:FrappeAuthRepository.kt$FrappeAuthRepository$e: Exception</ID>
     <ID>TooGenericExceptionCaught:FrappeReportDataRepository.kt$FrappeReportDataRepository$e: Exception</ID>
     <ID>TooGenericExceptionCaught:FrappeTeamRepository.kt$FrappeTeamRepository$e: Exception</ID>
@@ -160,7 +160,7 @@
     <ID>TooManyFunctions:TicketRepository.kt$TicketRepository</ID>
     <ID>TooManyFunctions:TicketsScreen.kt$io.github.kaulith.helpdeskanalytics.ui.screens.tickets.TicketsScreen.kt</ID>
     <ID>UnusedParameter:DashboardScreen.kt$index: Int</ID>
-    <ID>UseCheckOrError:AgentSessionManager.kt$AgentSessionManager$throw IllegalStateException("No site URL configured")</ID>
-    <ID>UseCheckOrError:ApiServiceProvider.kt$ApiServiceProvider$throw IllegalStateException("No site URL configured")</ID>
+    <ID>UseCheckOrError:FrappeAgentSessionManager.kt$FrappeAgentSessionManager$throw IllegalStateException("No site URL configured")</ID>
+    <ID>UseCheckOrError:FrappeApiServiceProvider.kt$FrappeApiServiceProvider$throw IllegalStateException("No site URL configured")</ID>
   </CurrentIssues>
 </SmellBaseline>
