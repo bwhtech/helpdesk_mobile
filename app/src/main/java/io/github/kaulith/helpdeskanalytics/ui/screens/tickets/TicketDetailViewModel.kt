@@ -123,94 +123,63 @@ class TicketDetailViewModel(
         }
     }
 
-    fun sendReply(ticketId: String, message: String) {
+    fun sendReply(ticketId: String, message: String) = runWrite(
+        setBusy = { copy(isSendingReply = it) },
+        successMessage = "Reply sent",
+        failureMessage = "Failed to send reply",
+        write = { repository.sendReply(ticketId, message) }
+    ) {
+        loadCommunications(ticketId)
+        // reply_via_agent moves the ticket to "Replied", so refresh quietly
+        val fresh = repository.getTicketById(ticketId, force = true)
+        if (fresh is Result.Success) {
+            _uiState.update { it.copy(ticket = fresh.data) }
+        }
+    }
+
+    fun updateStatus(ticketId: String, status: Status) = runWrite(
+        setBusy = { copy(isUpdating = it) },
+        successMessage = "Status updated to ${status.value}",
+        failureMessage = "Failed to update status",
+        write = { repository.updateTicketStatus(ticketId, status) }
+    ) { ticket ->
+        _uiState.update { it.copy(ticket = ticket) }
+    }
+
+    fun updatePriority(ticketId: String, priority: Priority) = runWrite(
+        setBusy = { copy(isUpdating = it) },
+        successMessage = "Priority updated to ${priority.value}",
+        failureMessage = "Failed to update priority",
+        write = { repository.updateTicketPriority(ticketId, priority) }
+    ) { ticket ->
+        _uiState.update { it.copy(ticket = ticket) }
+    }
+
+    fun addComment(ticketId: String, content: String) = runWrite(
+        setBusy = { copy(isAddingComment = it) },
+        successMessage = "Comment added",
+        failureMessage = "Failed to add comment",
+        write = { repository.addComment(ticketId, content) }
+    ) {
+        loadComments(ticketId)
+    }
+
+    private fun <T> runWrite(
+        setBusy: TicketDetailUiState.(Boolean) -> TicketDetailUiState,
+        successMessage: String,
+        failureMessage: String,
+        write: suspend () -> Result<T>,
+        onSuccess: suspend (T) -> Unit
+    ) {
         if (!requireActiveAgent()) return
         viewModelScope.launch {
-            _uiState.update { it.copy(isSendingReply = true) }
-            when (repository.sendReply(ticketId, message)) {
+            _uiState.update { it.setBusy(true) }
+            when (val result = write()) {
                 is Result.Success -> {
-                    _uiState.update { it.copy(isSendingReply = false, snackbarMessage = "Reply sent") }
-                    loadCommunications(ticketId)
-                    // reply_via_agent moves the ticket to "Replied", so refresh quietly
-                    val fresh = repository.getTicketById(ticketId, force = true)
-                    if (fresh is Result.Success) {
-                        _uiState.update { it.copy(ticket = fresh.data) }
-                    }
+                    _uiState.update { it.setBusy(false).copy(snackbarMessage = successMessage) }
+                    onSuccess(result.data)
                 }
-                is Result.Error -> _uiState.update {
-                    it.copy(isSendingReply = false, snackbarMessage = "Failed to send reply")
-                }
-                is Result.Loading -> {}
-            }
-        }
-    }
-
-    fun updateStatus(ticketId: String, status: Status) {
-        if (!requireActiveAgent()) return
-        viewModelScope.launch {
-            _uiState.update { it.copy(isUpdating = true) }
-            when (val result = repository.updateTicketStatus(ticketId, status)) {
-                is Result.Success -> _uiState.update {
-                    it.copy(
-                        ticket = result.data,
-                        isUpdating = false,
-                        snackbarMessage = "Status updated to ${status.value}"
-                    )
-                }
-                is Result.Error -> _uiState.update {
-                    it.copy(
-                        isUpdating = false,
-                        snackbarMessage = "Failed to update status"
-                    )
-                }
-                is Result.Loading -> {}
-            }
-        }
-    }
-
-    fun updatePriority(ticketId: String, priority: Priority) {
-        if (!requireActiveAgent()) return
-        viewModelScope.launch {
-            _uiState.update { it.copy(isUpdating = true) }
-            when (val result = repository.updateTicketPriority(ticketId, priority)) {
-                is Result.Success -> _uiState.update {
-                    it.copy(
-                        ticket = result.data,
-                        isUpdating = false,
-                        snackbarMessage = "Priority updated to ${priority.value}"
-                    )
-                }
-                is Result.Error -> _uiState.update {
-                    it.copy(
-                        isUpdating = false,
-                        snackbarMessage = "Failed to update priority"
-                    )
-                }
-                is Result.Loading -> {}
-            }
-        }
-    }
-
-    fun addComment(ticketId: String, content: String) {
-        if (!requireActiveAgent()) return
-        viewModelScope.launch {
-            _uiState.update { it.copy(isAddingComment = true) }
-            when (repository.addComment(ticketId, content)) {
-                is Result.Success -> {
-                    _uiState.update {
-                        it.copy(
-                            isAddingComment = false,
-                            snackbarMessage = "Comment added"
-                        )
-                    }
-                    loadComments(ticketId)
-                }
-                is Result.Error -> _uiState.update {
-                    it.copy(
-                        isAddingComment = false,
-                        snackbarMessage = "Failed to add comment"
-                    )
-                }
+                is Result.Error -> _uiState.update { it.setBusy(false).copy(snackbarMessage = failureMessage) }
                 is Result.Loading -> {}
             }
         }
