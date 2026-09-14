@@ -10,18 +10,18 @@ import io.github.kaulith.helpdeskanalytics.ui.agent.AgentSwitcherViewModel
 import io.github.kaulith.helpdeskanalytics.ui.screens.settings.SettingsViewModel
 import io.github.kaulith.helpdeskanalytics.ui.screens.tickets.TicketDetailViewModel
 import io.github.kaulith.helpdeskanalytics.ui.screens.tickets.TicketListViewModel
-import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 val viewModelModule = module {
-    viewModel { LoginViewModel(get(), get()) }
-    viewModel { DashboardViewModel(get(), get()) }
-    viewModel { TicketListViewModel(get(), get()) }
-    viewModel { TicketDetailViewModel(get(), get()) }
-    viewModel { AnalyticsViewModel(get(), get()) }
-    viewModel { LeaderboardViewModel(get(), get(), get()) }
-    viewModel { SettingsViewModel(get(), get(), get(), get(), get()) }
-    viewModel { AgentSwitcherViewModel(get()) }
-    viewModel { ReportTemplatesViewModel(get()) }
-    viewModel { ReportBuilderViewModel(get(), get(), get()) }
+    viewModelOf(::LoginViewModel)
+    viewModelOf(::DashboardViewModel)
+    viewModelOf(::TicketListViewModel)
+    viewModelOf(::TicketDetailViewModel)
+    viewModelOf(::AnalyticsViewModel)
+    viewModelOf(::LeaderboardViewModel)
+    viewModelOf(::SettingsViewModel)
+    viewModelOf(::AgentSwitcherViewModel)
+    viewModelOf(::ReportTemplatesViewModel)
+    viewModelOf(::ReportBuilderViewModel)
 }

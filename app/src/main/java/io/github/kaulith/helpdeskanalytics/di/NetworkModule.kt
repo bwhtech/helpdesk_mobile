@@ -7,14 +7,14 @@ import io.github.kaulith.helpdeskanalytics.data.remote.api.FrappeAgentSessionMan
 import io.github.kaulith.helpdeskanalytics.data.remote.api.FrappeApiServiceProvider
 import io.github.kaulith.helpdeskanalytics.data.remote.api.NotificationApiClient
 import io.github.kaulith.helpdeskanalytics.data.remote.api.OAuthClient
-import org.koin.android.ext.koin.androidContext
-import org.koin.dsl.bind
+import org.koin.core.module.dsl.bind
+import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
 val networkModule = module {
-    single { CredentialsManager(androidContext()) }
-    single { FrappeAgentSessionManager(get(), get()) } bind AgentSessionManager::class
-    single { OAuthClient(get()) }
-    single { FrappeApiServiceProvider(get(), get(), get()) } bind ApiServiceProvider::class
-    single { NotificationApiClient(get(), get()) }
+    singleOf(::CredentialsManager)
+    singleOf(::FrappeAgentSessionManager) { bind<AgentSessionManager>() }
+    singleOf(::OAuthClient)
+    singleOf(::FrappeApiServiceProvider) { bind<ApiServiceProvider>() }
+    singleOf(::NotificationApiClient)
 }
