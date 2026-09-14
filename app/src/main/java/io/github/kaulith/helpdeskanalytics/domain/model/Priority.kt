@@ -7,9 +7,7 @@ enum class Priority(val value: String, val weight: Int) {
     URGENT("Urgent", 4);
 
     companion object {
-        fun fromValue(value: String): Priority {
-            return entries.find { it.value.equals(value, ignoreCase = true) }
-                ?: throw IllegalArgumentException("Unknown priority: $value")
-        }
+        fun fromValue(value: String?): Priority =
+            entries.find { it.value.equals(value, ignoreCase = true) } ?: MEDIUM
     }
 }

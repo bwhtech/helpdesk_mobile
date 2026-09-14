@@ -8,9 +8,7 @@ enum class Status(val value: String) {
     CLOSED("Closed");
 
     companion object {
-        fun fromValue(value: String): Status {
-            return entries.find { it.value.equals(value, ignoreCase = true) }
-                ?: throw IllegalArgumentException("Unknown status: $value")
-        }
+        fun fromValue(value: String?): Status =
+            entries.find { it.value.equals(value, ignoreCase = true) } ?: OPEN
     }
 }
