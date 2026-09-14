@@ -2,11 +2,11 @@ package io.github.kaulith.helpdeskanalytics.domain.repository
 
 import io.github.kaulith.helpdeskanalytics.domain.model.AgentPerformance
 import io.github.kaulith.helpdeskanalytics.domain.model.Comment
-import io.github.kaulith.helpdeskanalytics.domain.model.Communication
 import io.github.kaulith.helpdeskanalytics.domain.model.LeaderboardPeriod
 import io.github.kaulith.helpdeskanalytics.domain.model.Priority
 import io.github.kaulith.helpdeskanalytics.domain.model.Status
 import io.github.kaulith.helpdeskanalytics.domain.model.Ticket
+import io.github.kaulith.helpdeskanalytics.domain.model.TicketConversation
 import io.github.kaulith.helpdeskanalytics.domain.model.User
 import io.github.kaulith.helpdeskanalytics.util.Result
 import kotlinx.coroutines.flow.Flow
@@ -38,13 +38,13 @@ interface TicketRepository {
 
     suspend fun updateTicketPriority(ticketId: String, priority: Priority): Result<Ticket>
 
-    fun getComments(ticketId: String): Flow<Result<List<Comment>>>
+    suspend fun getCachedComments(ticketId: String): List<Comment>
+
+    /** Internal comments and the customer-facing email thread, from one request; comments are cached. */
+    suspend fun getConversation(ticketId: String): Result<TicketConversation>
 
     /** Adds an internal note via the HD Ticket `new_comment` method. */
     suspend fun addComment(ticketId: String, content: String): Result<Unit>
-
-    /** The customer-facing email thread on the ticket. */
-    suspend fun getCommunications(ticketId: String): Result<List<Communication>>
 
     /** Emails a reply to the customer via the HD Ticket `reply_via_agent` method. */
     suspend fun sendReply(ticketId: String, message: String): Result<Unit>

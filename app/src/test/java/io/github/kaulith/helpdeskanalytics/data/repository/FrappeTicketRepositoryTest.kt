@@ -15,9 +15,14 @@ import io.github.kaulith.helpdeskanalytics.testing.FakeApiServiceProvider
 import io.github.kaulith.helpdeskanalytics.testing.FakeFrappeApiService
 import io.github.kaulith.helpdeskanalytics.util.Constants
 import io.github.kaulith.helpdeskanalytics.util.Result
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -72,6 +77,27 @@ class FrappeTicketRepositoryTest {
     }
 
     @Test
+    fun `screens opening on a stale cache share one ticket fetch`() = runBlocking {
+        service.tickets = listOf(ticketDto("77595", assign = null))
+        repository.refresh()
+        preferencesManager.setLastSync(System.currentTimeMillis() - Constants.CACHE_TTL_TICKETS - 1)
+        val gate = CompletableDeferred<Unit>()
+        service.ticketsGate = gate
+        val fetchesBefore = service.ticketFetches
+
+        val screens = List(SCREEN_COUNT) { async { repository.getTickets().toList() } }
+        withTimeoutOrNull(SECOND_FETCH_TIMEOUT_MS) {
+            while (service.ticketFetches - fetchesBefore < 2) delay(POLL_INTERVAL_MS)
+        }
+        gate.complete(Unit)
+
+        screens.awaitAll().forEach { emissions ->
+            assertEquals(listOf("77595"), (emissions.last() as Result.Success).data.map { it.id })
+        }
+        assertEquals(1, service.ticketFetches - fetchesBefore)
+    }
+
+    @Test
     fun `the user profile refreshes once a day even while tickets keep syncing`() = runBlocking {
         val now = System.currentTimeMillis()
         val cachedUser = User(
@@ -121,4 +147,10 @@ class FrappeTicketRepositoryTest {
         agreementStatus = null,
         description = null
     )
+
+    private companion object {
+        const val SCREEN_COUNT = 3
+        const val SECOND_FETCH_TIMEOUT_MS = 500L
+        const val POLL_INTERVAL_MS = 10L
+    }
 }

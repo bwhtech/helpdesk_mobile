@@ -16,11 +16,18 @@ import io.github.kaulith.helpdeskanalytics.data.remote.dto.TimeZoneDto
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.UpdateTicketRequest
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.UserApiKeyDto
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.UserDto
+import kotlinx.coroutines.CompletableDeferred
 
-/** Serves [tickets] and [user]; an endpoint a test does not set up fails loudly. */
+/**
+ * Serves [tickets] and [user]; an endpoint a test does not set up fails loudly.
+ * While [ticketsGate] is set, ticket list requests wait for it.
+ */
 class FakeFrappeApiService : FrappeApiService {
 
     var tickets: List<TicketDto> = emptyList()
+    var ticketsGate: CompletableDeferred<Unit>? = null
+    var ticketFetches = 0
+        private set
     var user: UserDto? = null
     var userFetches = 0
         private set
@@ -40,6 +47,8 @@ class FakeFrappeApiService : FrappeApiService {
         orderBy: String,
         filters: String?
     ): FrappeListResponse<TicketDto> {
+        ticketFetches++
+        ticketsGate?.await()
         val assignee = filters?.let { ASSIGN_FILTER.find(it)?.groupValues?.get(1) }
         return FrappeListResponse(tickets.filter { assignee == null || it.assign.orEmpty().contains(assignee) })
     }
