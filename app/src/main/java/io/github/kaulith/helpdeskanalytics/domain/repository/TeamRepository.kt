@@ -6,5 +6,4 @@ import kotlinx.coroutines.flow.Flow
 
 interface TeamRepository {
     fun getTeams(): Flow<Result<List<Team>>>
-    suspend fun refreshTeams(): Result<List<Team>>
 }

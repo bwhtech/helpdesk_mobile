@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import io.github.kaulith.helpdeskanalytics.util.Constants
-import kotlin.time.Duration.Companion.seconds
 
 class CredentialsManager(context: Context) {
 
@@ -54,21 +53,11 @@ class CredentialsManager(context: Context) {
 
     // --- OAuth session ---
 
-    fun saveOAuthSession(
-        accessToken: String,
-        refreshToken: String?,
-        expiresInSeconds: Long?
-    ) {
+    fun saveOAuthSession(accessToken: String, refreshToken: String?) {
         prefs.edit()
             .putString(KEY_ACCESS_TOKEN, accessToken)
             .apply {
                 if (refreshToken != null) putString(KEY_REFRESH_TOKEN, refreshToken)
-                if (expiresInSeconds != null) {
-                    putLong(
-                        KEY_TOKEN_EXPIRES_AT,
-                        System.currentTimeMillis() + expiresInSeconds.seconds.inWholeMilliseconds
-                    )
-                }
             }
             .apply()
     }
@@ -79,13 +68,10 @@ class CredentialsManager(context: Context) {
 
     fun getOAuthClientId(): String? = prefs.getString(KEY_OAUTH_CLIENT_ID, null)
 
-    fun accessTokenExpiresAt(): Long = prefs.getLong(KEY_TOKEN_EXPIRES_AT, 0L)
-
     fun clearOAuthSession() {
         prefs.edit()
             .remove(KEY_ACCESS_TOKEN)
             .remove(KEY_REFRESH_TOKEN)
-            .remove(KEY_TOKEN_EXPIRES_AT)
             .apply()
     }
 
@@ -160,7 +146,6 @@ class CredentialsManager(context: Context) {
         private const val KEY_ACTIVE_AGENT = "active_agent_email"
         private const val KEY_ACCESS_TOKEN = "oauth_access_token"
         private const val KEY_REFRESH_TOKEN = "oauth_refresh_token"
-        private const val KEY_TOKEN_EXPIRES_AT = "oauth_token_expires_at"
         private const val KEY_OAUTH_CLIENT_ID = "oauth_client_id"
         private const val KEY_OAUTH_STATE = "oauth_state"
         private const val KEY_OAUTH_VERIFIER = "oauth_code_verifier"

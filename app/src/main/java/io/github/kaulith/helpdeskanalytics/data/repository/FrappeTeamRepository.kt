@@ -39,17 +39,6 @@ class FrappeTeamRepository(
         }
     }
 
-    override suspend fun refreshTeams(): Result<List<Team>> {
-        return try {
-            val teams = fetchTeamsWithMembers()
-            teamDao.deleteAll()
-            teamDao.insertAll(teams.map { it.toEntity() })
-            Result.Success(teams)
-        } catch (e: Exception) {
-            Result.Error(e)
-        }
-    }
-
     private suspend fun fetchTeamsWithMembers(): List<Team> {
         val service = apiServiceProvider.getService()
         val teamList = service.getTeams().data

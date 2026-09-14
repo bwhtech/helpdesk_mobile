@@ -27,7 +27,4 @@ interface TicketDao {
 
     @Query("DELETE FROM tickets")
     suspend fun deleteAllTickets()
-
-    @Query("SELECT COUNT(*) FROM tickets")
-    suspend fun getTicketCount(): Int
 }

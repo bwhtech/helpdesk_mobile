@@ -9,6 +9,4 @@ import kotlinx.coroutines.flow.flowOf
 class FakeTeamRepository : TeamRepository {
 
     override fun getTeams(): Flow<Result<List<Team>>> = flowOf(Result.Success(emptyList()))
-
-    override suspend fun refreshTeams(): Result<List<Team>> = Result.Success(emptyList())
 }

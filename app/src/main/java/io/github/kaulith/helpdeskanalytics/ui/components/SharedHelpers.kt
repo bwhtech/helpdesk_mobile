@@ -1,10 +1,7 @@
 package io.github.kaulith.helpdeskanalytics.ui.components
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,11 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -37,9 +30,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import io.github.kaulith.helpdeskanalytics.ui.theme.FrappeMotion
 import io.github.kaulith.helpdeskanalytics.ui.theme.Spacing
-import kotlinx.coroutines.delay
 
 /**
  * Deterministic initials avatar painted with the active color scheme's
@@ -75,36 +66,6 @@ fun initialsFrom(name: String): String {
         parts.isEmpty() -> "?"
         parts.size == 1 -> parts[0].take(2).uppercase()
         else -> (parts.first().take(1) + parts.last().take(1)).uppercase()
-    }
-}
-
-/**
- * Staggered enter animation. Fades + slides content in with M3E spring physics,
- * delayed by `index * stepMs`. Cap delay with `maxStep`.
- */
-@Composable
-fun EnterAnimated(
-    index: Int,
-    modifier: Modifier = Modifier,
-    stepMs: Long = 40L,
-    maxStep: Int = 8,
-    content: @Composable () -> Unit,
-) {
-    var visible by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
-        delay(stepMs * index.coerceAtMost(maxStep))
-        visible = true
-    }
-    AnimatedVisibility(
-        visible = visible,
-        modifier = modifier,
-        enter = fadeIn(animationSpec = FrappeMotion.fadeIn()) +
-                slideInVertically(
-                    initialOffsetY = { it / 6 },
-                    animationSpec = FrappeMotion.spatialOffset,
-                ),
-    ) {
-        content()
     }
 }
 

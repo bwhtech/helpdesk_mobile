@@ -7,24 +7,17 @@ import io.github.kaulith.helpdeskanalytics.domain.model.LeaderboardPeriod
 import io.github.kaulith.helpdeskanalytics.domain.model.Priority
 import io.github.kaulith.helpdeskanalytics.domain.model.Status
 import io.github.kaulith.helpdeskanalytics.domain.model.Ticket
-import io.github.kaulith.helpdeskanalytics.domain.model.TicketMetrics
 import io.github.kaulith.helpdeskanalytics.domain.model.User
 import io.github.kaulith.helpdeskanalytics.util.Result
 import kotlinx.coroutines.flow.Flow
 
 interface TicketRepository {
 
-    fun getTickets(): Flow<Result<List<Ticket>>>
-
     fun getTickets(
         status: Status? = null,
         priority: Priority? = null,
         assignedTo: String? = null
     ): Flow<Result<List<Ticket>>>
-
-    suspend fun searchTickets(query: String): Result<List<Ticket>>
-
-    fun getDashboardMetrics(): Flow<Result<TicketMetrics>>
 
     fun getAgentPerformances(
         period: LeaderboardPeriod = LeaderboardPeriod.AllTime,
@@ -44,8 +37,6 @@ interface TicketRepository {
     suspend fun updateTicketStatus(ticketId: String, status: Status): Result<Ticket>
 
     suspend fun updateTicketPriority(ticketId: String, priority: Priority): Result<Ticket>
-
-    suspend fun updateTicketAssignment(ticketId: String, agentEmail: String): Result<Ticket>
 
     fun getComments(ticketId: String): Flow<Result<List<Comment>>>
 

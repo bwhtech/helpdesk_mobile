@@ -3,7 +3,6 @@ package io.github.kaulith.helpdeskanalytics.ui.screens.tickets
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.kaulith.helpdeskanalytics.domain.model.Agent
-import io.github.kaulith.helpdeskanalytics.domain.model.Priority
 import io.github.kaulith.helpdeskanalytics.domain.model.Status
 import io.github.kaulith.helpdeskanalytics.domain.model.Ticket
 import io.github.kaulith.helpdeskanalytics.domain.model.TicketPreset
@@ -56,7 +55,6 @@ data class TicketListUiState(
 
 sealed interface TicketListEvent {
     data class StatusChanged(val ticketId: String, val previous: Status) : TicketListEvent
-    data class PriorityChanged(val ticketId: String, val previous: Priority) : TicketListEvent
     data class BulkStatusChanged(val updated: Int, val selected: Int) : TicketListEvent
 }
 
@@ -87,7 +85,7 @@ class TicketListViewModel(
 
     /** Status quick-filter chip: a single equals condition, added or cleared in place. */
     fun onStatusFilterChange(status: Status?) =
-        setQuickEquals(TicketFilterFields.STATUS, status?.displayName)
+        setQuickEquals(TicketFilterFields.STATUS, status?.value)
 
     private fun setQuickEquals(field: FilterableField<Ticket>, value: String?) {
         _uiState.update { state ->

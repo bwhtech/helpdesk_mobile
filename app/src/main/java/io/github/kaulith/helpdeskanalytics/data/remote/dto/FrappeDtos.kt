@@ -110,8 +110,7 @@ data class RunDocMethodRequest(
 
 data class UpdateTicketRequest(
     @SerializedName("status") val status: String? = null,
-    @SerializedName("priority") val priority: String? = null,
-    @SerializedName("agent") val agent: String? = null
+    @SerializedName("priority") val priority: String? = null
 )
 
 data class TeamDto(

@@ -28,9 +28,9 @@ sealed interface FilterValueSource {
  */
 fun ReportColumn.valueSource(): FilterValueSource = when (this) {
     ReportColumn.STATUS ->
-        FilterValueSource.Fixed(Status.entries.map { FilterOption(it.value, it.displayName) })
+        FilterValueSource.Fixed(Status.entries.map { FilterOption(it.value, it.value) })
     ReportColumn.PRIORITY ->
-        FilterValueSource.Fixed(Priority.entries.map { FilterOption(it.value, it.displayName) })
+        FilterValueSource.Fixed(Priority.entries.map { FilterOption(it.value, it.value) })
     ReportColumn.OVERDUE ->
         FilterValueSource.Fixed(listOf(FilterOption("Yes", "Yes"), FilterOption("No", "No")))
     ReportColumn.FIRST_RESPONSE_SLA, ReportColumn.RESOLUTION_SLA,

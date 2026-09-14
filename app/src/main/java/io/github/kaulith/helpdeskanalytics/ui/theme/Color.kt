@@ -12,10 +12,8 @@ import androidx.compose.ui.graphics.lerp
 // scheme-neutral (Frappe grays) so accent colors read cleanly against them.
 
 internal data class PaletteFamily(
-    val l50: Color, val l100: Color, val l200: Color, val l400: Color,
-    val l500: Color, val l600: Color, val l700: Color, val l800: Color, val l900: Color,
-    val d50: Color, val d300: Color, val d400: Color, val d500: Color,
-    val d700: Color, val d800: Color, val d900: Color
+    val l100: Color, val l200: Color, val l600: Color, val l900: Color,
+    val d50: Color, val d400: Color, val d700: Color, val d800: Color
 )
 
 internal fun buildLightScheme(
@@ -127,7 +125,3 @@ internal fun buildDarkScheme(
     outline = FrappePalette.Dark.Gray.s500,
     outlineVariant = FrappePalette.Dark.Gray.s700
 )
-
-// Backwards-compat: old call sites (Theme.kt fallback) reference these directly.
-val LightColorScheme: ColorScheme = buildLightScheme(OceanFamily)
-val DarkColorScheme: ColorScheme = buildDarkScheme(OceanFamily)

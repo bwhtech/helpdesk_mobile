@@ -1,10 +1,10 @@
 package io.github.kaulith.helpdeskanalytics.domain.model
 
-enum class Priority(val value: String, val displayName: String, val weight: Int) {
-    LOW("Low", "Low", 1),
-    MEDIUM("Medium", "Medium", 2),
-    HIGH("High", "High", 3),
-    URGENT("Urgent", "Urgent", 4);
+enum class Priority(val value: String, val weight: Int) {
+    LOW("Low", 1),
+    MEDIUM("Medium", 2),
+    HIGH("High", 3),
+    URGENT("Urgent", 4);
 
     companion object {
         fun fromValue(value: String): Priority {

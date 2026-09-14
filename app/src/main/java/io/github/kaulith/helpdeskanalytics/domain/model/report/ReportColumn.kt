@@ -102,8 +102,8 @@ enum class ReportColumn(
     fun textValue(t: Ticket): String = when (this) {
         ID -> t.id
         SUBJECT -> t.subject
-        STATUS -> t.status.displayName
-        PRIORITY -> t.priority.displayName
+        STATUS -> t.status.value
+        PRIORITY -> t.priority.value
         AGENT -> t.assignedTo ?: t.assignees.firstOrNull() ?: "Unassigned"
         // Must be the `customer` link this column filters and groups on, not the contact.
         CUSTOMER -> t.customerId ?: "-"

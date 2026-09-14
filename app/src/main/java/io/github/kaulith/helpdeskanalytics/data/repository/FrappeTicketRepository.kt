@@ -20,7 +20,6 @@ import io.github.kaulith.helpdeskanalytics.domain.model.LeaderboardPeriod
 import io.github.kaulith.helpdeskanalytics.domain.model.Priority
 import io.github.kaulith.helpdeskanalytics.domain.model.Status
 import io.github.kaulith.helpdeskanalytics.domain.model.Ticket
-import io.github.kaulith.helpdeskanalytics.domain.model.TicketMetrics
 import io.github.kaulith.helpdeskanalytics.domain.model.User
 import io.github.kaulith.helpdeskanalytics.domain.repository.TicketRepository
 import io.github.kaulith.helpdeskanalytics.util.Constants
@@ -86,40 +85,6 @@ class FrappeTicketRepository(
     private fun readOnlyError() =
         Result.Error(IllegalStateException("Read-only: select an agent with API access to make changes"))
 
-    override fun getTickets(): Flow<Result<List<Ticket>>> = flow {
-        emit(Result.Loading)
-
-        // Emit cached Room data first
-        val cached = ticketDao.getAllTickets().first()
-        if (cached.isNotEmpty()) {
-            emit(Result.Success(cached.map { it.toDomain() }))
-        }
-
-        // Check TTL: if fresh enough, stop
-        val lastSync = preferencesManager.lastSync.first()
-        val now = System.currentTimeMillis()
-        if (cached.isNotEmpty() && (now - lastSync) < Constants.CACHE_TTL_TICKETS) {
-            return@flow
-        }
-
-        // Fetch from API
-        try {
-            val service = apiServiceProvider.getService()
-            val siteTimeZone = apiServiceProvider.siteTimeZone()
-            val response = service.getTickets()
-            val tickets = response.data.map { dto -> dto.toDomain(siteTimeZone) }
-            ticketDao.replaceAll(tickets.map { it.toEntity() })
-            preferencesManager.setLastSync(System.currentTimeMillis())
-            emit(Result.Success(tickets))
-        } catch (e: Exception) {
-            if (cached.isNotEmpty()) {
-                // Already emitted cached data above
-            } else {
-                emit(Result.Error(mapException(e)))
-            }
-        }
-    }.flowOn(Dispatchers.Default)
-
     override fun getTickets(
         status: Status?,
         priority: Priority?,
@@ -149,50 +114,6 @@ class FrappeTicketRepository(
             if (cached.isNotEmpty()) {
                 // Already emitted cached data above
             } else {
-                emit(Result.Error(mapException(e)))
-            }
-        }
-    }.flowOn(Dispatchers.Default)
-
-    override suspend fun searchTickets(query: String): Result<List<Ticket>> =
-        withContext(Dispatchers.Default) {
-            val cached = ticketDao.getAllTickets().first()
-            val results = cached.map { it.toDomain() }.filter { ticket ->
-                ticket.subject.contains(query, ignoreCase = true) ||
-                        ticket.id.contains(query, ignoreCase = true)
-            }
-            Result.Success(results)
-        }
-
-    override fun getDashboardMetrics(): Flow<Result<TicketMetrics>> = flow {
-        emit(Result.Loading)
-
-        // Emit from cached data first
-        val cached = ticketDao.getAllTickets().first()
-        if (cached.isNotEmpty()) {
-            val metrics = MetricsCalculator.computeMetrics(cached.map { it.toDomain() })
-            emit(Result.Success(metrics))
-        }
-
-        // Check TTL
-        val lastSync = preferencesManager.lastSync.first()
-        val now = System.currentTimeMillis()
-        if (cached.isNotEmpty() && (now - lastSync) < Constants.CACHE_TTL_TICKETS) {
-            return@flow
-        }
-
-        // Fetch from API
-        try {
-            val service = apiServiceProvider.getService()
-            val siteTimeZone = apiServiceProvider.siteTimeZone()
-            val response = service.getTickets()
-            val tickets = response.data.map { dto -> dto.toDomain(siteTimeZone) }
-            ticketDao.replaceAll(tickets.map { it.toEntity() })
-            preferencesManager.setLastSync(System.currentTimeMillis())
-            val metrics = MetricsCalculator.computeMetrics(tickets)
-            emit(Result.Success(metrics))
-        } catch (e: Exception) {
-            if (cached.isEmpty()) {
                 emit(Result.Error(mapException(e)))
             }
         }
@@ -471,28 +392,6 @@ class FrappeTicketRepository(
         return try {
             val service = apiServiceProvider.getService()
             val dto = service.updateTicket(ticketId, UpdateTicketRequest(priority = priority.value)).data
-            val ticket = dto.toDomain(apiServiceProvider.siteTimeZone())
-            ticketDao.upsertTickets(listOf(ticket.toEntity()))
-            replaceInAgentTickets(ticket)
-            Result.Success(ticket)
-        } catch (e: Exception) {
-            if (existing != null) {
-                ticketDao.upsertTickets(listOf(existing))
-            }
-            Result.Error(mapException(e))
-        }
-    }
-
-    override suspend fun updateTicketAssignment(ticketId: String, agentEmail: String): Result<Ticket> {
-        if (!agentSessionManager.canWrite()) return readOnlyError()
-        val existing = ticketDao.getTicketById(ticketId)
-        if (existing != null) {
-            ticketDao.upsertTickets(listOf(existing.copy(assignedTo = agentEmail)))
-        }
-
-        return try {
-            val service = apiServiceProvider.getService()
-            val dto = service.updateTicket(ticketId, UpdateTicketRequest(agent = agentEmail)).data
             val ticket = dto.toDomain(apiServiceProvider.siteTimeZone())
             ticketDao.upsertTickets(listOf(ticket.toEntity()))
             replaceInAgentTickets(ticket)

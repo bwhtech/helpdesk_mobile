@@ -154,7 +154,7 @@ class TicketDetailViewModel(
                     it.copy(
                         ticket = result.data,
                         isUpdating = false,
-                        snackbarMessage = "Status updated to ${status.displayName}"
+                        snackbarMessage = "Status updated to ${status.value}"
                     )
                 }
                 is Result.Error -> _uiState.update {
@@ -177,7 +177,7 @@ class TicketDetailViewModel(
                     it.copy(
                         ticket = result.data,
                         isUpdating = false,
-                        snackbarMessage = "Priority updated to ${priority.displayName}"
+                        snackbarMessage = "Priority updated to ${priority.value}"
                     )
                 }
                 is Result.Error -> _uiState.update {

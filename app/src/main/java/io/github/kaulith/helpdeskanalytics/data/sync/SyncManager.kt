@@ -26,8 +26,4 @@ class SyncManager(private val context: Context) {
             syncRequest
         )
     }
-
-    fun cancelSync() {
-        WorkManager.getInstance(context).cancelUniqueWork(SyncWorker.WORK_NAME)
-    }
 }

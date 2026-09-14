@@ -7,14 +7,12 @@ import io.github.kaulith.helpdeskanalytics.domain.model.LeaderboardPeriod
 import io.github.kaulith.helpdeskanalytics.domain.model.Priority
 import io.github.kaulith.helpdeskanalytics.domain.model.Status
 import io.github.kaulith.helpdeskanalytics.domain.model.Ticket
-import io.github.kaulith.helpdeskanalytics.domain.model.TicketMetrics
 import io.github.kaulith.helpdeskanalytics.domain.model.User
 import io.github.kaulith.helpdeskanalytics.domain.repository.TicketRepository
 import io.github.kaulith.helpdeskanalytics.util.Result
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 
@@ -32,14 +30,8 @@ class FakeTicketRepository : TicketRepository {
     fun agentPerformances(period: LeaderboardPeriod) =
         agentPerformancesByPeriod.getOrPut(period) { MutableSharedFlow(replay = 1) }
 
-    override fun getTickets(): Flow<Result<List<Ticket>>> = getTickets(status = null)
-
     override fun getTickets(status: Status?, priority: Priority?, assignedTo: String?): Flow<Result<List<Ticket>>> =
         tickets.map { Result.Success(it) }
-
-    override suspend fun searchTickets(query: String): Result<List<Ticket>> = Result.Success(emptyList())
-
-    override fun getDashboardMetrics(): Flow<Result<TicketMetrics>> = emptyFlow()
 
     override fun getAgentPerformances(period: LeaderboardPeriod, force: Boolean) = agentPerformances(period)
 
@@ -61,9 +53,6 @@ class FakeTicketRepository : TicketRepository {
 
     override suspend fun updateTicketPriority(ticketId: String, priority: Priority) =
         update(ticketId) { it.copy(priority = priority) }
-
-    override suspend fun updateTicketAssignment(ticketId: String, agentEmail: String) =
-        update(ticketId) { it.copy(assignedTo = agentEmail, assignees = listOf(agentEmail)) }
 
     override fun getComments(ticketId: String): Flow<Result<List<Comment>>> = flowOf(Result.Success(emptyList()))
 
