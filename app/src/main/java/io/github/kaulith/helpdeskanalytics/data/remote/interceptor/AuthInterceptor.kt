@@ -37,11 +37,7 @@ class AuthInterceptor(
         return chain.proceed(request)
     }
 
-    private fun siteHost(): String? {
-        val siteUrl = credentialsManager.getSiteUrl() ?: return null
-        val absolute = if (siteUrl.startsWith("http", ignoreCase = true)) siteUrl else "https://$siteUrl"
-        return absolute.toHttpUrlOrNull()?.host
-    }
+    private fun siteHost(): String? = credentialsManager.siteBaseUrl()?.toHttpUrlOrNull()?.host
 
     companion object {
         private val READ_METHODS = setOf("GET", "HEAD")

@@ -4,12 +4,14 @@ import io.github.kaulith.helpdeskanalytics.data.local.credentials.CredentialsMan
 import io.github.kaulith.helpdeskanalytics.data.local.preferences.PreferencesManager
 import io.github.kaulith.helpdeskanalytics.util.Result
 import kotlinx.coroutines.flow.first
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class FrappeAgentSessionManager(
     private val credentialsManager: CredentialsManager,
-    private val preferencesManager: PreferencesManager
+    private val preferencesManager: PreferencesManager,
+    private val httpClient: OkHttpClient
 ) : AgentSessionManager {
     @Volatile
     private var activeAgentEmail: String? = credentialsManager.getActiveAgentEmail()
@@ -66,11 +68,11 @@ class FrappeAgentSessionManager(
 
     // A bare Retrofit with no auth interceptor; minting passes the session token explicitly.
     private fun buildService(): FrappeApiService {
-        val raw = credentialsManager.getSiteUrl()
+        val baseUrl = credentialsManager.siteBaseUrl()
             ?: throw IllegalStateException("No site URL configured")
-        val base = if (raw.endsWith("/")) raw else "$raw/"
         return Retrofit.Builder()
-            .baseUrl(base)
+            .baseUrl(baseUrl)
+            .client(httpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(FrappeApiService::class.java)

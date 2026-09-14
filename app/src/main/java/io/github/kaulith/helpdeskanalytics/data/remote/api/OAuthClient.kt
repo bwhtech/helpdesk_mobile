@@ -6,6 +6,7 @@ import android.util.Log
 import io.github.kaulith.helpdeskanalytics.data.local.credentials.CredentialsManager
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.OAuthTokenDto
 import kotlinx.coroutines.runBlocking
+import okhttp3.OkHttpClient
 import retrofit2.HttpException
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -16,7 +17,10 @@ import java.security.SecureRandom
  * The authorization-code half of the Frappe OAuth2 flow: builds the authorize URL,
  * trades the returned code for tokens, and refreshes them when they expire.
  */
-class OAuthClient(private val credentialsManager: CredentialsManager) {
+class OAuthClient(
+    private val credentialsManager: CredentialsManager,
+    private val httpClient: OkHttpClient
+) {
 
     private var cachedBaseUrl: String? = null
     private var cachedService: OAuthService? = null
@@ -113,6 +117,7 @@ class OAuthClient(private val credentialsManager: CredentialsManager) {
 
         val service = Retrofit.Builder()
             .baseUrl(baseUrl)
+            .client(httpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(OAuthService::class.java)

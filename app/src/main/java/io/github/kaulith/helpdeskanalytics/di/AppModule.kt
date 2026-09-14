@@ -17,6 +17,6 @@ val appModule = module {
     singleOf(::SyncManager)
     singleOf(::DeviceTokenManager)
     singleOf(::NotificationHelper)
-    single { UpdateChecker(BuildConfig.VERSION_NAME) }
+    single { UpdateChecker(BuildConfig.VERSION_NAME, get()) }
     singleOf(::OAuthRedirectHolder)
 }

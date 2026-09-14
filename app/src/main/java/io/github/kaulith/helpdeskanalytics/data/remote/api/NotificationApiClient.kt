@@ -1,15 +1,12 @@
 package io.github.kaulith.helpdeskanalytics.data.remote.api
 
-import io.github.kaulith.helpdeskanalytics.BuildConfig
 import io.github.kaulith.helpdeskanalytics.data.local.credentials.CredentialsManager
 import io.github.kaulith.helpdeskanalytics.data.remote.interceptor.TokenAuthenticator
 import io.github.kaulith.helpdeskanalytics.util.Constants
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.util.concurrent.TimeUnit
 
 /**
  * Talks to the helpdesk_push app, which usually lives on the same bench as the
@@ -20,18 +17,11 @@ import java.util.concurrent.TimeUnit
  */
 class NotificationApiClient(
     private val credentialsManager: CredentialsManager,
-    private val oAuthClient: OAuthClient
+    private val oAuthClient: OAuthClient,
+    private val httpClient: OkHttpClient
 ) {
     val service: NotificationApiService by lazy {
-        val loggingInterceptor = HttpLoggingInterceptor().apply {
-            level = if (BuildConfig.DEBUG) {
-                HttpLoggingInterceptor.Level.BASIC
-            } else {
-                HttpLoggingInterceptor.Level.NONE
-            }
-        }
-
-        val client = OkHttpClient.Builder()
+        val client = httpClient.newBuilder()
             .addInterceptor { chain ->
                 val builder = chain.request().newBuilder().header("Accept", "application/json")
                 credentialsManager.getAuthToken()?.let { token ->
@@ -44,10 +34,7 @@ class NotificationApiClient(
                 }
                 chain.proceed(builder.build())
             }
-            .addInterceptor(loggingInterceptor)
             .authenticator(TokenAuthenticator(credentialsManager, oAuthClient))
-            .connectTimeout(Constants.NETWORK_TIMEOUT, TimeUnit.MILLISECONDS)
-            .readTimeout(Constants.NETWORK_TIMEOUT, TimeUnit.MILLISECONDS)
             .build()
 
         Retrofit.Builder()
@@ -59,9 +46,7 @@ class NotificationApiClient(
     }
 
     private fun isPushBackendSite(): Boolean {
-        val siteUrl = credentialsManager.getSiteUrl() ?: return false
-        val absolute = if (siteUrl.startsWith("http", ignoreCase = true)) siteUrl else "https://$siteUrl"
-        val siteHost = absolute.toHttpUrlOrNull()?.host ?: return false
+        val siteHost = credentialsManager.siteBaseUrl()?.toHttpUrlOrNull()?.host ?: return false
         return siteHost.equals(PUSH_BACKEND_HOST, ignoreCase = true)
     }
 
