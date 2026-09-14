@@ -81,6 +81,10 @@ data class CommunicationDto(
 )
 
 // Payload of helpdesk's get_ticket_activities: the ticket conversation.
+data class TimeZoneDto(
+    @SerializedName("time_zone") val timeZone: String?
+)
+
 data class TicketActivitiesDto(
     @SerializedName("comments") val comments: List<CommentDto>? = null,
     @SerializedName("communications") val communications: List<CommunicationDto>? = null

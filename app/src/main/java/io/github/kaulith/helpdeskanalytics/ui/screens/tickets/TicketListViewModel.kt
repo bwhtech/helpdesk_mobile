@@ -57,7 +57,7 @@ data class TicketListUiState(
 sealed interface TicketListEvent {
     data class StatusChanged(val ticketId: String, val previous: Status) : TicketListEvent
     data class PriorityChanged(val ticketId: String, val previous: Priority) : TicketListEvent
-    data class BulkStatusChanged(val count: Int) : TicketListEvent
+    data class BulkStatusChanged(val updated: Int, val selected: Int) : TicketListEvent
 }
 
 class TicketListViewModel(
@@ -151,13 +151,17 @@ class TicketListViewModel(
         viewModelScope.launch {
             val result = repository.updateTicketStatus(ticket.id, next)
             if (result is Result.Success) {
+                replaceTicket(result.data)
                 _events.send(TicketListEvent.StatusChanged(ticket.id, ticket.status))
             }
         }
     }
 
     fun undoStatus(ticketId: String, previous: Status) {
-        viewModelScope.launch { repository.updateTicketStatus(ticketId, previous) }
+        viewModelScope.launch {
+            val result = repository.updateTicketStatus(ticketId, previous)
+            if (result is Result.Success) replaceTicket(result.data)
+        }
     }
 
     fun toggleSelected(ticketId: String) {
@@ -178,8 +182,12 @@ class TicketListViewModel(
         val ids = _uiState.value.selectedTicketIds.toList()
         if (ids.isEmpty()) return
         viewModelScope.launch {
-            ids.forEach { id -> repository.updateTicketStatus(id, status) }
-            _events.send(TicketListEvent.BulkStatusChanged(ids.size))
+            val updated = ids.count { id ->
+                val result = repository.updateTicketStatus(id, status)
+                if (result is Result.Success) replaceTicket(result.data)
+                result is Result.Success
+            }
+            _events.send(TicketListEvent.BulkStatusChanged(updated, ids.size))
             clearSelection()
         }
     }
@@ -230,6 +238,13 @@ class TicketListViewModel(
                 }
             }
         }
+    }
+
+    private fun replaceTicket(updated: Ticket) {
+        _uiState.update { state ->
+            state.copy(tickets = state.tickets.map { if (it.id == updated.id) updated else it })
+        }
+        applyFilters()
     }
 
     private fun applyFilters() {

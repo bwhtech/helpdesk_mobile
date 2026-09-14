@@ -80,6 +80,7 @@
     <string name="feedback_reply_sent">Reply sent</string>
     <string name="feedback_comment_added">Comment added</string>
     <string name="feedback_undo">Undo</string>
+    <string name="feedback_bulk_status_changed">Status updated on %1$d of %2$d tickets</string>
 
     <!-- Bulk select -->
     <string name="bulk_selected_count">%1$d selected</string>

@@ -57,6 +57,8 @@ private data class AgentCounts(
 
 private data class TimestampedCounts(val counts: AgentCounts, val fetchedAt: Long)
 
+private data class TimestampedTickets(val tickets: List<Ticket>, val fetchedAt: Long)
+
 /** Bounds go in the key so a "today" ranking cached yesterday is never reused. */
 private fun periodKey(bounds: ClosedRange<LocalDate>?): String =
     bounds?.let { "${it.start}:${it.endInclusive}" } ?: ALL_TIME_KEY
@@ -73,6 +75,11 @@ class FrappeTicketRepository(
     private val agentCountsMutex = Mutex()
     private val agentCountRequests = Semaphore(Constants.MAX_REQUESTS_PER_HOST)
     private val agentCountsByPeriod = mutableMapOf<String, TimestampedCounts>()
+
+    // Kept out of Room, which holds the newest tickets across all agents; an agent's
+    // own fetch reaches further back and must not replace that window.
+    private val agentTicketsMutex = Mutex()
+    private val agentTicketsByEmail = mutableMapOf<String, TimestampedTickets>()
 
     override fun canWrite(): Boolean = agentSessionManager.canWrite()
 
@@ -98,8 +105,9 @@ class FrappeTicketRepository(
         // Fetch from API
         try {
             val service = apiServiceProvider.getService()
+            val siteTimeZone = apiServiceProvider.siteTimeZone()
             val response = service.getTickets()
-            val tickets = response.data.map { dto -> dto.toDomain() }
+            val tickets = response.data.map { dto -> dto.toDomain(siteTimeZone) }
             ticketDao.replaceAll(tickets.map { it.toEntity() })
             preferencesManager.setLastSync(System.currentTimeMillis())
             emit(Result.Success(tickets))
@@ -119,33 +127,24 @@ class FrappeTicketRepository(
     ): Flow<Result<List<Ticket>>> = flow {
         emit(Result.Loading)
 
-        // Emit cached Room data first (filtered)
-        val cached = ticketDao.getAllTickets().first()
-        val cachedFiltered = cached.map { it.toDomain() }.filter { ticket ->
-            (status == null || ticket.status == status) &&
-                    (priority == null || ticket.priority == priority) &&
-                    (assignedTo == null || ticket.isAssignedTo(assignedTo))
-        }
+        // Emit cached data first: the agent's own fetch if there is one, else Room
+        val agentCached = assignedTo?.let { agentTicketsMutex.withLock { agentTicketsByEmail[it] } }
+        val cached = agentCached?.tickets ?: ticketDao.getAllTickets().first().map { it.toDomain() }
         if (cached.isNotEmpty()) {
-            emit(Result.Success(cachedFiltered))
+            emit(Result.Success(cached.filter { it.matches(status, priority, assignedTo) }))
         }
 
         // Check TTL
-        val lastSync = preferencesManager.lastSync.first()
+        val syncedAt = if (assignedTo == null) preferencesManager.lastSync.first() else agentCached?.fetchedAt ?: 0L
         val now = System.currentTimeMillis()
-        if (cached.isNotEmpty() && (now - lastSync) < Constants.CACHE_TTL_TICKETS) {
+        if (cached.isNotEmpty() && (now - syncedAt) < Constants.CACHE_TTL_TICKETS) {
             return@flow
         }
 
         // Fetch tickets from API with server-side filter when agent is specified
         try {
-            val service = apiServiceProvider.getService()
-            val apiFilters = buildApiFilters(assignedTo = assignedTo, status = status, priority = priority)
-            val response = service.getTickets(filters = apiFilters)
-            val tickets = response.data.map { dto -> dto.toDomain() }
-            ticketDao.replaceAll(tickets.map { it.toEntity() })
-            preferencesManager.setLastSync(System.currentTimeMillis())
-            emit(Result.Success(tickets))
+            val tickets = if (assignedTo == null) fetchAllTickets() else fetchAgentTickets(assignedTo)
+            emit(Result.Success(tickets.filter { it.matches(status, priority, assignedTo) }))
         } catch (e: Exception) {
             if (cached.isNotEmpty()) {
                 // Already emitted cached data above
@@ -185,8 +184,9 @@ class FrappeTicketRepository(
         // Fetch from API
         try {
             val service = apiServiceProvider.getService()
+            val siteTimeZone = apiServiceProvider.siteTimeZone()
             val response = service.getTickets()
-            val tickets = response.data.map { dto -> dto.toDomain() }
+            val tickets = response.data.map { dto -> dto.toDomain(siteTimeZone) }
             ticketDao.replaceAll(tickets.map { it.toEntity() })
             preferencesManager.setLastSync(System.currentTimeMillis())
             val metrics = MetricsCalculator.computeMetrics(tickets)
@@ -334,6 +334,11 @@ class FrappeTicketRepository(
     private fun jsonArray(vararg conditions: String) =
         conditions.joinToString(",", prefix = "[", postfix = "]")
 
+    private fun Ticket.matches(status: Status?, priority: Priority?, assignedTo: String?): Boolean =
+        (status == null || this.status == status) &&
+                (priority == null || this.priority == priority) &&
+                (assignedTo == null || isAssignedTo(assignedTo))
+
     private fun Ticket.finishedWithin(bounds: ClosedRange<LocalDate>): Boolean {
         val finished = resolvedAt ?: modifiedAt.takeIf { status == Status.CLOSED } ?: return false
         return finished.toLocalDateTime(TimeZone.currentSystemDefault()).date in bounds
@@ -349,9 +354,9 @@ class FrappeTicketRepository(
         }
 
         // Check TTL
-        val lastSync = preferencesManager.lastSync.first()
+        val userSyncedAt = preferencesManager.userSyncedAt.first()
         val now = System.currentTimeMillis()
-        if (cached != null && (now - lastSync) < Constants.CACHE_TTL_USER) {
+        if (cached != null && (now - userSyncedAt) < Constants.CACHE_TTL_USER) {
             return@flow
         }
 
@@ -361,6 +366,7 @@ class FrappeTicketRepository(
             val userDto = service.getUser(email).data
             val user = userDto.toDomain()
             userDao.upsertUser(user.toEntity())
+            preferencesManager.setUserSyncedAt(System.currentTimeMillis())
             emit(Result.Success(user))
         } catch (e: Exception) {
             if (cached == null) {
@@ -379,7 +385,7 @@ class FrappeTicketRepository(
         return try {
             val service = apiServiceProvider.getService()
             val dto = service.getTicket(id).data
-            val ticket = dto.toDomain()
+            val ticket = dto.toDomain(apiServiceProvider.siteTimeZone())
             ticketDao.upsertTickets(listOf(ticket.toEntity()))
             Result.Success(ticket)
         } catch (e: Exception) {
@@ -389,14 +395,36 @@ class FrappeTicketRepository(
 
     override suspend fun refresh(): Result<Unit> = withContext(Dispatchers.Default) {
         try {
-            val service = apiServiceProvider.getService()
-            val response = service.getTickets()
-            val tickets = response.data.map { dto -> dto.toDomain() }
-            ticketDao.replaceAll(tickets.map { it.toEntity() })
-            preferencesManager.setLastSync(System.currentTimeMillis())
+            fetchAllTickets()
+            agentTicketsMutex.withLock { agentTicketsByEmail.clear() }
             Result.Success(Unit)
         } catch (e: Exception) {
             Result.Error(mapException(e))
+        }
+    }
+
+    private suspend fun fetchAllTickets(): List<Ticket> {
+        val siteTimeZone = apiServiceProvider.siteTimeZone()
+        val tickets = apiServiceProvider.getService().getTickets().data.map { dto -> dto.toDomain(siteTimeZone) }
+        ticketDao.replaceAll(tickets.map { it.toEntity() })
+        preferencesManager.setLastSync(System.currentTimeMillis())
+        return tickets
+    }
+
+    private suspend fun fetchAgentTickets(agentEmail: String): List<Ticket> {
+        val siteTimeZone = apiServiceProvider.siteTimeZone()
+        val tickets = apiServiceProvider.getService()
+            .getTickets(filters = """[["_assign","like","%$agentEmail%"]]""")
+            .data.map { dto -> dto.toDomain(siteTimeZone) }
+        agentTicketsMutex.withLock {
+            agentTicketsByEmail[agentEmail] = TimestampedTickets(tickets, System.currentTimeMillis())
+        }
+        return tickets
+    }
+
+    private suspend fun replaceInAgentTickets(ticket: Ticket) = agentTicketsMutex.withLock {
+        agentTicketsByEmail.replaceAll { _, entry ->
+            entry.copy(tickets = entry.tickets.map { if (it.id == ticket.id) ticket else it })
         }
     }
 
@@ -404,6 +432,7 @@ class FrappeTicketRepository(
         ticketDao.deleteAllTickets()
         userDao.deleteAllUsers()
         commentDao.deleteAllComments()
+        agentTicketsMutex.withLock { agentTicketsByEmail.clear() }
         preferencesManager.setLastSync(0L)
         return Result.Success(Unit)
     }
@@ -419,8 +448,9 @@ class FrappeTicketRepository(
         return try {
             val service = apiServiceProvider.getService()
             val dto = service.updateTicket(ticketId, UpdateTicketRequest(status = status.value)).data
-            val ticket = dto.toDomain()
+            val ticket = dto.toDomain(apiServiceProvider.siteTimeZone())
             ticketDao.upsertTickets(listOf(ticket.toEntity()))
+            replaceInAgentTickets(ticket)
             Result.Success(ticket)
         } catch (e: Exception) {
             // Rollback
@@ -441,8 +471,9 @@ class FrappeTicketRepository(
         return try {
             val service = apiServiceProvider.getService()
             val dto = service.updateTicket(ticketId, UpdateTicketRequest(priority = priority.value)).data
-            val ticket = dto.toDomain()
+            val ticket = dto.toDomain(apiServiceProvider.siteTimeZone())
             ticketDao.upsertTickets(listOf(ticket.toEntity()))
+            replaceInAgentTickets(ticket)
             Result.Success(ticket)
         } catch (e: Exception) {
             if (existing != null) {
@@ -462,8 +493,9 @@ class FrappeTicketRepository(
         return try {
             val service = apiServiceProvider.getService()
             val dto = service.updateTicket(ticketId, UpdateTicketRequest(agent = agentEmail)).data
-            val ticket = dto.toDomain()
+            val ticket = dto.toDomain(apiServiceProvider.siteTimeZone())
             ticketDao.upsertTickets(listOf(ticket.toEntity()))
+            replaceInAgentTickets(ticket)
             Result.Success(ticket)
         } catch (e: Exception) {
             if (existing != null) {
@@ -487,7 +519,8 @@ class FrappeTicketRepository(
             val service = apiServiceProvider.getService()
             val activities = service.getTicketActivities(ticketId).message
             val baseUrl = apiServiceProvider.siteBaseUrl().orEmpty()
-            val comments = activities.comments.orEmpty().map { it.toDomain(baseUrl) }
+            val siteTimeZone = apiServiceProvider.siteTimeZone()
+            val comments = activities.comments.orEmpty().map { it.toDomain(baseUrl, siteTimeZone) }
             commentDao.deleteCommentsForTicket(ticketId)
             commentDao.upsertComments(comments.map { it.toEntity(ticketId) })
             emit(Result.Success(comments))
@@ -520,7 +553,8 @@ class FrappeTicketRepository(
             val service = apiServiceProvider.getService()
             val activities = service.getTicketActivities(ticketId).message
             val baseUrl = apiServiceProvider.siteBaseUrl().orEmpty()
-            Result.Success(activities.communications.orEmpty().map { it.toDomain(baseUrl) })
+            val siteTimeZone = apiServiceProvider.siteTimeZone()
+            Result.Success(activities.communications.orEmpty().map { it.toDomain(baseUrl, siteTimeZone) })
         } catch (e: Exception) {
             Result.Error(mapException(e))
         }
@@ -541,18 +575,6 @@ class FrappeTicketRepository(
         } catch (e: Exception) {
             Result.Error(mapException(e))
         }
-    }
-
-    private fun buildApiFilters(
-        assignedTo: String? = null,
-        status: Status? = null,
-        priority: Priority? = null
-    ): String? {
-        val filters = mutableListOf<String>()
-        assignedTo?.let { filters.add("""["_assign","like","%$it%"]""") }
-        status?.let { filters.add("""["status","=","${it.value}"]""") }
-        priority?.let { filters.add("""["priority","=","${it.value}"]""") }
-        return if (filters.isEmpty()) null else "[${filters.joinToString(",")}]"
     }
 
     private fun mapException(e: Exception): Exception = e.toNetworkError()

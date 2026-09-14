@@ -117,7 +117,7 @@ fun TicketsScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val statusChangedText = stringResource(R.string.feedback_status_changed)
     val undoText = stringResource(R.string.feedback_undo)
-    val bulkText = stringResource(R.string.bulk_selected_count)
+    val bulkText = stringResource(R.string.feedback_bulk_status_changed)
 
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
@@ -133,7 +133,7 @@ fun TicketsScreen(
                     }
                 }
                 is TicketListEvent.BulkStatusChanged -> snackbarHostState.showSnackbar(
-                    message = bulkText.format(event.count),
+                    message = bulkText.format(event.updated, event.selected),
                     duration = SnackbarDuration.Short,
                 )
                 else -> Unit

@@ -9,6 +9,7 @@ import io.github.kaulith.helpdeskanalytics.data.remote.dto.RunDocMethodRequest
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.TeamDto
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.TicketActivitiesDto
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.TicketDto
+import io.github.kaulith.helpdeskanalytics.data.remote.dto.TimeZoneDto
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.UpdateTicketRequest
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.UserApiKeyDto
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.UserDto
@@ -26,6 +27,9 @@ interface FrappeApiService {
 
     @GET("api/method/frappe.auth.get_logged_user")
     suspend fun getLoggedUser(): FrappeMethodResponse<String>
+
+    @GET("api/method/frappe.client.get_time_zone")
+    suspend fun getTimeZone(): FrappeMethodResponse<TimeZoneDto>
 
     @GET("api/resource/User/{email}")
     suspend fun getUser(@Path("email") email: String): FrappeSingleResponse<UserDto>
@@ -65,12 +69,13 @@ interface FrappeApiService {
         @Body request: UpdateTicketRequest
     ): FrappeSingleResponse<TicketDto>
 
-    // Helpdesk's own endpoint for a ticket's conversation. Returns comments +
-    // communications together, and runs server-side so it isn't blocked by the
-    // generic REST permissions on the Communication doctype.
-    @GET("api/method/helpdesk.helpdesk.doctype.hd_ticket.api.get_ticket_activities")
+    // Helpdesk's own endpoint for a ticket. Returns comments + communications
+    // together, and runs server-side so it isn't blocked by the generic REST
+    // permissions on the Communication doctype. Helpdesk develop removed
+    // get_ticket_activities; get_one carries the same keys on main and develop.
+    @GET("api/method/helpdesk.helpdesk.doctype.hd_ticket.api.get_one")
     suspend fun getTicketActivities(
-        @Query("ticket") ticket: String
+        @Query("name") ticket: String
     ): FrappeMethodResponse<TicketActivitiesDto>
 
     // Runs a whitelisted HD Ticket controller method (reply_via_agent, new_comment).

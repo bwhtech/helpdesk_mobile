@@ -68,11 +68,12 @@ class FrappeReportDataRepository(
         query: ReportQuery.Detail
     ): ReportData.Detail = coroutineScope {
         val rows = async {
+            val siteTimeZone = apiServiceProvider.siteTimeZone()
             service.getTickets(
                 limit = query.limit,
                 orderBy = query.orderBy,
                 filters = query.filters
-            ).data.map { it.toDomain() }
+            ).data.map { it.toDomain(siteTimeZone) }
         }
         val total = async { service.getTicketCount(filters = query.filters ?: "[]").message }
         val tickets = rows.await()
