@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import io.github.kaulith.helpdeskanalytics.data.local.preferences.PreferencesManager
 import io.github.kaulith.helpdeskanalytics.data.remote.api.OAuthClient
-import io.github.kaulith.helpdeskanalytics.domain.model.TicketFocus
 import io.github.kaulith.helpdeskanalytics.ui.navigation.PendingTicket
 import io.github.kaulith.helpdeskanalytics.ui.navigation.AppNavGraph
 import io.github.kaulith.helpdeskanalytics.ui.screens.auth.OAuthRedirectHolder
@@ -31,8 +30,6 @@ class MainActivity : ComponentActivity() {
     private val preferencesManager: PreferencesManager by inject()
     private val oAuthRedirectHolder: OAuthRedirectHolder by inject()
 
-    // FCM paints the tray itself for messages carrying a notification block, so a tap
-    // arrives as intent extras rather than the helpdesk://ticket/{id} deep link.
     private val pendingTicket = mutableStateOf<PendingTicket?>(null)
 
     private val requestNotificationPermission = registerForActivityResult(
@@ -43,7 +40,7 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         requestNotificationPermissionIfNeeded()
-        pendingTicket.value = pendingTicketFrom(intent)
+        pendingTicket.value = PendingTicket.from(intent)
         forwardOAuthRedirect(intent)
         enableEdgeToEdge()
         setContent {
@@ -72,7 +69,7 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        pendingTicket.value = pendingTicketFrom(intent)
+        pendingTicket.value = PendingTicket.from(intent)
         forwardOAuthRedirect(intent)
     }
 
@@ -82,22 +79,11 @@ class MainActivity : ComponentActivity() {
         if (uri.host == OAuthClient.REDIRECT_HOST) oAuthRedirectHolder.submit(uri)
     }
 
-    private fun pendingTicketFrom(intent: Intent?): PendingTicket? {
-        val ticketId = intent?.getStringExtra(TICKET_ID_EXTRA)?.takeIf { it.isNotBlank() }
-            ?: return null
-        return PendingTicket(ticketId, TicketFocus.fromPushType(intent.getStringExtra(TYPE_EXTRA)))
-    }
-
     private fun requestNotificationPermissionIfNeeded() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
         ) {
             requestNotificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
-    }
-
-    private companion object {
-        const val TICKET_ID_EXTRA = "ticketId"
-        const val TYPE_EXTRA = "type"
     }
 }
