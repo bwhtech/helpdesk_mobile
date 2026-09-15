@@ -7,7 +7,7 @@ next tagged release; older tags do not get patches.
 
 | Version | Supported |
 | ------- | --------- |
-| 1.0.2 (latest release) | Yes |
+| 1.1.0 (latest release) | Yes |
 | Older tags | No |
 
 ## Reporting a vulnerability
