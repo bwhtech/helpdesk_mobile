@@ -62,9 +62,9 @@ class TicketListViewModelTest {
         val viewModel = TicketListViewModel(repository, FakeAgentRepository())
         advanceUntilIdle()
 
-        viewModel.openWithPreset(TicketPreset.OPEN)
+        viewModel.openWithPreset(TicketPreset.OVERDUE)
         viewModel.onPresetChange(null)
-        viewModel.openWithPreset(TicketPreset.OPEN)
+        viewModel.openWithPreset(TicketPreset.OVERDUE)
 
         assertNull(viewModel.uiState.value.preset)
     }
