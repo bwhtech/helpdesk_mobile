@@ -1,5 +1,6 @@
 package io.github.kaulith.helpdeskanalytics.ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -39,7 +40,8 @@ fun TonalPill(
     Surface(
         shape = FrappeRadius.full,
         color = container,
-        contentColor = onContainer
+        contentColor = onContainer,
+        border = BorderStroke(1.dp, onContainer.copy(alpha = PILL_BORDER_ALPHA))
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -66,6 +68,8 @@ fun TonalPill(
         }
     }
 }
+
+private const val PILL_BORDER_ALPHA = 0.35f
 
 @Composable
 fun StatusPill(status: Status) {
