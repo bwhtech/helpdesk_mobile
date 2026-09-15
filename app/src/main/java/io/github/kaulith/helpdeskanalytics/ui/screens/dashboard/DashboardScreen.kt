@@ -41,7 +41,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -214,7 +216,7 @@ private fun SectionTitle(label: String) {
 }
 
 // ---------------------------------------------------------------------------
-// Hero: tonal surface, no gradient. M3 surfaceContainerHigh + onSurface text.
+// Hero: tonal surface deepening into the accent. M3 surfaceContainerHigh + onSurface text.
 // ---------------------------------------------------------------------------
 
 @Composable
@@ -235,11 +237,15 @@ private fun HeroHeader(userName: String?, topInset: androidx.compose.ui.unit.Dp)
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp)),
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        color = Color.Transparent,
         contentColor = MaterialTheme.colorScheme.onSurface
     ) {
         Column(
             modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    tonalGradient(MaterialTheme.colorScheme.surfaceContainerHigh, MaterialTheme.colorScheme.primary)
+                )
                 .padding(top = topInset + Spacing.lg, bottom = Spacing.xl)
                 .padding(horizontal = Spacing.lg),
             verticalArrangement = Arrangement.spacedBy(Spacing.xs)
@@ -277,7 +283,8 @@ private fun QuickStatsRow(metrics: TicketMetrics, onOpenPreset: (TicketPreset) -
             label = "Open",
             icon = Icons.Outlined.Inbox,
             container = MaterialTheme.colorScheme.primaryContainer,
-            onContainer = MaterialTheme.colorScheme.onPrimaryContainer
+            onContainer = MaterialTheme.colorScheme.onPrimaryContainer,
+            accent = MaterialTheme.colorScheme.primary
         ),
         QuickStat(
             value = metrics.today.ticketsResolved,
@@ -285,7 +292,8 @@ private fun QuickStatsRow(metrics: TicketMetrics, onOpenPreset: (TicketPreset) -
             label = "Resolved today",
             icon = Icons.Outlined.Timer,
             container = MaterialTheme.colorScheme.tertiaryContainer,
-            onContainer = MaterialTheme.colorScheme.onTertiaryContainer
+            onContainer = MaterialTheme.colorScheme.onTertiaryContainer,
+            accent = MaterialTheme.colorScheme.tertiary
         ),
         QuickStat(
             value = metrics.overdueCount,
@@ -297,7 +305,10 @@ private fun QuickStatsRow(metrics: TicketMetrics, onOpenPreset: (TicketPreset) -
             else MaterialTheme.colorScheme.surfaceContainerHighest,
             onContainer = if (metrics.overdueCount > 0)
                 MaterialTheme.colorScheme.onErrorContainer
-            else MaterialTheme.colorScheme.onSurface
+            else MaterialTheme.colorScheme.onSurface,
+            accent = if (metrics.overdueCount > 0)
+                MaterialTheme.colorScheme.error
+            else MaterialTheme.colorScheme.outline
         )
     )
 
@@ -321,7 +332,8 @@ private data class QuickStat(
     val label: String,
     val icon: ImageVector,
     val container: Color,
-    val onContainer: Color
+    val onContainer: Color,
+    val accent: Color
 )
 
 @Composable
@@ -334,12 +346,15 @@ private fun QuickStatCard(stat: QuickStat, onClick: () -> Unit) {
             .semantics(mergeDescendants = true) {
                 contentDescription = "${stat.label}: ${stat.value}, opens the ticket list"
             },
-        color = stat.container,
+        color = Color.Transparent,
         contentColor = stat.onContainer,
         shape = FrappeRadius.xl
     ) {
         Column(
-            modifier = Modifier.padding(Spacing.base),
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(tonalGradient(stat.container, stat.accent))
+                .padding(Spacing.base),
             verticalArrangement = Arrangement.spacedBy(Spacing.xs)
         ) {
             Icon(
@@ -365,6 +380,11 @@ private fun QuickStatCard(stat: QuickStat, onClick: () -> Unit) {
         }
     }
 }
+
+private fun tonalGradient(base: Color, accent: Color): Brush =
+    Brush.linearGradient(listOf(base, lerp(base, accent, GRADIENT_ACCENT_FRACTION)))
+
+private const val GRADIENT_ACCENT_FRACTION = 0.25f
 
 // ---------------------------------------------------------------------------
 // Overview metrics: outlined / filled cards on surface, no shadow.

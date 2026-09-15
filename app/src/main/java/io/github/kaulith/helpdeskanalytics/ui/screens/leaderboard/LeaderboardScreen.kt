@@ -64,6 +64,7 @@ import io.github.kaulith.helpdeskanalytics.ui.components.OnResume
 import io.github.kaulith.helpdeskanalytics.ui.components.SkeletonCard
 import io.github.kaulith.helpdeskanalytics.ui.theme.FrappeRadius
 import io.github.kaulith.helpdeskanalytics.ui.theme.Spacing
+import io.github.kaulith.helpdeskanalytics.ui.theme.accentOutline
 import io.github.kaulith.helpdeskanalytics.util.formatResolutionTime
 import io.github.kaulith.helpdeskanalytics.util.formatResponseTime
 import kotlinx.datetime.LocalDate
@@ -142,7 +143,8 @@ private fun PeriodChip(
             colors = AssistChipDefaults.assistChipColors(
                 containerColor = if (selected == LeaderboardPeriod.AllTime) cs.surfaceContainerLow
                 else cs.secondaryContainer
-            )
+            ),
+            border = AssistChipDefaults.assistChipBorder(enabled = true, borderColor = cs.accentOutline)
         )
         DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
             LeaderboardPeriod.presets.forEach { preset ->
@@ -235,7 +237,8 @@ private fun LeaderboardContent(
                 colors = AssistChipDefaults.assistChipColors(
                     containerColor = if (conditions.isEmpty()) cs.surfaceContainerLow
                     else cs.secondaryContainer
-                )
+                ),
+                border = AssistChipDefaults.assistChipBorder(enabled = true, borderColor = cs.accentOutline)
             )
             Spacer(Modifier.weight(1f))
             PeriodChip(selected = period, onSelect = onPeriodChange)
