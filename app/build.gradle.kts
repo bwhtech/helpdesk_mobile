@@ -136,7 +136,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.11.0")
     implementation("androidx.activity:activity-compose:1.13.0")
     implementation("androidx.browser:browser:1.10.0")
-    implementation(platform("androidx.compose:compose-bom:2026.08.00"))
+    implementation(platform("androidx.compose:compose-bom:2026.09.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
@@ -151,7 +151,7 @@ dependencies {
     implementation("com.google.firebase:firebase-perf")
 
     // Navigation
-    implementation("androidx.navigation:navigation-compose:2.10.0")
+    implementation("androidx.navigation:navigation-compose:2.10.1")
 
     // ViewModel & Lifecycle
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0")
@@ -169,9 +169,9 @@ dependencies {
     implementation("io.insert-koin:koin-androidx-compose:4.2.2")
 
     // Local Storage - Room
-    implementation("androidx.room:room-runtime:2.8.4")
-    implementation("androidx.room:room-ktx:2.8.4")
-    ksp("androidx.room:room-compiler:2.8.4")
+    implementation("androidx.room:room-runtime:2.8.5")
+    implementation("androidx.room:room-ktx:2.8.5")
+    ksp("androidx.room:room-compiler:2.8.5")
 
     // Preferences - DataStore
     implementation("androidx.datastore:datastore-preferences:1.2.1")
@@ -195,11 +195,11 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.11.0")
     testImplementation("io.insert-koin:koin-android-test:4.2.2")
-    testImplementation("androidx.room:room-testing:2.8.4")
+    testImplementation("androidx.room:room-testing:2.8.5")
     testImplementation("org.robolectric:robolectric:4.17")
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2026.08.00"))
+    androidTestImplementation(platform("androidx.compose:compose-bom:2026.09.00"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
