@@ -48,6 +48,8 @@ sealed interface LeaderboardPeriod {
     }
 
     companion object {
-        val presets = listOf(Today, LastTwoDays, Week, Month, AllTime)
+        // A getter, not a stored list: initialising any period object initialises this
+        // interface first, so a stored list would capture that object as null.
+        val presets: List<LeaderboardPeriod> get() = listOf(Today, LastTwoDays, Week, Month, AllTime)
     }
 }

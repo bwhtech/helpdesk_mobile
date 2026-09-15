@@ -105,6 +105,7 @@ import io.github.kaulith.helpdeskanalytics.ui.components.statusContainerColor
 import io.github.kaulith.helpdeskanalytics.ui.components.statusOnContainerColor
 import io.github.kaulith.helpdeskanalytics.ui.theme.FrappeRadius
 import io.github.kaulith.helpdeskanalytics.ui.theme.Spacing
+import io.github.kaulith.helpdeskanalytics.ui.theme.accentOutline
 import io.github.kaulith.helpdeskanalytics.util.formatResolutionTime
 import io.github.kaulith.helpdeskanalytics.util.formatResponseTime
 import io.github.kaulith.helpdeskanalytics.util.toRelativeTime
@@ -850,6 +851,7 @@ private fun TicketComposer(
                         colors = AssistChipDefaults.assistChipColors(
                             containerColor = cs.surfaceContainerLow,
                         ),
+                        border = AssistChipDefaults.assistChipBorder(enabled = true, borderColor = cs.accentOutline),
                     )
                 }
             }

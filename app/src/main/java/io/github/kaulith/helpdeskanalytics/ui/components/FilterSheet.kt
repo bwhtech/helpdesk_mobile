@@ -61,9 +61,12 @@ fun <T> FilterSheet(
     conditions: List<FilterCondition<T>>,
     onApply: (List<FilterCondition<T>>) -> Unit,
     onDismiss: () -> Unit,
+    presetLabel: String? = null,
+    onClearPreset: () -> Unit = {},
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var rows by remember { mutableStateOf(conditions) }
+    var showsPreset by remember { mutableStateOf(presetLabel != null) }
 
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
         Column(
@@ -81,12 +84,26 @@ fun <T> FilterSheet(
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.weight(1f),
                 )
-                if (rows.isNotEmpty()) {
-                    TextButton(onClick = { rows = emptyList() }) { Text("Clear all") }
+                if (rows.isNotEmpty() || showsPreset) {
+                    TextButton(onClick = { rows = emptyList(); showsPreset = false }) { Text("Clear all") }
                 }
             }
 
-            if (rows.isEmpty()) {
+            if (showsPreset && presetLabel != null) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = presetLabel,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.weight(1f),
+                    )
+                    IconButton(onClick = { showsPreset = false }) {
+                        Icon(Icons.Outlined.Close, contentDescription = "Remove filter",
+                            modifier = Modifier.size(18.dp))
+                    }
+                }
+            }
+
+            if (rows.isEmpty() && !showsPreset) {
                 Text(
                     text = "Empty, add a field to filter by",
                     style = MaterialTheme.typography.bodyMedium,
@@ -97,7 +114,7 @@ fun <T> FilterSheet(
 
             rows.forEachIndexed { index, condition ->
                 ConditionRow(
-                    prefix = if (index == 0) "Where" else "And",
+                    prefix = if (index == 0 && !showsPreset) "Where" else "And",
                     fields = fields,
                     condition = condition,
                     onChange = { updated -> rows = rows.toMutableList().also { it[index] = updated } },
@@ -115,7 +132,11 @@ fun <T> FilterSheet(
             }
 
             Button(
-                onClick = { onApply(rows); onDismiss() },
+                onClick = {
+                    onApply(rows)
+                    if (presetLabel != null && !showsPreset) onClearPreset()
+                    onDismiss()
+                },
                 modifier = Modifier.fillMaxWidth(),
             ) { Text("Apply") }
         }

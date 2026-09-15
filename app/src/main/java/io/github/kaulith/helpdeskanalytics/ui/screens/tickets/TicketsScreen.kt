@@ -2,6 +2,7 @@ package io.github.kaulith.helpdeskanalytics.ui.screens.tickets
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -42,7 +43,6 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -95,6 +95,7 @@ import io.github.kaulith.helpdeskanalytics.ui.components.statusOnContainerColor
 import io.github.kaulith.helpdeskanalytics.ui.theme.FrappeMotion
 import io.github.kaulith.helpdeskanalytics.ui.theme.FrappeRadius
 import io.github.kaulith.helpdeskanalytics.ui.theme.Spacing
+import io.github.kaulith.helpdeskanalytics.ui.theme.accentOutline
 import io.github.kaulith.helpdeskanalytics.util.toRelativeTime
 import kotlin.time.Instant
 import org.koin.androidx.compose.koinViewModel
@@ -167,7 +168,6 @@ fun TicketsScreen(
                             onStatusFilterChange = viewModel::onStatusFilterChange,
                             onConditionsChange = viewModel::onConditionsChange,
                             onSortOptionChange = viewModel::onSortOptionChange,
-                            onTogglePendingOnly = viewModel::togglePendingOnly,
                             onClearPreset = { viewModel.onPresetChange(null) },
                             onTicketClick = onTicketClick,
                             onStatusCycle = viewModel::cycleStatus,
@@ -204,7 +204,6 @@ private fun TicketsContent(
     onStatusFilterChange: (Status?) -> Unit,
     onConditionsChange: (List<FilterCondition<Ticket>>) -> Unit,
     onSortOptionChange: (SortOption) -> Unit,
-    onTogglePendingOnly: () -> Unit,
     onClearPreset: () -> Unit,
     onTicketClick: (String) -> Unit,
     onStatusCycle: (Ticket) -> Unit,
@@ -225,8 +224,11 @@ private fun TicketsContent(
             conditions = uiState.conditions,
             onApply = onConditionsChange,
             onDismiss = { showFilterSheet = false },
+            presetLabel = uiState.preset?.label,
+            onClearPreset = onClearPreset,
         )
     }
+    val filterCount = uiState.conditions.size + if (uiState.preset != null) 1 else 0
 
     Column(modifier = Modifier.fillMaxSize()) {
         // Contextual action bar, shown while multi-select is active.
@@ -280,7 +282,7 @@ private fun TicketsContent(
                 )
             )
 
-            // Toolbar: pending toggle + sort menu
+            // Toolbar: filter + sort menu
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
@@ -289,35 +291,15 @@ private fun TicketsContent(
                 AssistChip(
                     onClick = { showFilterSheet = true },
                     label = {
-                        Text(if (uiState.conditions.isEmpty()) "Filter"
-                        else "Filter (${uiState.conditions.size})")
+                        Text(if (filterCount == 0) "Filter" else "Filter ($filterCount)")
                     },
                     leadingIcon = { Icon(Icons.Outlined.FilterAlt, null, Modifier.size(16.dp)) },
                     shape = FrappeRadius.full,
                     colors = AssistChipDefaults.assistChipColors(
-                        containerColor = if (uiState.conditions.isEmpty()) cs.surfaceContainerLow
+                        containerColor = if (filterCount == 0) cs.surfaceContainerLow
                         else cs.secondaryContainer
-                    )
-                )
-                uiState.preset?.let { preset ->
-                    InputChip(
-                        selected = true,
-                        onClick = onClearPreset,
-                        label = { Text(preset.label) },
-                        trailingIcon = {
-                            Icon(Icons.Outlined.Close, "Clear ${preset.label} filter", Modifier.size(16.dp))
-                        },
-                        shape = FrappeRadius.full,
-                    )
-                }
-                FilterChip(
-                    selected = uiState.showPendingOnly,
-                    onClick = onTogglePendingOnly,
-                    label = { Text("Pending only") },
-                    leadingIcon = if (uiState.showPendingOnly) {
-                        { Icon(Icons.Outlined.FilterAlt, null, Modifier.size(16.dp)) }
-                    } else null,
-                    shape = FrappeRadius.full
+                    ),
+                    border = AssistChipDefaults.assistChipBorder(enabled = true, borderColor = cs.accentOutline)
                 )
                 Spacer(Modifier.weight(1f))
                 SortMenu(currentSort = uiState.sortOption, onSortChange = onSortOptionChange)
@@ -334,7 +316,12 @@ private fun TicketsContent(
                     selected = statusFilter == null,
                     onClick = { onStatusFilterChange(null) },
                     label = { Text("All") },
-                    shape = FrappeRadius.full
+                    shape = FrappeRadius.full,
+                    border = FilterChipDefaults.filterChipBorder(
+                        enabled = true,
+                        selected = statusFilter == null,
+                        borderColor = cs.accentOutline
+                    )
                 )
                 Status.entries.forEach { s ->
                     FilterChip(
@@ -347,6 +334,11 @@ private fun TicketsContent(
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = statusContainerColor(s),
                             selectedLabelColor = statusOnContainerColor(s)
+                        ),
+                        border = FilterChipDefaults.filterChipBorder(
+                            enabled = true,
+                            selected = statusFilter == s.value,
+                            borderColor = cs.accentOutline
                         )
                     )
                 }
@@ -405,13 +397,17 @@ private fun SortMenu(currentSort: SortOption, onSortChange: (SortOption) -> Unit
     Box {
         AssistChip(
             onClick = { expanded = true },
-            label = { Text(currentSort.label) },
+            label = { Text(currentSort.label, maxLines = 1) },
             leadingIcon = {
                 Icon(Icons.Outlined.SwapVert, null, Modifier.size(16.dp))
             },
             shape = FrappeRadius.full,
             colors = AssistChipDefaults.assistChipColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+            ),
+            border = AssistChipDefaults.assistChipBorder(
+                enabled = true,
+                borderColor = MaterialTheme.colorScheme.accentOutline
             )
         )
         DropdownMenu(
@@ -523,7 +519,8 @@ private fun TicketCard(
                 )
                 .semantics(mergeDescendants = true) { contentDescription = a11yLabel },
             shape = FrappeRadius.lg,
-            colors = CardDefaults.cardColors(containerColor = cardContainer)
+            colors = CardDefaults.cardColors(containerColor = cardContainer),
+            border = BorderStroke(1.dp, cs.accentOutline)
         ) {
             Row(
                 modifier = Modifier

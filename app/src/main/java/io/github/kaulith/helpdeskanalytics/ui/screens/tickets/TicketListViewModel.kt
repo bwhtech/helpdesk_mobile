@@ -46,7 +46,6 @@ data class TicketListUiState(
     val searchQuery: String = "",
     val conditions: List<FilterCondition<Ticket>> = emptyList(),
     val sortOption: SortOption = SortOption.NEWEST,
-    val showPendingOnly: Boolean = false,
     val preset: TicketPreset? = null,
     val activeAgent: Agent? = null,
     val canWrite: Boolean = false,
@@ -128,11 +127,6 @@ class TicketListViewModel(
 
     fun onSortOptionChange(option: SortOption) {
         _uiState.update { it.copy(sortOption = option) }
-        applyFilters()
-    }
-
-    fun togglePendingOnly() {
-        _uiState.update { it.copy(showPendingOnly = !it.showPendingOnly) }
         applyFilters()
     }
 
@@ -255,11 +249,6 @@ class TicketListViewModel(
             val now = Clock.System.now()
             val zone = TimeZone.currentSystemDefault()
             filtered = filtered.filter { preset.matches(it, now, zone) }
-        }
-
-        // Pending only filter (Open or Replied, not yet resolved/closed)
-        if (state.showPendingOnly) {
-            filtered = filtered.filter { it.isPending() }
         }
 
         // Field conditions (quick chips + advanced builder), AND-combined
