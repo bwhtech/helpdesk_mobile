@@ -21,4 +21,6 @@ class FakeAgentRepository : AgentRepository {
         activeAgent.value = agent
         return Result.Success(Unit)
     }
+
+    override suspend fun selectLoginUserAsAgent() = Unit
 }

@@ -19,7 +19,7 @@ import io.github.kaulith.helpdeskanalytics.data.remote.dto.UserDto
 import kotlinx.coroutines.CompletableDeferred
 
 /**
- * Serves [tickets] and [user]; an endpoint a test does not set up fails loudly.
+ * Serves [tickets], [user] and [agents]; an endpoint a test does not set up fails loudly.
  * While [ticketsGate] is set, ticket list requests wait for it.
  */
 class FakeFrappeApiService : FrappeApiService {
@@ -29,6 +29,7 @@ class FakeFrappeApiService : FrappeApiService {
     var ticketFetches = 0
         private set
     var user: UserDto? = null
+    var agents: List<AgentDto> = emptyList()
     var userFetches = 0
         private set
 
@@ -92,7 +93,7 @@ class FakeFrappeApiService : FrappeApiService {
         filters: String,
         limit: Int,
         orderBy: String
-    ): FrappeListResponse<AgentDto> = notFaked()
+    ): FrappeListResponse<AgentDto> = FrappeListResponse(agents)
 
     private fun notFaked(): Nothing = throw UnsupportedOperationException("Not faked")
 
