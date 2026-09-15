@@ -38,6 +38,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -48,9 +50,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.kaulith.helpdeskanalytics.R
+import io.github.kaulith.helpdeskanalytics.ui.components.openWebLink
 import io.github.kaulith.helpdeskanalytics.ui.theme.FrappeRadius
 import io.github.kaulith.helpdeskanalytics.ui.theme.Spacing
 import org.koin.androidx.compose.koinViewModel
+
+private const val API_CREDENTIALS_GUIDE_URL =
+    "https://docs.frappe.io/framework/user/en/guides/integration/rest_api/token_based_authentication"
 
 @Composable
 fun LoginScreen(
@@ -60,6 +66,7 @@ fun LoginScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
+    val uriHandler = LocalUriHandler.current
     val cs = MaterialTheme.colorScheme
 
     LaunchedEffect(uiState.isLoginSuccess) {
@@ -87,10 +94,9 @@ fun LoginScreen(
                 .padding(horizontal = Spacing.xl, vertical = Spacing.xl2),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Hero icon: primaryContainer tile, scheme-aware
             Surface(
                 shape = FrappeRadius.xl2,
-                color = cs.primaryContainer,
+                color = colorResource(R.color.ic_launcher_background),
                 modifier = Modifier.size(96.dp)
             ) {
                 Box(contentAlignment = Alignment.Center) {
@@ -276,19 +282,15 @@ fun LoginScreen(
                 )
             }
 
-            Spacer(Modifier.height(Spacing.lg))
-
-            Text(
-                text = if (uiState.useApiKey) {
-                    "Need help generating API credentials?"
-                } else {
-                    "Signing in opens your site in the browser"
-                },
-                style = MaterialTheme.typography.bodySmall,
-                color = cs.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
+            if (uiState.useApiKey) {
+                Spacer(Modifier.height(Spacing.lg))
+                TextButton(onClick = { uriHandler.openWebLink(API_CREDENTIALS_GUIDE_URL) }) {
+                    Text(
+                        text = "Need help generating API credentials?",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
         }
     }
 }
