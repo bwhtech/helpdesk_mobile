@@ -3,6 +3,7 @@ package io.github.kaulith.helpdeskanalytics.ui.screens.tickets
 import io.github.kaulith.helpdeskanalytics.domain.model.Priority
 import io.github.kaulith.helpdeskanalytics.domain.model.Status
 import io.github.kaulith.helpdeskanalytics.domain.model.Ticket
+import io.github.kaulith.helpdeskanalytics.domain.model.TicketPreset
 import io.github.kaulith.helpdeskanalytics.testing.FakeAgentRepository
 import io.github.kaulith.helpdeskanalytics.testing.FakeTicketRepository
 import io.github.kaulith.helpdeskanalytics.testing.MainDispatcherRule
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
 
@@ -53,6 +55,18 @@ class TicketListViewModelTest {
         assertEquals(TicketListEvent.BulkStatusChanged(updated = 1, selected = 2), viewModel.events.first())
         assertEquals(Status.RESOLVED, viewModel.uiState.value.tickets.first { it.id == "1" }.status)
         assertEquals(Status.OPEN, viewModel.uiState.value.tickets.first { it.id == "2" }.status)
+    }
+
+    @Test
+    fun `reopening with the same preset keeps a cleared chip cleared`() = runTest {
+        val viewModel = TicketListViewModel(repository, FakeAgentRepository())
+        advanceUntilIdle()
+
+        viewModel.openWithPreset(TicketPreset.OVERDUE)
+        viewModel.onPresetChange(null)
+        viewModel.openWithPreset(TicketPreset.OVERDUE)
+
+        assertNull(viewModel.uiState.value.preset)
     }
 
     private fun ticket(id: String, status: Status) = Ticket(
