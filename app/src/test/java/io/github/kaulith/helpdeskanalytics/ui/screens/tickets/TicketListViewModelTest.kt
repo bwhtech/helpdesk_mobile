@@ -4,6 +4,7 @@ import io.github.kaulith.helpdeskanalytics.domain.model.Priority
 import io.github.kaulith.helpdeskanalytics.domain.model.Status
 import io.github.kaulith.helpdeskanalytics.domain.model.Ticket
 import io.github.kaulith.helpdeskanalytics.domain.model.TicketPreset
+import io.github.kaulith.helpdeskanalytics.domain.model.filter.TicketFilterFields
 import io.github.kaulith.helpdeskanalytics.testing.FakeAgentRepository
 import io.github.kaulith.helpdeskanalytics.testing.FakeTicketRepository
 import io.github.kaulith.helpdeskanalytics.testing.MainDispatcherRule
@@ -67,6 +68,18 @@ class TicketListViewModelTest {
         viewModel.openWithPreset(TicketPreset.OVERDUE)
 
         assertNull(viewModel.uiState.value.preset)
+    }
+
+    @Test
+    fun `opening with the open preset selects the open status chip`() = runTest {
+        val viewModel = TicketListViewModel(repository, FakeAgentRepository())
+        advanceUntilIdle()
+
+        viewModel.openWithPreset(TicketPreset.OPEN)
+
+        val state = viewModel.uiState.value
+        assertNull(state.preset)
+        assertEquals(Status.OPEN.value, state.conditions.single { it.field == TicketFilterFields.STATUS }.value)
     }
 
     private fun ticket(id: String, status: Status) = Ticket(
