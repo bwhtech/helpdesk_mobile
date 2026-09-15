@@ -118,11 +118,12 @@ class TicketListViewModel(
     /**
      * The preset the screen was opened with. Applied once: a later call is the same
      * back stack entry recomposing, which must not restore a chip the user cleared.
+     * Open is a plain status, so it selects the Open status chip instead of a preset.
      */
     fun openWithPreset(preset: TicketPreset?) {
         if (presetApplied) return
         presetApplied = true
-        onPresetChange(preset)
+        if (preset == TicketPreset.OPEN) onStatusFilterChange(Status.OPEN) else onPresetChange(preset)
     }
 
     fun onSortOptionChange(option: SortOption) {
