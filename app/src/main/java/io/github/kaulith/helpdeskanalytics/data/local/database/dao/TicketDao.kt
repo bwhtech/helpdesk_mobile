@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface TicketDao {
 
+    // A large cache spans several cursor windows; a delete between window fills crashes a read with no transaction.
+    @Transaction
     @Query("SELECT * FROM tickets ORDER BY createdAt DESC")
     fun getAllTickets(): Flow<List<TicketEntity>>
 
