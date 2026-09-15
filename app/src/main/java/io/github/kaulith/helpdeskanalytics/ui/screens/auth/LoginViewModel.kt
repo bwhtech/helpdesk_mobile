@@ -3,6 +3,7 @@ package io.github.kaulith.helpdeskanalytics.ui.screens.auth
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.kaulith.helpdeskanalytics.domain.repository.AgentRepository
 import io.github.kaulith.helpdeskanalytics.domain.repository.AuthRepository
 import io.github.kaulith.helpdeskanalytics.util.NetworkError
 import io.github.kaulith.helpdeskanalytics.util.Result
@@ -33,6 +34,7 @@ data class LoginUiState(
 
 class LoginViewModel(
     private val authRepository: AuthRepository,
+    private val agentRepository: AgentRepository,
     private val oAuthRedirectHolder: OAuthRedirectHolder
 ) : ViewModel() {
 
@@ -159,9 +161,12 @@ class LoginViewModel(
         )
     }
 
-    private fun applyResult(result: Result<*>, unauthorizedMessage: String) {
+    private suspend fun applyResult(result: Result<*>, unauthorizedMessage: String) {
         when (result) {
-            is Result.Success -> _uiState.update { it.copy(isLoading = false, isLoginSuccess = true) }
+            is Result.Success -> {
+                agentRepository.selectLoginUserAsAgent()
+                _uiState.update { it.copy(isLoading = false, isLoginSuccess = true) }
+            }
             is Result.Error -> {
                 val message = when (result.exception) {
                     is NetworkError.Unauthorized -> unauthorizedMessage

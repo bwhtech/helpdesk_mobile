@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.map
 
 class FrappeAgentRepository(
@@ -68,5 +69,11 @@ class FrappeAgentRepository(
         }
         preferencesManager.setActiveAgent(agent?.email, agent?.name)
         return Result.Success(Unit)
+    }
+
+    override suspend fun selectLoginUserAsAgent() {
+        val email = preferencesManager.loggedInUserEmail.first() ?: return
+        val agents = (getAgents().last() as? Result.Success)?.data ?: return
+        agents.find { it.email.equals(email, ignoreCase = true) }?.let { setActiveAgent(it) }
     }
 }

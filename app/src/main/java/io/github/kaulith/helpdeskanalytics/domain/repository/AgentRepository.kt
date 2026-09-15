@@ -17,4 +17,7 @@ interface AgentRepository {
      * read-only, because minting replaces the agent's existing API secret.
      */
     suspend fun setActiveAgent(agent: Agent?, provisionWriteKey: Boolean = false): Result<Unit>
+
+    /** Selects the signed-in user when they are an agent on the site; otherwise leaves every agent in view. */
+    suspend fun selectLoginUserAsAgent()
 }
