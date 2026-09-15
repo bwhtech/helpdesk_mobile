@@ -125,3 +125,5 @@ internal fun buildDarkScheme(
     outline = FrappePalette.Dark.Gray.s500,
     outlineVariant = FrappePalette.Dark.Gray.s700
 )
+
+val ColorScheme.accentOutline: Color get() = primary.copy(alpha = 0.4f)

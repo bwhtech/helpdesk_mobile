@@ -441,7 +441,7 @@ private fun AppearanceBlock(
     Spacer(Modifier.height(Spacing.sm))
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(Spacing.md)
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
         AppColorScheme.entries.forEach { scheme ->
             val isSelected = colorScheme == scheme.key
