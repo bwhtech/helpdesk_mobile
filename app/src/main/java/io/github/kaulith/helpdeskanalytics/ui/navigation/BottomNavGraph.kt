@@ -34,7 +34,12 @@ fun BottomNavGraph(
         ) {
             DashboardScreen(
                 onOpenPreset = { preset ->
-                    navController.navigate("${BottomNavScreen.Tickets.route}?preset=${preset.slug}")
+                    // Without this the Tickets tab would later restore an older tickets screen, not this preset.
+                    navController.clearBackStack(BottomNavScreen.Tickets.route)
+                    navController.navigate("${BottomNavScreen.Tickets.route}?preset=${preset.slug}") {
+                        popUpTo(BottomNavScreen.Dashboard.route) { saveState = true }
+                        launchSingleTop = true
+                    }
                 }
             )
         }
