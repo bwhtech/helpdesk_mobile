@@ -26,6 +26,7 @@ class FakeTicketRepository : TicketRepository {
     val failingTicketIds = mutableSetOf<String>()
     val requestedAssignees = mutableListOf<String?>()
     var ticketsError: Throwable? = null
+    var isWritable = true
     private val agentPerformancesByPeriod =
         mutableMapOf<LeaderboardPeriod, MutableSharedFlow<Result<List<AgentPerformance>>>>()
 
@@ -50,7 +51,7 @@ class FakeTicketRepository : TicketRepository {
 
     override suspend fun clearCache(): Result<Unit> = Result.Success(Unit)
 
-    override fun canWrite() = true
+    override fun canWrite() = isWritable
 
     override suspend fun updateTicketStatus(ticketId: String, status: Status) =
         update(ticketId) { it.copy(status = status) }
