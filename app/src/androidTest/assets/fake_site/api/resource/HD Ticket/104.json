@@ -1,0 +1,26 @@
+{
+ "data": {
+  "name": "104",
+  "subject": "Invoice PDF shows the wrong currency",
+  "status": "Open",
+  "priority": "High",
+  "creation": "2026-09-28 10:15:00.000000",
+  "modified": "2026-09-28 10:15:00.000000",
+  "first_responded_on": null,
+  "resolution_date": null,
+  "last_agent_response": null,
+  "raised_by": "maria@x.io",
+  "contact": "maria@x.io",
+  "customer": "Northwind",
+  "_assign": "[\"ann@x.io\"]",
+  "response_by": null,
+  "resolution_by": null,
+  "first_response_time": null,
+  "avg_response_time": null,
+  "resolution_time": null,
+  "ticket_type": "Unspecified",
+  "sla": null,
+  "agreement_status": null,
+  "description": "<p>The invoice for September shows USD, but our account is billed in EUR.</p>"
+ }
+}

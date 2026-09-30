@@ -1,0 +1,29 @@
+{
+ "message": {
+  "comments": [],
+  "communications": [
+   {
+    "name": "c-104-1",
+    "content": "<p>The invoice for September shows USD, but our account is billed in EUR.</p>",
+    "sender": "maria@x.io",
+    "recipients": "support@x.io",
+    "cc": null,
+    "sent_or_received": "Received",
+    "creation": "2026-09-28 10:15:00.000000",
+    "subject": "Invoice PDF shows the wrong currency",
+    "attachments": []
+   },
+   {
+    "name": "c-104-2",
+    "content": "<p>Thanks Maria, checking the currency on your billing profile now.</p>",
+    "sender": "ann@x.io",
+    "recipients": "maria@x.io",
+    "cc": null,
+    "sent_or_received": "Sent",
+    "creation": "2026-09-28 10:40:00.000000",
+    "subject": "Re: Invoice PDF shows the wrong currency",
+    "attachments": []
+   }
+  ]
+ }
+}
