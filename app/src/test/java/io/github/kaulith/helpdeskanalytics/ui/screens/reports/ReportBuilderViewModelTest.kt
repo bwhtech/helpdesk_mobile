@@ -93,9 +93,18 @@ class ReportBuilderViewModelTest {
         config { it.dateRange == DateRangePreset.LAST_7 }
     }
 
+    @Test
+    fun `an unreadable saved report keeps its error after the default report loads`() = runTest {
+        reportRepository.templates.value = listOf(template(7, null))
+        viewModel.loadTemplate(7)
+        advanceUntilIdle()
+
+        assertEquals("This saved report can't be opened", viewModel.uiState.first { !it.isLoading }.error)
+    }
+
     private suspend fun config(predicate: (ReportConfig) -> Boolean) =
         viewModel.uiState.first { !it.isLoading && predicate(it.config) }.config
 
-    private fun template(id: Long, config: ReportConfig) =
+    private fun template(id: Long, config: ReportConfig?) =
         ReportTemplate(id, "Weekly backlog", config, Instant.fromEpochMilliseconds(0))
 }
