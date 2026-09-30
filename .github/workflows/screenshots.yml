@@ -1,0 +1,79 @@
+name: screenshots
+
+# Advisory: a pull request whose screens look different from develop still passes. The job
+# summary lists the changed screens and the artifact holds develop's image, the pull request's
+# image and a diff of each, for the reviewer to judge.
+
+on:
+  pull_request:
+  push:
+    branches: [develop]
+
+permissions: {}
+
+concurrency:
+  group: screenshots-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      actions: read
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+
+      - name: Use the sample Firebase config
+        run: cp app/google-services.json.sample app/google-services.json
+
+      # Rendering differs between macOS and Linux, so references only ever come from this runner.
+      - name: Download the develop screenshots
+        id: baseline
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          run_id=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow screenshots.yml --branch develop \
+            --event push --status success --limit 1 --json databaseId --jq '.[0].databaseId')
+          if [ -n "$run_id" ] && gh run download "$run_id" --repo "$GITHUB_REPOSITORY" \
+            --name screenshots --dir app/build/outputs/roborazzi; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Compare with develop
+        if: steps.baseline.outputs.found == 'true'
+        run: ./gradlew compareRoborazziDebug --tests '*ScreenshotTest'
+
+      - name: Record
+        if: steps.baseline.outputs.found != 'true'
+        run: ./gradlew recordRoborazziDebug --tests '*ScreenshotTest'
+
+      - name: Summarise
+        if: github.event_name == 'pull_request'
+        run: |
+          summary=app/build/test-results/roborazzi/debug/results-summary.json
+          if [ "${{ steps.baseline.outputs.found }}" != "true" ]; then
+            echo "No develop screenshots yet; the artifact holds this pull request's screens." >> "$GITHUB_STEP_SUMMARY"
+          elif [ "$(jq '.summary.changed + .summary.added' "$summary")" = "0" ]; then
+            echo "Every screen matches develop." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Screens that differ from develop; see the screenshots artifact:" >> "$GITHUB_STEP_SUMMARY"
+            jq -r '.results[] | select(.type != "unchanged")
+              | "- \(.golden_file_path | split(".")[-2]) (\(.type))"' "$summary" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: screenshots
+          path: app/build/outputs/roborazzi
+          retention-days: 90

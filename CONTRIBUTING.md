@@ -55,6 +55,14 @@ with `develop`:
 Lint is gated on errors only; warnings do not fail the build. Fix a new lint error or
 detekt finding rather than adding it to a baseline.
 
+The `screenshots` workflow is advisory and never blocks a merge. It renders the screens in
+`ScreenshotTest` with Roborazzi and compares them with the images recorded on the last
+push to `develop`. The job summary lists any screen that looks different, and the
+`screenshots` artifact holds develop's image, the pull request's image and a diff of each.
+References are only recorded on the Linux runner, since macOS renders differently, so
+nothing is committed. A screen whose pixels depend on the clock stays out of
+`ScreenshotTest`.
+
 ## Local setup
 
 Copy `local.properties.sample` to `local.properties` and fill in the SDK path. The
