@@ -50,10 +50,8 @@ class LoginScreenTest {
 
     private fun field(label: String) = composeRule.onNode(hasSetTextAction() and hasText(label))
 
-    private fun show() = composeRule.setContent {
-        LoginScreen(
-            onLoginSuccess = { isSignedIn = true },
-            viewModel = LoginViewModel(FakeAuthRepository(), FakeAgentRepository(), OAuthRedirectHolder())
-        )
+    private fun show() {
+        val viewModel = LoginViewModel(FakeAuthRepository(), FakeAgentRepository(), OAuthRedirectHolder())
+        composeRule.setContent { LoginScreen(onLoginSuccess = { isSignedIn = true }, viewModel = viewModel) }
     }
 }

@@ -59,7 +59,8 @@ class LeaderboardScreenTest {
         averageResolutionTime = 0f
     )
 
-    private fun show() = composeRule.setContent {
-        LeaderboardScreen(LeaderboardViewModel(repository, FakeAgentRepository(), FakeTeamRepository()))
+    private fun show() {
+        val viewModel = LeaderboardViewModel(repository, FakeAgentRepository(), FakeTeamRepository())
+        composeRule.setContent { LeaderboardScreen(viewModel) }
     }
 }

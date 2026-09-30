@@ -61,7 +61,8 @@ class DashboardScreenTest {
         composeRule.waitUntilExactlyOneExists(hasText("Hi, Bob"))
     }
 
-    private fun show(onOpenPreset: (TicketPreset) -> Unit = {}) = composeRule.setContent {
-        DashboardScreen(onOpenPreset, DashboardViewModel(repository, agentRepository))
+    private fun show(onOpenPreset: (TicketPreset) -> Unit = {}) {
+        val viewModel = DashboardViewModel(repository, agentRepository)
+        composeRule.setContent { DashboardScreen(onOpenPreset, viewModel) }
     }
 }

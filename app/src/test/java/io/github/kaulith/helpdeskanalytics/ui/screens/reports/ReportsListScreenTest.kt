@@ -52,11 +52,10 @@ class ReportsListScreenTest {
         composeRule.waitUntilDoesNotExist(hasText("Weekly backlog"))
     }
 
-    private fun show() = composeRule.setContent {
-        ReportsListScreen(
-            onBack = {},
-            onOpenTemplate = { opened = it },
-            viewModel = ReportTemplatesViewModel(reportRepository)
-        )
+    private fun show() {
+        val viewModel = ReportTemplatesViewModel(reportRepository)
+        composeRule.setContent {
+            ReportsListScreen(onBack = {}, onOpenTemplate = { opened = it }, viewModel = viewModel)
+        }
     }
 }

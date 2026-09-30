@@ -64,7 +64,8 @@ class TicketsScreenTest {
         assertEquals("1", opened)
     }
 
-    private fun show(onTicketClick: (String) -> Unit = {}) = composeRule.setContent {
-        TicketsScreen(onTicketClick, viewModel = TicketListViewModel(repository, FakeAgentRepository()))
+    private fun show(onTicketClick: (String) -> Unit = {}) {
+        val viewModel = TicketListViewModel(repository, FakeAgentRepository())
+        composeRule.setContent { TicketsScreen(onTicketClick, viewModel = viewModel) }
     }
 }

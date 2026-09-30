@@ -64,8 +64,9 @@ class TicketDetailScreenTest {
         composeRule.waitUntilExactlyOneExists(hasText("Reply sent"))
     }
 
-    private fun show(ticketId: String) = composeRule.setContent {
-        TicketDetailScreen(ticketId, onBack = {}, viewModel = TicketDetailViewModel(repository, agentRepository))
+    private fun show(ticketId: String) {
+        val viewModel = TicketDetailViewModel(repository, agentRepository)
+        composeRule.setContent { TicketDetailScreen(ticketId, onBack = {}, viewModel = viewModel) }
     }
 
     private fun sendReply() {

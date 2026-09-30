@@ -42,7 +42,8 @@ class AnalyticsScreenTest {
         composeRule.waitUntilExactlyOneExists(hasText("Closed (1)"))
     }
 
-    private fun show() = composeRule.setContent {
-        AnalyticsScreen(AnalyticsViewModel(repository, FakeAgentRepository()))
+    private fun show() {
+        val viewModel = AnalyticsViewModel(repository, FakeAgentRepository())
+        composeRule.setContent { AnalyticsScreen(viewModel) }
     }
 }

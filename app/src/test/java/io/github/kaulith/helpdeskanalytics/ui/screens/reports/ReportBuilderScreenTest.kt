@@ -25,17 +25,9 @@ class ReportBuilderScreenTest {
 
     @Test
     fun `a summary report offers measures`() {
-        composeRule.setContent {
-            ReportBuilderScreen(
-                templateId = null,
-                onBack = {},
-                viewModel = ReportBuilderViewModel(
-                    FakeReportDataRepository(),
-                    FakeReportRepository(),
-                    FakeAgentRepository()
-                )
-            )
-        }
+        val viewModel =
+            ReportBuilderViewModel(FakeReportDataRepository(), FakeReportRepository(), FakeAgentRepository())
+        composeRule.setContent { ReportBuilderScreen(templateId = null, onBack = {}, viewModel = viewModel) }
         composeRule.waitUntilExactlyOneExists(hasText("Summary"))
 
         composeRule.onNodeWithText("Summary").performClick()
