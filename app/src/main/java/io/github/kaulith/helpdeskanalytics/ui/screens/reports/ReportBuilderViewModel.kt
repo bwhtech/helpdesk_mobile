@@ -63,6 +63,7 @@ class ReportBuilderViewModel(
     private val _data = MutableStateFlow<ReportData?>(null)
     private val _loading = MutableStateFlow(true)
     private val _error = MutableStateFlow<String?>(null)
+    private val _templateError = MutableStateFlow<String?>(null)
     private val _templateName = MutableStateFlow("")
     private val _filterOptions = MutableStateFlow(FilterOptionsUiState())
 
@@ -73,7 +74,7 @@ class ReportBuilderViewModel(
     private var filterOptionsJob: Job? = null
 
     val uiState: StateFlow<ReportBuilderUiState> = combine(
-        _config, _data, _loading, _error, _templateName
+        _config, _data, _loading, combine(_templateError, _error) { template, run -> template ?: run }, _templateName
     ) { config, data, loading, error, name ->
         ReportBuilderUiState(
             config = config,
@@ -124,7 +125,7 @@ class ReportBuilderViewModel(
             val template = reportRepository.getTemplate(id) ?: return@launch
             val config = template.config
             if (config == null) {
-                _error.value = "This saved report can't be opened"
+                _templateError.value = "This saved report can't be opened"
                 return@launch
             }
             _config.value = config
