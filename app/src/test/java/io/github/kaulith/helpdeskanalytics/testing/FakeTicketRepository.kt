@@ -24,14 +24,18 @@ class FakeTicketRepository : TicketRepository {
 
     val tickets = MutableStateFlow<List<Ticket>>(emptyList())
     val failingTicketIds = mutableSetOf<String>()
+    val requestedAssignees = mutableListOf<String?>()
+    var ticketsError: Throwable? = null
     private val agentPerformancesByPeriod =
         mutableMapOf<LeaderboardPeriod, MutableSharedFlow<Result<List<AgentPerformance>>>>()
 
     fun agentPerformances(period: LeaderboardPeriod) =
         agentPerformancesByPeriod.getOrPut(period) { MutableSharedFlow(replay = 1) }
 
-    override fun getTickets(status: Status?, priority: Priority?, assignedTo: String?): Flow<Result<List<Ticket>>> =
-        tickets.map { Result.Success(it) }
+    override fun getTickets(status: Status?, priority: Priority?, assignedTo: String?): Flow<Result<List<Ticket>>> {
+        requestedAssignees += assignedTo
+        return ticketsError?.let { flowOf(Result.Error(it)) } ?: tickets.map { Result.Success(it) }
+    }
 
     override fun getAgentPerformances(period: LeaderboardPeriod, force: Boolean) = agentPerformances(period)
 
