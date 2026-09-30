@@ -32,14 +32,16 @@ class FrappeAgentSessionManager(
     override suspend fun needsWriteKey(email: String): Boolean =
         !isLoginUser(email) && !credentialsManager.hasAgentKeys(email)
 
-    override suspend fun activate(email: String, provisionWriteKey: Boolean) {
+    override suspend fun activate(email: String, provisionWriteKey: Boolean): Result<Unit> {
+        var minted: Result<Unit> = Result.Success(Unit)
         if (isLoginUser(email)) {
             credentialsManager.setAgentUsesLoginSession(email)
         } else if (provisionWriteKey && !credentialsManager.hasAgentKeys(email)) {
-            mintKeys(email)
+            minted = mintKeys(email)
         }
         credentialsManager.setActiveAgentEmail(email)
         activeAgentEmail = email
+        return minted
     }
 
     override fun deactivate() {

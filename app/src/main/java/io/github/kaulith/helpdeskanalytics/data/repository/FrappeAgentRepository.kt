@@ -1,6 +1,7 @@
 package io.github.kaulith.helpdeskanalytics.data.repository
 
 import io.github.kaulith.helpdeskanalytics.data.local.database.dao.AgentDao
+import io.github.kaulith.helpdeskanalytics.data.local.database.dao.UserDao
 import io.github.kaulith.helpdeskanalytics.data.local.preferences.PreferencesManager
 import io.github.kaulith.helpdeskanalytics.data.mapper.toDomain
 import io.github.kaulith.helpdeskanalytics.data.mapper.toEntity
@@ -20,7 +21,8 @@ class FrappeAgentRepository(
     private val apiServiceProvider: ApiServiceProvider,
     private val agentDao: AgentDao,
     private val preferencesManager: PreferencesManager,
-    private val agentSessionManager: AgentSessionManager
+    private val agentSessionManager: AgentSessionManager,
+    private val userDao: UserDao
 ) : AgentRepository {
 
     override fun getAgents(): Flow<Result<List<Agent>>> = flow {
@@ -58,17 +60,20 @@ class FrappeAgentRepository(
         }
     }
 
+    // Roles not cached yet still offer the key; a refused mint is reported either way.
     override suspend fun needsWriteKey(agent: Agent): Boolean =
-        agentSessionManager.needsWriteKey(agent.email)
+        agentSessionManager.needsWriteKey(agent.email) &&
+            userDao.getCurrentUser().first()?.roles?.contains("System Manager") != false
 
     override suspend fun setActiveAgent(agent: Agent?, provisionWriteKey: Boolean): Result<Unit> {
-        if (agent != null) {
+        val activated = if (agent != null) {
             agentSessionManager.activate(agent.email, provisionWriteKey)
         } else {
             agentSessionManager.deactivate()
+            Result.Success(Unit)
         }
         preferencesManager.setActiveAgent(agent?.email, agent?.name)
-        return Result.Success(Unit)
+        return activated
     }
 
     override suspend fun selectLoginUserAsAgent() {

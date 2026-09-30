@@ -52,10 +52,10 @@ fun AgentSwitcher(viewModel: AgentSwitcherViewModel) {
     uiState.agentSwitchError?.let { error ->
         AlertDialog(
             onDismissRequest = viewModel::dismissAgentSwitchError,
-            title = { Text("Couldn't switch agent") },
+            title = { Text("Couldn't issue a key") },
             text = {
                 Text(
-                    "$error\n\nThe admin key needs the System Manager role to provision agent keys."
+                    "$error\n\nThe agent is selected read only. Issuing keys needs the System Manager role."
                 )
             },
             confirmButton = {

@@ -1,5 +1,7 @@
 package io.github.kaulith.helpdeskanalytics.data.remote.api
 
+import io.github.kaulith.helpdeskanalytics.util.Result
+
 /**
  * Decides which API token each request carries. Reads run as the signed-in user;
  * writes run as the selected agent. Another agent's key is provisioned once from
@@ -28,8 +30,9 @@ interface AgentSessionManager {
      * Minting another agent's write key is opt-in for the same rotation reason, and
      * is best-effort even then: if the signed-in user lacks System Manager, the agent
      * is still selected for read + notifications and the app stays read-only for writes.
+     * The minting failure is returned so the caller can say why.
      */
-    suspend fun activate(email: String, provisionWriteKey: Boolean = false)
+    suspend fun activate(email: String, provisionWriteKey: Boolean = false): Result<Unit>
 
     fun deactivate()
 }
