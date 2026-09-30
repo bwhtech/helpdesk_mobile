@@ -10,12 +10,13 @@ import kotlinx.coroutines.flow.flowOf
 class FakeAgentRepository : AgentRepository {
 
     val activeAgent = MutableStateFlow<Agent?>(null)
+    var agents: List<Agent> = emptyList()
     var isLoginUserSelected = false
     val agentsNeedingWriteKey = mutableSetOf<String>()
     val writeKeysProvisioned = mutableListOf<String>()
     var switchError: Throwable? = null
 
-    override fun getAgents(): Flow<Result<List<Agent>>> = flowOf(Result.Success(emptyList()))
+    override fun getAgents(): Flow<Result<List<Agent>>> = flowOf(Result.Success(agents))
 
     override fun getActiveAgent(): Flow<Agent?> = activeAgent
 
