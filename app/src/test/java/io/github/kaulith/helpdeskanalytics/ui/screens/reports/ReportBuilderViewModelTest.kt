@@ -21,8 +21,8 @@ import org.junit.Rule
 import org.junit.Test
 
 /**
- * The state combines on `Dispatchers.Default`, so these wait for the target state instead of
- * reading it straight away.
+ * The state combines on `Dispatchers.Default`, so every test ends by waiting for its final state;
+ * a recompute still running after `Dispatchers.resetMain` fails whichever test runs next.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class ReportBuilderViewModelTest {
@@ -63,6 +63,7 @@ class ReportBuilderViewModelTest {
         viewModel.setDateRange(DateRangePreset.LAST_7)
         advanceUntilIdle()
         assertEquals(2, dataRepository.queries.size)
+        config { it.dateRange == DateRangePreset.LAST_7 && ReportColumn.CUSTOMER in it.columns }
     }
 
     @Test
@@ -89,10 +90,11 @@ class ReportBuilderViewModelTest {
         val saved = reportRepository.templates.value.single()
         assertEquals(7L, saved.id)
         assertEquals(DateRangePreset.LAST_7, saved.config?.dateRange)
+        config { it.dateRange == DateRangePreset.LAST_7 }
     }
 
     private suspend fun config(predicate: (ReportConfig) -> Boolean) =
-        viewModel.uiState.first { predicate(it.config) }.config
+        viewModel.uiState.first { !it.isLoading && predicate(it.config) }.config
 
     private fun template(id: Long, config: ReportConfig) =
         ReportTemplate(id, "Weekly backlog", config, Instant.fromEpochMilliseconds(0))

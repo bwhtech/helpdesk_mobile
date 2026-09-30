@@ -17,8 +17,8 @@ import org.junit.Rule
 import org.junit.Test
 
 /**
- * Metrics compute on `Dispatchers.Default`, so these wait for the target state rather than
- * only advancing the scheduler.
+ * Metrics compute on `Dispatchers.Default`, so every test waits for the last computation to land;
+ * one still running after `Dispatchers.resetMain` fails whichever test runs next.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class DashboardViewModelTest {
@@ -46,9 +46,11 @@ class DashboardViewModelTest {
         viewModel.uiState.first { it.metrics != null }
 
         agentRepository.activeAgent.value = Agent(email = "bob@x.io", name = "Bob")
-
-        assertEquals("bob@x.io", viewModel.uiState.first { it.activeAgent != null }.activeAgent?.email)
         advanceUntilIdle()
+        repository.tickets.value = listOf(ticket("1", Status.OPEN))
+
+        val state = viewModel.uiState.first { it.metrics?.openTicketsCount == 1 }
+        assertEquals("bob@x.io", state.activeAgent?.email)
         assertEquals(listOf(null, "bob@x.io"), repository.requestedAssignees)
     }
 
