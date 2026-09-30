@@ -33,7 +33,7 @@ internal builds.
 
 ## Checks
 
-Every pull request must pass three checks before it can merge, and must be up to date
+Every pull request must pass four checks before it can merge, and must be up to date
 with `develop`:
 
 - `build`: gradle wrapper validation, `assembleDebug`, a check that the exported Room
@@ -43,6 +43,12 @@ with `develop`:
   time at the release tag.
 - `detekt`: static analysis against `config/detekt/detekt.yml`, in its own job of the
   `build` workflow.
+- `emulator-tests`: `connectedDebugAndroidTest` on an API 35 emulator, in its own job of
+  the `build` workflow. The tests under `app/src/androidTest` sign in to a fake Helpdesk
+  site that runs on the device and answers from the JSON under
+  `app/src/androidTest/assets/fake_site`, one file per request path, so they need no
+  secrets. A failed run uploads a screenshot of each failing test, the report and
+  logcat.
 - `gitleaks`: the `secret-scan` workflow, gitleaks over the full history, pinned by
   version and SHA256.
 
@@ -54,3 +60,7 @@ detekt finding rather than adding it to a baseline.
 Copy `local.properties.sample` to `local.properties` and fill in the SDK path. The
 Firebase config at `app/google-services.json` is not in the repository; CI builds use
 `app/google-services.json.sample`, which carries the package name and nothing else.
+
+`./gradlew connectedDebugAndroidTest` installs a debug build on every connected device
+and clears its data before each test. With a phone attached, set `ANDROID_SERIAL` to the
+emulator's serial so the run stays off it.
