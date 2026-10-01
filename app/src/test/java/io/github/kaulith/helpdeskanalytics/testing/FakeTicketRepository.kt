@@ -27,6 +27,8 @@ class FakeTicketRepository : TicketRepository {
     val requestedAssignees = mutableListOf<String?>()
     var ticketsError: Throwable? = null
     var isWritable = true
+    var isCacheCleared = false
+    var currentUser = User(email = "ann@x.io", fullName = "Ann", roles = emptyList(), hasTeamLeadPermission = true)
     private val agentPerformancesByPeriod =
         mutableMapOf<LeaderboardPeriod, MutableSharedFlow<Result<List<AgentPerformance>>>>()
 
@@ -40,16 +42,17 @@ class FakeTicketRepository : TicketRepository {
 
     override fun getAgentPerformances(period: LeaderboardPeriod, force: Boolean) = agentPerformances(period)
 
-    override fun getCurrentUser(): Flow<Result<User>> = flowOf(
-        Result.Success(User(email = "ann@x.io", fullName = "Ann", roles = emptyList(), hasTeamLeadPermission = true))
-    )
+    override fun getCurrentUser(): Flow<Result<User>> = flowOf(Result.Success(currentUser))
 
     override suspend fun getTicketById(id: String, force: Boolean): Result<Ticket> =
         tickets.value.find { it.id == id }?.let { Result.Success(it) } ?: Result.Error(NoSuchElementException(id))
 
     override suspend fun refresh(): Result<Unit> = Result.Success(Unit)
 
-    override suspend fun clearCache(): Result<Unit> = Result.Success(Unit)
+    override suspend fun clearCache(): Result<Unit> {
+        isCacheCleared = true
+        return Result.Success(Unit)
+    }
 
     override fun canWrite() = isWritable
 

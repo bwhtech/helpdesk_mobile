@@ -7,6 +7,7 @@ import io.github.kaulith.helpdeskanalytics.util.Result
 class FakeAuthRepository : AuthRepository {
 
     var discoveredClientId: String? = null
+    var isLoggedOut = false
     var loginResult: Result<User> = Result.Success(
         User(email = "ann@x.io", fullName = "Ann", roles = emptyList(), hasTeamLeadPermission = true)
     )
@@ -21,5 +22,7 @@ class FakeAuthRepository : AuthRepository {
 
     override fun isLoggedIn() = false
 
-    override suspend fun logout() = Unit
+    override suspend fun logout() {
+        isLoggedOut = true
+    }
 }
