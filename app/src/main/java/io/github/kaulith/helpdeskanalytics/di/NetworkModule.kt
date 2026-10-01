@@ -11,6 +11,7 @@ import io.github.kaulith.helpdeskanalytics.data.remote.api.OAuthClient
 import io.github.kaulith.helpdeskanalytics.util.Constants
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
@@ -32,6 +33,7 @@ val networkModule = module {
             .writeTimeout(Constants.NETWORK_TIMEOUT, TimeUnit.MILLISECONDS)
             .build()
     }
+    single { CredentialsManager.keystoreAead(androidContext()) }
     singleOf(::CredentialsManager)
     singleOf(::FrappeAgentSessionManager) { bind<AgentSessionManager>() }
     singleOf(::OAuthClient)

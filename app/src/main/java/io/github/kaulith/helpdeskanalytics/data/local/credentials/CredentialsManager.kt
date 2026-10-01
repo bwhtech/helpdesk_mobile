@@ -2,43 +2,47 @@ package io.github.kaulith.helpdeskanalytics.data.local.credentials
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Base64
+import android.util.Log
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
+import com.google.crypto.tink.Aead
+import com.google.crypto.tink.KeyTemplates
+import com.google.crypto.tink.RegistryConfiguration
+import com.google.crypto.tink.aead.AeadConfig
+import com.google.crypto.tink.integration.android.AndroidKeysetManager
 import io.github.kaulith.helpdeskanalytics.util.Constants
+import java.io.File
+import java.security.KeyStore
 
-class CredentialsManager(context: Context) {
+class CredentialsManager(context: Context, private val aead: Aead) {
 
-    private val masterKey = MasterKey.Builder(context)
-        .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-        .build()
+    private val prefs: SharedPreferences =
+        context.getSharedPreferences(Constants.CREDENTIALS_PREFERENCES_NAME, Context.MODE_PRIVATE)
 
-    private val prefs: SharedPreferences = EncryptedSharedPreferences.create(
-        context,
-        Constants.ENCRYPTED_PREFERENCES_NAME,
-        masterKey,
-        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-    )
+    init {
+        moveEncryptedPreferences(context)
+    }
 
     fun saveCredentials(siteUrl: String, apiKey: String, apiSecret: String) {
         prefs.edit()
-            .putString(KEY_SITE_URL, siteUrl.trimEnd('/'))
-            .putString(KEY_API_KEY, apiKey)
-            .putString(KEY_API_SECRET, apiSecret)
+            .putEncrypted(KEY_SITE_URL, siteUrl.trimEnd('/'))
+            .putEncrypted(KEY_API_KEY, apiKey)
+            .putEncrypted(KEY_API_SECRET, apiSecret)
             .apply()
     }
 
-    fun getSiteUrl(): String? = prefs.getString(KEY_SITE_URL, null)
+    fun getSiteUrl(): String? = getString(KEY_SITE_URL)
 
     fun siteBaseUrl(): String? = getSiteUrl()?.let { "$it/" }
 
     fun saveSiteUrl(siteUrl: String) {
-        prefs.edit().putString(KEY_SITE_URL, siteUrl.trimEnd('/')).apply()
+        prefs.edit().putEncrypted(KEY_SITE_URL, siteUrl.trimEnd('/')).apply()
     }
 
-    fun getApiKey(): String? = prefs.getString(KEY_API_KEY, null)
+    fun getApiKey(): String? = getString(KEY_API_KEY)
 
-    fun getApiSecret(): String? = prefs.getString(KEY_API_SECRET, null)
+    fun getApiSecret(): String? = getString(KEY_API_SECRET)
 
     /** The token of the signed-in session, whichever way the user signed in. */
     fun getAuthToken(): String? {
@@ -57,18 +61,18 @@ class CredentialsManager(context: Context) {
 
     fun saveOAuthSession(accessToken: String, refreshToken: String?) {
         prefs.edit()
-            .putString(KEY_ACCESS_TOKEN, accessToken)
+            .putEncrypted(KEY_ACCESS_TOKEN, accessToken)
             .apply {
-                if (refreshToken != null) putString(KEY_REFRESH_TOKEN, refreshToken)
+                if (refreshToken != null) putEncrypted(KEY_REFRESH_TOKEN, refreshToken)
             }
             .apply()
     }
 
-    fun getAccessToken(): String? = prefs.getString(KEY_ACCESS_TOKEN, null)
+    fun getAccessToken(): String? = getString(KEY_ACCESS_TOKEN)
 
-    fun getRefreshToken(): String? = prefs.getString(KEY_REFRESH_TOKEN, null)
+    fun getRefreshToken(): String? = getString(KEY_REFRESH_TOKEN)
 
-    fun getOAuthClientId(): String? = prefs.getString(KEY_OAUTH_CLIENT_ID, null)
+    fun getOAuthClientId(): String? = getString(KEY_OAUTH_CLIENT_ID)
 
     fun clearOAuthSession() {
         prefs.edit()
@@ -84,15 +88,15 @@ class CredentialsManager(context: Context) {
      */
     fun saveOAuthRequest(clientId: String, state: String, codeVerifier: String) {
         prefs.edit()
-            .putString(KEY_OAUTH_CLIENT_ID, clientId)
-            .putString(KEY_OAUTH_STATE, state)
-            .putString(KEY_OAUTH_VERIFIER, codeVerifier)
+            .putEncrypted(KEY_OAUTH_CLIENT_ID, clientId)
+            .putEncrypted(KEY_OAUTH_STATE, state)
+            .putEncrypted(KEY_OAUTH_VERIFIER, codeVerifier)
             .apply()
     }
 
-    fun getOAuthState(): String? = prefs.getString(KEY_OAUTH_STATE, null)
+    fun getOAuthState(): String? = getString(KEY_OAUTH_STATE)
 
-    fun getOAuthVerifier(): String? = prefs.getString(KEY_OAUTH_VERIFIER, null)
+    fun getOAuthVerifier(): String? = getString(KEY_OAUTH_VERIFIER)
 
     fun clearOAuthRequest() {
         prefs.edit().remove(KEY_OAUTH_STATE).remove(KEY_OAUTH_VERIFIER).apply()
@@ -102,8 +106,8 @@ class CredentialsManager(context: Context) {
 
     fun saveAgentKeys(email: String, apiKey: String, apiSecret: String) {
         prefs.edit()
-            .putString(agentKeyPref(email), apiKey)
-            .putString(agentSecretPref(email), apiSecret)
+            .putEncrypted(agentKeyPref(email), apiKey)
+            .putEncrypted(agentSecretPref(email), apiSecret)
             .apply()
     }
 
@@ -119,22 +123,67 @@ class CredentialsManager(context: Context) {
 
     fun getAgentToken(email: String): String? {
         if (prefs.getBoolean(agentLoginSessionPref(email), false)) return getAuthToken()
-        val key = prefs.getString(agentKeyPref(email), null) ?: return null
-        val secret = prefs.getString(agentSecretPref(email), null) ?: return null
+        val key = getString(agentKeyPref(email)) ?: return null
+        val secret = getString(agentSecretPref(email)) ?: return null
         return "token $key:$secret"
     }
 
     /** The agent the app is currently acting as; null means acting as the admin. */
     fun setActiveAgentEmail(email: String?) {
         prefs.edit().apply {
-            if (email != null) putString(KEY_ACTIVE_AGENT, email) else remove(KEY_ACTIVE_AGENT)
+            if (email != null) putEncrypted(KEY_ACTIVE_AGENT, email) else remove(KEY_ACTIVE_AGENT)
         }.apply()
     }
 
-    fun getActiveAgentEmail(): String? = prefs.getString(KEY_ACTIVE_AGENT, null)
+    fun getActiveAgentEmail(): String? = getString(KEY_ACTIVE_AGENT)
 
     fun clearCredentials() {
         prefs.edit().clear().apply()
+    }
+
+    private fun getString(key: String): String? = prefs.getString(key, null)?.let {
+        String(aead.decrypt(Base64.decode(it, Base64.NO_WRAP), key.toByteArray()))
+    }
+
+    private fun SharedPreferences.Editor.putEncrypted(key: String, value: String): SharedPreferences.Editor {
+        val encrypted = aead.encrypt(value.toByteArray(), key.toByteArray())
+        return putString(key, Base64.encodeToString(encrypted, Base64.NO_WRAP))
+    }
+
+    /**
+     * Moves what 1.1 and earlier wrote with the deprecated EncryptedSharedPreferences into
+     * this store, then deletes the old file and its master key. An old store that no
+     * longer decrypts is dropped too, so the user signs in again instead of the app
+     * failing on every start.
+     */
+    private fun moveEncryptedPreferences(context: Context) {
+        val name = Constants.ENCRYPTED_PREFERENCES_NAME
+        if (!File(context.dataDir, "shared_prefs/$name.xml").exists()) return
+        val oldValues = runCatching {
+            val masterKey = MasterKey.Builder(context)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build()
+            EncryptedSharedPreferences.create(
+                context,
+                name,
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            ).all
+        }
+            .onFailure { Log.e(TAG, "Failed to read the old credentials", it) }
+            .getOrDefault(emptyMap())
+        val editor = prefs.edit()
+        oldValues.forEach { (key, value) ->
+            when (value) {
+                is String -> editor.putEncrypted(key, value)
+                is Boolean -> editor.putBoolean(key, value)
+            }
+        }
+        if (!editor.commit()) return
+        context.deleteSharedPreferences(name)
+        KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }
+            .deleteEntry(MasterKey.DEFAULT_MASTER_KEY_ALIAS)
     }
 
     private fun agentKeyPref(email: String) = "agent_key_$email"
@@ -142,6 +191,10 @@ class CredentialsManager(context: Context) {
     private fun agentLoginSessionPref(email: String) = "agent_login_session_$email"
 
     companion object {
+        private const val TAG = "CredentialsManager"
+        private const val ANDROID_KEYSTORE = "AndroidKeyStore"
+        private const val KEYSET_NAME = "credentials_keyset"
+        private const val MASTER_KEY_ALIAS = "helpdesk_credentials_master_key"
         private const val KEY_SITE_URL = "site_url"
         private const val KEY_API_KEY = "api_key"
         private const val KEY_API_SECRET = "api_secret"
@@ -151,5 +204,16 @@ class CredentialsManager(context: Context) {
         private const val KEY_OAUTH_CLIENT_ID = "oauth_client_id"
         private const val KEY_OAUTH_STATE = "oauth_state"
         private const val KEY_OAUTH_VERIFIER = "oauth_code_verifier"
+
+        fun keystoreAead(context: Context): Aead {
+            AeadConfig.register()
+            return AndroidKeysetManager.Builder()
+                .withSharedPref(context, KEYSET_NAME, Constants.CREDENTIALS_KEYSET_PREFERENCES_NAME)
+                .withKeyTemplate(KeyTemplates.get("AES256_GCM"))
+                .withMasterKeyUri("android-keystore://$MASTER_KEY_ALIAS")
+                .build()
+                .keysetHandle
+                .getPrimitive(RegistryConfiguration.get(), Aead::class.java)
+        }
     }
 }
