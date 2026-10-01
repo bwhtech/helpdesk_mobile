@@ -9,7 +9,7 @@ import androidx.compose.ui.test.isSelectable
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import androidx.test.rule.GrantPermissionRule
@@ -30,11 +30,12 @@ abstract class AppTest {
     val screenshotOnFailure = ScreenshotOnFailure()
 
     protected fun signIn() {
-        composeRule.onNode(hasSetTextAction() and hasText("Site URL")).performTextReplacement(FakeSite.url)
+        // A tap lands by position and misses while the keyboard slides the form up; tap before typing, submit with Done.
         composeRule.onNodeWithText("Use an API key instead").performClick()
+        composeRule.onNode(hasSetTextAction() and hasText("Site URL")).performTextReplacement(FakeSite.url)
         composeRule.onNode(hasSetTextAction() and hasText("API Key")).performTextInput("a1b2c3d4e5f6a7b")
         composeRule.onNode(hasSetTextAction() and hasText("API Secret")).performTextInput("7f6e5d4c3b2a1f0")
-        composeRule.onNodeWithText("Sign in").performScrollTo().performClick()
+        composeRule.onNode(hasSetTextAction() and hasText("API Secret")).performImeAction()
         composeRule.waitUntilExactlyOneExists(hasText("Hi, Ann"), TIMEOUT)
     }
 

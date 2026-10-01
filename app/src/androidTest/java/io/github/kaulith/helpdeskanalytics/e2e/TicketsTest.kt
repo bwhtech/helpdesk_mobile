@@ -1,5 +1,6 @@
 package io.github.kaulith.helpdeskanalytics.e2e
 
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
@@ -7,6 +8,7 @@ import androidx.compose.ui.test.isSelectable
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
 import org.junit.Test
 
@@ -45,7 +47,8 @@ class TicketsTest : AppTest() {
         composeRule.onNode(ticket("104")).performClick()
 
         composeRule.onNode(hasSetTextAction()).performTextInput("Fixed in the latest update")
-        composeRule.onNodeWithText("Send").performClick()
+        // The keyboard is still sliding the composer up, so a tap by position can miss.
+        composeRule.onNodeWithText("Send").performSemanticsAction(SemanticsActions.OnClick)
 
         composeRule.waitUntilExactlyOneExists(hasText("Reply sent"), TIMEOUT)
     }
