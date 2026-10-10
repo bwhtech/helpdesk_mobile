@@ -7,7 +7,12 @@ import io.github.kaulith.helpdeskanalytics.data.local.database.AppDatabase
 import io.github.kaulith.helpdeskanalytics.data.local.preferences.PreferencesManager
 import io.github.kaulith.helpdeskanalytics.data.mapper.toEntity
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.RoleDto
+import io.github.kaulith.helpdeskanalytics.data.remote.dto.TicketActivitiesDto
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.TicketDto
+import io.github.kaulith.helpdeskanalytics.data.remote.dto.TimelineActivityDto
+import io.github.kaulith.helpdeskanalytics.data.remote.dto.TimelineAuthorDto
+import io.github.kaulith.helpdeskanalytics.data.remote.dto.TimelineCommentDto
+import io.github.kaulith.helpdeskanalytics.data.remote.dto.TimelineDto
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.UserDto
 import io.github.kaulith.helpdeskanalytics.domain.model.User
 import io.github.kaulith.helpdeskanalytics.testing.FakeAgentSessionManager
@@ -120,6 +125,25 @@ class FrappeTicketRepositoryTest {
 
         assertEquals(1, service.userFetches)
         assertTrue((user as Result.Success).data.hasTeamLeadPermission)
+    }
+
+    @Test
+    fun `comments come from the timeline when the ticket endpoint carries none`() = runBlocking {
+        service.ticketActivities = TicketActivitiesDto(comments = null, communications = emptyList())
+        service.timeline = TimelineDto(
+            listOf(
+                TimelineActivityDto(
+                    type = "comment",
+                    timestamp = "2026-10-11 01:11:57.977684",
+                    author = TimelineAuthorDto(email = "rahul.agrawal@frappe.io"),
+                    data = TimelineCommentDto(name = "fkhraggftc", content = "<p>Checked the sync log</p>")
+                )
+            )
+        )
+
+        val conversation = repository.getConversation("77595") as Result.Success
+
+        assertEquals(listOf("rahul.agrawal@frappe.io"), conversation.data.comments.map { it.commentedBy })
     }
 
     private fun ticketDto(name: String, assign: String?) = TicketDto(
