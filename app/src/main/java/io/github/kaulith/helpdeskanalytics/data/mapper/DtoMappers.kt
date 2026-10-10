@@ -4,6 +4,7 @@ import io.github.kaulith.helpdeskanalytics.data.remote.dto.AgentDto
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.AttachmentDto
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.CommentDto
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.CommunicationDto
+import io.github.kaulith.helpdeskanalytics.data.remote.dto.TimelineActivityDto
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.TeamDto
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.TicketDto
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.UserDto
@@ -111,6 +112,19 @@ fun CommentDto.toDomain(baseUrl: String, siteTimeZone: TimeZone): Comment = Comm
     createdAt = parseFrappeDateTime(creation, siteTimeZone),
     attachments = mergeAttachments(attachments, content, baseUrl)
 )
+
+/** A timeline comment row in the shape get_one used to return; null for any other row. */
+fun TimelineActivityDto.toCommentDto(): CommentDto? {
+    val comment = data?.takeIf { type == "comment" } ?: return null
+    return CommentDto(
+        name = comment.name ?: return null,
+        content = comment.content,
+        commentedBy = author?.email,
+        creation = timestamp,
+        // timeline attachments carry no name of their own
+        attachments = comment.attachments?.map { it.copy(name = it.fileUrl.orEmpty()) }
+    )
+}
 
 fun CommunicationDto.toDomain(baseUrl: String, siteTimeZone: TimeZone): Communication = Communication(
     name = name,

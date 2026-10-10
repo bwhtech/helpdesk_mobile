@@ -5,6 +5,7 @@ import io.github.kaulith.helpdeskanalytics.data.local.database.dao.TicketDao
 import io.github.kaulith.helpdeskanalytics.data.local.database.dao.UserDao
 import io.github.kaulith.helpdeskanalytics.data.local.database.entities.TicketEntity
 import io.github.kaulith.helpdeskanalytics.data.local.preferences.PreferencesManager
+import io.github.kaulith.helpdeskanalytics.data.mapper.toCommentDto
 import io.github.kaulith.helpdeskanalytics.data.mapper.toDomain
 import io.github.kaulith.helpdeskanalytics.data.mapper.toEntity
 import io.github.kaulith.helpdeskanalytics.data.metrics.MetricsCalculator
@@ -413,10 +414,13 @@ class FrappeTicketRepository(
 
     override suspend fun getConversation(ticketId: String): Result<TicketConversation> {
         return try {
-            val activities = apiServiceProvider.getService().getTicketActivities(ticketId).message
+            val service = apiServiceProvider.getService()
+            val activities = service.getTicketActivities(ticketId).message
             val baseUrl = apiServiceProvider.siteBaseUrl().orEmpty()
             val siteTimeZone = apiServiceProvider.siteTimeZone()
-            val comments = activities.comments.orEmpty().map { it.toDomain(baseUrl, siteTimeZone) }
+            val commentDtos = activities.comments
+                ?: service.getTicketTimeline(ticketId).message.activities.orEmpty().mapNotNull { it.toCommentDto() }
+            val comments = commentDtos.map { it.toDomain(baseUrl, siteTimeZone) }
             commentDao.deleteCommentsForTicket(ticketId)
             commentDao.upsertComments(comments.map { it.toEntity(ticketId) })
             val communications = activities.communications.orEmpty().map { it.toDomain(baseUrl, siteTimeZone) }

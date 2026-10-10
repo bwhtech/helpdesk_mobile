@@ -10,6 +10,7 @@ import io.github.kaulith.helpdeskanalytics.data.remote.dto.TeamDto
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.TicketActivitiesDto
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.TicketDto
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.TimeZoneDto
+import io.github.kaulith.helpdeskanalytics.data.remote.dto.TimelineDto
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.UpdateTicketRequest
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.UserApiKeyDto
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.UserDto
@@ -72,11 +73,20 @@ interface FrappeApiService {
     // Helpdesk's own endpoint for a ticket. Returns comments + communications
     // together, and runs server-side so it isn't blocked by the generic REST
     // permissions on the Communication doctype. Helpdesk develop removed
-    // get_ticket_activities; get_one carries the same keys on main and develop.
+    // get_ticket_activities, and later dropped comments from get_one as well.
     @GET("api/method/helpdesk.helpdesk.doctype.hd_ticket.api.get_one")
     suspend fun getTicketActivities(
         @Query("name") ticket: String
     ): FrappeMethodResponse<TicketActivitiesDto>
+
+    // Where Helpdesk develop's own desk reads ticket comments, now that they are
+    // core Comment rows an agent cannot list over REST.
+    @GET("api/method/frappe.desk.form.activity.get_activity_timeline")
+    suspend fun getTicketTimeline(
+        @Query("name") ticket: String,
+        @Query("doctype") doctype: String = "HD Ticket",
+        @Query("visible_types") visibleTypes: String = "[\"comment\"]"
+    ): FrappeMethodResponse<TimelineDto>
 
     // Runs a whitelisted HD Ticket controller method (reply_via_agent, new_comment).
     @POST("api/method/run_doc_method")
