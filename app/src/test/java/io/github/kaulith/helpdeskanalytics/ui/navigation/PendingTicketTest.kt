@@ -30,6 +30,24 @@ class PendingTicketTest {
     }
 
     @Test
+    fun `a handled tap on a notification the app built no longer names its ticket`() {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("helpdesk://ticket/76093?focus=comment"))
+
+        PendingTicket.clearFrom(intent)
+
+        assertNull(intent.data)
+    }
+
+    @Test
+    fun `a handled tap on a notification fcm painted no longer names its ticket`() {
+        val intent = Intent().putExtra("ticketId", "76093").putExtra("type", "customer_reply")
+
+        PendingTicket.clearFrom(intent)
+
+        assertNull(PendingTicket.from(intent))
+    }
+
+    @Test
     fun `an oauth redirect or a plain launch is not a ticket`() {
         assertNull(PendingTicket.from(Intent(Intent.ACTION_VIEW, Uri.parse("helpdesk://oauth/callback?code=abc"))))
         assertNull(PendingTicket.from(Intent(Intent.ACTION_MAIN)))

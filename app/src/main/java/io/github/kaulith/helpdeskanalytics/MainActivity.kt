@@ -59,7 +59,10 @@ class MainActivity : ComponentActivity() {
                 ) {
                     AppNavGraph(
                         pendingTicket = pendingTicket.value,
-                        onPendingTicketHandled = { pendingTicket.value = null }
+                        onPendingTicketHandled = {
+                            pendingTicket.value = null
+                            PendingTicket.clearFrom(intent)
+                        }
                     )
                 }
             }

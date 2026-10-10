@@ -19,6 +19,17 @@ data class PendingTicket(val ticketId: String, val focus: TicketFocus? = null) {
             return PendingTicket(ticketId, TicketFocus.fromPushType(intent.getStringExtra(TYPE_EXTRA)))
         }
 
+        /**
+         * The activity keeps its last intent, so one that still names an opened ticket
+         * opens it again whenever a nav graph is built later (after signing back in)
+         * or the activity is recreated.
+         */
+        fun clearFrom(intent: Intent) {
+            if (intent.data?.host == TICKET_HOST) intent.data = null
+            intent.removeExtra(TICKET_ID_EXTRA)
+            intent.removeExtra(TYPE_EXTRA)
+        }
+
         private const val TICKET_HOST = "ticket"
         private const val TICKET_ID_EXTRA = "ticketId"
         private const val TYPE_EXTRA = "type"
