@@ -27,15 +27,15 @@ class OAuthClient(
 
     /**
      * Starts a sign-in. The site URL, client id, state and code verifier are stored
-     * before the browser opens; the redirect can come back to a fresh process.
+     * before the browser opens; the redirect can come back to a fresh process. The
+     * profile in use is left as it is until the site hands back a session.
      */
     fun beginAuthorization(siteUrl: String, clientId: String): String {
         val site = siteUrl.trimEnd('/')
         val verifier = randomUrlSafe(VERIFIER_BYTES)
         val state = randomUrlSafe(STATE_BYTES)
 
-        credentialsManager.saveSiteUrl(site)
-        credentialsManager.saveOAuthRequest(clientId, state, verifier)
+        credentialsManager.saveOAuthRequest(CredentialsManager.OAuthRequest(site, clientId, state, verifier))
 
         return Uri.parse(site)
             .buildUpon()

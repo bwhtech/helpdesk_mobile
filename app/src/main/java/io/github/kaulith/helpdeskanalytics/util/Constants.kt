@@ -5,6 +5,8 @@ object Constants {
     const val ENCRYPTED_PREFERENCES_NAME = "helpdesk_secure_prefs"
     const val CREDENTIALS_PREFERENCES_NAME = "helpdesk_credentials"
     const val CREDENTIALS_KEYSET_PREFERENCES_NAME = "helpdesk_credentials_keyset"
+    const val OAUTH_REQUEST_PREFERENCES_NAME = "helpdesk_oauth_request"
+    const val PROFILES_PREFERENCES_NAME = "helpdesk_profiles"
 
     const val NETWORK_TIMEOUT = 30_000L
     const val SYNC_INTERVAL_MINUTES = 30L

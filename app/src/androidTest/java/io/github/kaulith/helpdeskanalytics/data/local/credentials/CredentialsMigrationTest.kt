@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import androidx.test.core.app.ApplicationProvider
+import io.github.kaulith.helpdeskanalytics.data.local.profiles.ProfileStore
 import io.github.kaulith.helpdeskanalytics.util.Constants
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -34,7 +35,7 @@ class CredentialsMigrationTest {
             .putBoolean("agent_login_session_ann@x.io", true)
             .commit()
 
-        val credentials = CredentialsManager(context, CredentialsManager.keystoreAead(context))
+        val credentials = CredentialsManager(context, CredentialsManager.keystoreAead(context), ProfileStore(context))
 
         assertEquals("https://support.x.io", credentials.getSiteUrl())
         assertEquals("token admin_key:admin_secret", credentials.getAuthToken())

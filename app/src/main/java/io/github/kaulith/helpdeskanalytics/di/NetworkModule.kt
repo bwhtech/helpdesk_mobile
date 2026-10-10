@@ -2,6 +2,7 @@ package io.github.kaulith.helpdeskanalytics.di
 
 import io.github.kaulith.helpdeskanalytics.BuildConfig
 import io.github.kaulith.helpdeskanalytics.data.local.credentials.CredentialsManager
+import io.github.kaulith.helpdeskanalytics.data.local.profiles.ProfileStore
 import io.github.kaulith.helpdeskanalytics.data.remote.api.AgentSessionManager
 import io.github.kaulith.helpdeskanalytics.data.remote.api.ApiServiceProvider
 import io.github.kaulith.helpdeskanalytics.data.remote.api.FrappeAgentSessionManager
@@ -34,6 +35,7 @@ val networkModule = module {
             .build()
     }
     single { CredentialsManager.keystoreAead(androidContext()) }
+    singleOf(::ProfileStore)
     singleOf(::CredentialsManager)
     singleOf(::FrappeAgentSessionManager) { bind<AgentSessionManager>() }
     singleOf(::OAuthClient)

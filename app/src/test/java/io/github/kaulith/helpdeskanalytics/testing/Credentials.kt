@@ -7,11 +7,12 @@ import com.google.crypto.tink.KeysetHandle
 import com.google.crypto.tink.RegistryConfiguration
 import com.google.crypto.tink.aead.AeadConfig
 import io.github.kaulith.helpdeskanalytics.data.local.credentials.CredentialsManager
+import io.github.kaulith.helpdeskanalytics.data.local.profiles.ProfileStore
 
 /** Robolectric has no Android Keystore, so the keyset stays in memory. */
 fun credentialsManager(context: Context): CredentialsManager {
     AeadConfig.register()
     val aead = KeysetHandle.generateNew(KeyTemplates.get("AES256_GCM"))
         .getPrimitive(RegistryConfiguration.get(), Aead::class.java)
-    return CredentialsManager(context, aead)
+    return CredentialsManager(context, aead, ProfileStore(context))
 }

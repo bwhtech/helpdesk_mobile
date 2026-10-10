@@ -45,7 +45,7 @@ class SettingsViewModelTest {
 
     @Test
     fun `the account shows the site without its scheme and the helpdesk role`() = runTest {
-        credentialsManager.saveSiteUrl("https://support.x.io")
+        credentialsManager.saveCredentials("https://support.x.io", "key", "secret")
         repository.currentUser = repository.currentUser.copy(roles = listOf("System Manager", "HD Agent"))
 
         val state = viewModel.uiState.first { it.userRole.isNotEmpty() }
