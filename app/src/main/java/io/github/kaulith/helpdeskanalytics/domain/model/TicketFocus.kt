@@ -14,7 +14,7 @@ enum class TicketFocus(val slug: String) {
         /** Push payload `type`, as sent by helpdesk_push. */
         fun fromPushType(type: String?): TicketFocus? = when (type) {
             "customer_reply" -> REPLY
-            "new_comment" -> COMMENT
+            "new_comment", "comment_reaction" -> COMMENT
             else -> null
         }
     }

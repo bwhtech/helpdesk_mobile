@@ -33,7 +33,7 @@ class HelpdeskFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     private fun channelFor(type: String?): String = when (type) {
-        "customer_reply", "new_comment" -> NotificationHelper.CHANNEL_TICKET_REPLIES
+        "customer_reply", "new_comment", "comment_reaction" -> NotificationHelper.CHANNEL_TICKET_REPLIES
         "sla_warning" -> NotificationHelper.CHANNEL_SLA_WARNINGS
         else -> NotificationHelper.CHANNEL_ID
     }
