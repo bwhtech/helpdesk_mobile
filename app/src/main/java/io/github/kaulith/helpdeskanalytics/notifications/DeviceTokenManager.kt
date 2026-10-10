@@ -10,6 +10,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import io.github.kaulith.helpdeskanalytics.data.local.preferences.PreferencesManager
+import io.github.kaulith.helpdeskanalytics.data.remote.api.DeviceRegistration
 import io.github.kaulith.helpdeskanalytics.data.remote.api.NotificationApiClient
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.RegisterDeviceRequest
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.UnregisterDeviceRequest
@@ -21,15 +22,16 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeoutOrNull
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 class DeviceTokenManager(
     private val context: Context,
     private val preferencesManager: PreferencesManager,
     private val notificationApiClient: NotificationApiClient
-) {
+) : DeviceRegistration {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     fun start() {
@@ -45,8 +47,9 @@ class DeviceTokenManager(
                 .distinctUntilChanged()
                 .collect { effectiveEmail ->
                     val token = getFcmToken() ?: return@collect
+                    // Signing out unregisters by itself, before the session is gone.
                     previousEmail?.let { old ->
-                        if (old != effectiveEmail) {
+                        if (old != effectiveEmail && effectiveEmail != null) {
                             unregisterDevice(token, old)
                         }
                     }
@@ -93,6 +96,15 @@ class DeviceTokenManager(
         return registerDevice(token, email)
     }
 
+    // Bounded, because signing out must not hang on FCM or on a site slow to answer.
+    override suspend fun unregisterCurrentDevice() {
+        withTimeoutOrNull(UNREGISTER_TIMEOUT_MS) {
+            val email = activeAgentEmail() ?: loggedInEmail() ?: return@withTimeoutOrNull
+            val token = getFcmToken() ?: return@withTimeoutOrNull
+            unregisterDevice(token, email)
+        }
+    }
+
     private fun networkConstraints() = Constraints.Builder()
         .setRequiredNetworkType(NetworkType.CONNECTED)
         .build()
@@ -102,7 +114,7 @@ class DeviceTokenManager(
     private suspend fun loggedInEmail(): String? = preferencesManager.loggedInUserEmail.first()
 
     private suspend fun getFcmToken(): String? {
-        return suspendCoroutine { cont ->
+        return suspendCancellableCoroutine { cont ->
             FirebaseMessaging.getInstance().token
                 .addOnSuccessListener { token -> cont.resume(token) }
                 .addOnFailureListener { e ->
@@ -135,5 +147,6 @@ class DeviceTokenManager(
     companion object {
         private const val TAG = "DeviceTokenManager"
         private const val REFRESH_INTERVAL_HOURS = 6L
+        private const val UNREGISTER_TIMEOUT_MS = 3_000L
     }
 }
