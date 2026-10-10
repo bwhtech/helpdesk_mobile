@@ -10,6 +10,7 @@ class TicketFocusTest {
     fun `push types map to the section the notification is about`() {
         assertEquals(TicketFocus.REPLY, TicketFocus.fromPushType("customer_reply"))
         assertEquals(TicketFocus.COMMENT, TicketFocus.fromPushType("new_comment"))
+        assertEquals(TicketFocus.COMMENT, TicketFocus.fromPushType("comment_reaction"))
     }
 
     @Test
