@@ -40,4 +40,16 @@ class NotificationApiClientTest {
         assertEquals("token key:secret", request.headers["Authorization"])
         assertNull(request.headers["X-Remote-Token"])
     }
+
+    @Test
+    fun `a site that lists no helpdesk_push has no push app`() = runBlocking {
+        site.enqueue(MockResponse(body = """{"message":{"frappe":{},"erpnext":{},"helpdesk":{}}}"""))
+        site.start()
+        val credentials = credentialsManager(ApplicationProvider.getApplicationContext<Application>())
+        credentials.saveCredentials(site.url("/").toString(), "key", "secret")
+        val httpClient = OkHttpClient()
+        val client = NotificationApiClient(credentials, OAuthClient(credentials, httpClient), httpClient)
+
+        assertEquals(false, client.hasPushApp())
+    }
 }
