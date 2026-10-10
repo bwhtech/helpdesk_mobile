@@ -90,6 +90,28 @@ data class TicketActivitiesDto(
     @SerializedName("communications") val communications: List<CommunicationDto>? = null
 )
 
+// Payload of frappe's get_activity_timeline, read for its comment rows only.
+data class TimelineDto(
+    @SerializedName("activities") val activities: List<TimelineActivityDto>? = null
+)
+
+data class TimelineActivityDto(
+    @SerializedName("type") val type: String?,
+    @SerializedName("timestamp") val timestamp: String?,
+    @SerializedName("author") val author: TimelineAuthorDto?,
+    @SerializedName("data") val data: TimelineCommentDto?
+)
+
+data class TimelineAuthorDto(
+    @SerializedName("email") val email: String?
+)
+
+data class TimelineCommentDto(
+    @SerializedName("name") val name: String?,
+    @SerializedName("content") val content: String?,
+    @SerializedName("attachments") val attachments: List<AttachmentDto>? = null
+)
+
 // frappe.core.doctype.user.user.generate_keys response.
 data class GenerateKeysResponse(
     @SerializedName("api_secret") val apiSecret: String?
