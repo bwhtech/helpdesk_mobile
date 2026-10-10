@@ -17,9 +17,10 @@ object Constants {
 
     const val SEARCH_DEBOUNCE_MS = 300L
 
-    // Push registration always targets the helpdesk_push app on the FC bench,
-    // independent of which Helpdesk site the app reads its data from.
+    // The bench that holds the Firebase key. It also polls POLLED_SITE_HOST, which
+    // cannot install helpdesk_push itself, so only that site's devices register here.
     const val PUSH_BACKEND_URL = "https://helpdesk-mb.fsn.frappe.cloud/"
+    const val POLLED_SITE_HOST = "support.frappe.io"
 
     // Releases live on GitHub; sideloaded builds have no store to update them.
     const val GITHUB_API_URL = "https://api.github.com/"
