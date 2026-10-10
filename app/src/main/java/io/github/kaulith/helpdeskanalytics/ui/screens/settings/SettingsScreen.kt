@@ -99,7 +99,13 @@ fun SettingsScreen(
             text = { Text("Sign out and clear all cached data?") },
             confirmButton = {
                 TextButton(
-                    onClick = { viewModel.logout(onLogout) },
+                    onClick = {
+                        viewModel.logout {
+                            // Alerts still in the tray belong to the session that just ended.
+                            NotificationManagerCompat.from(context).cancelAll()
+                            onLogout()
+                        }
+                    },
                     colors = ButtonDefaults.textButtonColors(contentColor = cs.error)
                 ) { Text("Disconnect") }
             },
