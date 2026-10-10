@@ -4,6 +4,7 @@ import io.github.kaulith.helpdeskanalytics.data.local.credentials.CredentialsMan
 import io.github.kaulith.helpdeskanalytics.data.local.preferences.PreferencesManager
 import io.github.kaulith.helpdeskanalytics.data.mapper.toDomain
 import io.github.kaulith.helpdeskanalytics.data.remote.api.ApiServiceProvider
+import io.github.kaulith.helpdeskanalytics.data.remote.api.DeviceRegistration
 import io.github.kaulith.helpdeskanalytics.data.remote.api.OAuthClient
 import io.github.kaulith.helpdeskanalytics.data.remote.toNetworkError
 import io.github.kaulith.helpdeskanalytics.domain.model.User
@@ -15,7 +16,8 @@ class FrappeAuthRepository(
     private val credentialsManager: CredentialsManager,
     private val apiServiceProvider: ApiServiceProvider,
     private val preferencesManager: PreferencesManager,
-    private val oAuthClient: OAuthClient
+    private val oAuthClient: OAuthClient,
+    private val deviceRegistration: DeviceRegistration
 ) : AuthRepository {
 
     override suspend fun validateCredentials(
@@ -77,6 +79,7 @@ class FrappeAuthRepository(
     }
 
     override suspend fun logout() {
+        deviceRegistration.unregisterCurrentDevice()
         revokeOAuthSession()
         credentialsManager.clearCredentials()
         apiServiceProvider.invalidate()
