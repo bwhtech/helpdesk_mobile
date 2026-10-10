@@ -27,6 +27,7 @@ class PreferencesManager(private val context: Context) {
         val AGENT_COUNTS_SYNCED_AT = longPreferencesKey("agent_counts_synced_at")
         val USER_SYNCED_AT = longPreferencesKey("user_synced_at")
         val DISMISSED_UPDATE_VERSION = stringPreferencesKey("dismissed_update_version")
+        val TICKET_POLL_STATE = stringPreferencesKey("ticket_poll_state")
     }
 
     val themeMode: Flow<String> = context.dataStore.data.map { prefs ->
@@ -121,6 +122,14 @@ class PreferencesManager(private val context: Context) {
 
     suspend fun setDismissedUpdateVersion(version: String) {
         context.dataStore.edit { it[Keys.DISMISSED_UPDATE_VERSION] = version }
+    }
+
+    val ticketPollState: Flow<String?> = context.dataStore.data.map { prefs ->
+        prefs[Keys.TICKET_POLL_STATE]
+    }
+
+    suspend fun setTicketPollState(json: String) {
+        context.dataStore.edit { it[Keys.TICKET_POLL_STATE] = json }
     }
 
     suspend fun clearAll() {

@@ -37,7 +37,8 @@ data class TicketDto(
     @SerializedName("ticket_type") val ticketType: String?,
     @SerializedName("sla") val sla: String?,
     @SerializedName("agreement_status") val agreementStatus: String?,
-    @SerializedName("description") val description: String?
+    @SerializedName("description") val description: String?,
+    @SerializedName("last_customer_response") val lastCustomerResponse: String? = null
 )
 
 data class UserDto(

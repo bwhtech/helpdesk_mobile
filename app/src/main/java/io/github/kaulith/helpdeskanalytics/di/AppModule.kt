@@ -7,6 +7,7 @@ import io.github.kaulith.helpdeskanalytics.data.update.UpdateChecker
 import io.github.kaulith.helpdeskanalytics.data.sync.SyncManager
 import io.github.kaulith.helpdeskanalytics.notifications.DeviceTokenManager
 import io.github.kaulith.helpdeskanalytics.notifications.NotificationHelper
+import io.github.kaulith.helpdeskanalytics.notifications.TicketPoller
 import io.github.kaulith.helpdeskanalytics.ui.screens.auth.OAuthRedirectHolder
 import io.github.kaulith.helpdeskanalytics.util.NetworkMonitor
 import org.koin.core.module.dsl.bind
@@ -19,6 +20,7 @@ val appModule = module {
     singleOf(::SyncManager)
     singleOf(::DeviceTokenManager) { bind<DeviceRegistration>() }
     singleOf(::NotificationHelper)
+    singleOf(::TicketPoller)
     single { UpdateChecker(BuildConfig.VERSION_NAME, get()) }
     singleOf(::OAuthRedirectHolder)
 }
