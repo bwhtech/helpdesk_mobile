@@ -134,7 +134,7 @@ class DeviceTokenManager(
             workManager().cancelUniqueWork(TicketPollWorker.PERIODIC_WORK_NAME)
             true
         } catch (e: HttpException) {
-            val pushAppMissing = e.response()?.errorBody()?.string().orEmpty().contains(APP_NOT_INSTALLED)
+            val pushAppMissing = notificationApiClient.hasPushApp() == false
             if (pushAppMissing) {
                 scheduleTicketPolling()
             } else {
@@ -177,8 +177,5 @@ class DeviceTokenManager(
         private const val REFRESH_INTERVAL_HOURS = 6L
         private const val UNREGISTER_TIMEOUT_MS = 3_000L
         private const val POLL_INTERVAL_MINUTES = 15L
-
-        // exc_type Frappe answers with for a call into an app the site does not have.
-        private const val APP_NOT_INSTALLED = "AppNotInstalledError"
     }
 }
