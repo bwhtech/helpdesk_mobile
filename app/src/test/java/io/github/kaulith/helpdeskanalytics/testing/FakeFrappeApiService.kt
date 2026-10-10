@@ -13,6 +13,7 @@ import io.github.kaulith.helpdeskanalytics.data.remote.dto.TeamDto
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.TicketActivitiesDto
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.TicketDto
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.TimeZoneDto
+import io.github.kaulith.helpdeskanalytics.data.remote.dto.TimelineDto
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.UpdateTicketRequest
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.UserApiKeyDto
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.UserDto
@@ -30,6 +31,8 @@ class FakeFrappeApiService : FrappeApiService {
         private set
     var user: UserDto? = null
     var agents: List<AgentDto> = emptyList()
+    var ticketActivities: TicketActivitiesDto? = null
+    var timeline: TimelineDto? = null
     var userFetches = 0
         private set
 
@@ -70,7 +73,10 @@ class FakeFrappeApiService : FrappeApiService {
     override suspend fun updateTicket(name: String, request: UpdateTicketRequest): FrappeSingleResponse<TicketDto> =
         notFaked()
 
-    override suspend fun getTicketActivities(ticket: String): FrappeMethodResponse<TicketActivitiesDto> = notFaked()
+    override suspend fun getTicketActivities(ticket: String) = FrappeMethodResponse(checkNotNull(ticketActivities))
+
+    override suspend fun getTicketTimeline(ticket: String, doctype: String, visibleTypes: String) =
+        FrappeMethodResponse(checkNotNull(timeline))
 
     override suspend fun runDocMethod(request: RunDocMethodRequest): FrappeMethodResponse<JsonElement?> = notFaked()
 
