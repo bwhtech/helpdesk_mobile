@@ -80,7 +80,7 @@ interface FrappeApiService {
     ): FrappeMethodResponse<TicketActivitiesDto>
 
     // Where Helpdesk develop's own desk reads ticket comments, now that they are
-    // core Comment rows an agent cannot list over REST.
+    // core Comment rows. It asks for nothing beyond read access to the ticket.
     @GET("api/method/frappe.desk.form.activity.get_activity_timeline")
     suspend fun getTicketTimeline(
         @Query("name") ticket: String,
