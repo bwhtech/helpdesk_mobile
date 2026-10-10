@@ -82,7 +82,7 @@ class FrappeAuthRepository(
         return try {
             Result.Success(loadSignedInUser())
         } catch (e: Exception) {
-            if (isNewProfile) credentialsManager.clearCredentials() else credentialsManager.clearSession()
+            if (isNewProfile) credentialsManager.removeProfile() else credentialsManager.clearSession()
             previousProfileId?.let(profileStore::activate)
             apiServiceProvider.invalidate()
             Result.Error(e.toNetworkError())
