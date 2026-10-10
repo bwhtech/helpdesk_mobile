@@ -1,15 +1,22 @@
 package io.github.kaulith.helpdeskanalytics.data.repository
 
 import android.app.Application
+import android.net.Uri
 import androidx.test.core.app.ApplicationProvider
 import io.github.kaulith.helpdeskanalytics.data.local.preferences.PreferencesManager
+import io.github.kaulith.helpdeskanalytics.data.local.profiles.ProfileStore
 import io.github.kaulith.helpdeskanalytics.data.remote.api.DeviceRegistration
 import io.github.kaulith.helpdeskanalytics.data.remote.api.OAuthClient
+import io.github.kaulith.helpdeskanalytics.data.remote.dto.UserDto
 import io.github.kaulith.helpdeskanalytics.testing.FakeApiServiceProvider
 import io.github.kaulith.helpdeskanalytics.testing.FakeFrappeApiService
 import io.github.kaulith.helpdeskanalytics.testing.credentialsManager
 import kotlinx.coroutines.runBlocking
+import mockwebserver3.MockResponse
+import mockwebserver3.MockWebServer
 import okhttp3.OkHttpClient
+import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -20,26 +27,65 @@ import org.robolectric.annotation.Config
 @Config(application = Application::class)
 class FrappeAuthRepositoryTest {
 
+    private val context = ApplicationProvider.getApplicationContext<Application>()
+    private val credentials = credentialsManager(context)
+    private val service = FakeFrappeApiService()
+    private val site = MockWebServer()
+
+    private fun repository(deviceRegistration: DeviceRegistration) = FrappeAuthRepository(
+        credentials,
+        ProfileStore(context),
+        FakeApiServiceProvider(service),
+        PreferencesManager(context),
+        OAuthClient(credentials, OkHttpClient()),
+        deviceRegistration
+    )
+
+    private val noDeviceRegistration = object : DeviceRegistration {
+        override suspend fun unregisterCurrentDevice() = Unit
+    }
+
+    @After
+    fun tearDown() = site.close()
+
     @Test
     fun `signing out unregisters the device while the session can still authenticate`() = runBlocking {
-        val context = ApplicationProvider.getApplicationContext<Application>()
-        val credentials = credentialsManager(context)
         credentials.saveCredentials("https://support.frappe.io", "key", "secret")
         var signedInWhenUnregistered = false
-        val repository = FrappeAuthRepository(
-            credentials,
-            FakeApiServiceProvider(FakeFrappeApiService()),
-            PreferencesManager(context),
-            OAuthClient(credentials, OkHttpClient()),
-            object : DeviceRegistration {
-                override suspend fun unregisterCurrentDevice() {
-                    signedInWhenUnregistered = credentials.hasCredentials()
-                }
+        val repository = repository(object : DeviceRegistration {
+            override suspend fun unregisterCurrentDevice() {
+                signedInWhenUnregistered = credentials.hasCredentials()
             }
-        )
+        })
 
         repository.logout()
 
         assertTrue(signedInWhenUnregistered)
+    }
+
+    @Test
+    fun `a sign-in another site turns down leaves the signed-in site in use`() = runBlocking {
+        credentials.saveCredentials("https://support.frappe.io", "key", "secret")
+
+        repository(noDeviceRegistration)
+            .validateCredentials("https://helpdesk-mb.fsn.frappe.cloud", "wrong_key", "wrong_secret")
+
+        assertEquals("https://support.frappe.io", credentials.getSiteUrl())
+        assertEquals("token key:secret", credentials.getAuthToken())
+    }
+
+    @Test
+    fun `signing in over OAuth keeps the session in the profile of that site`() = runBlocking {
+        site.enqueue(MockResponse(body = """{"access_token":"access","refresh_token":"refresh"}"""))
+        site.start()
+        service.user = UserDto("ann@x.io", "Ann", "ann@x.io", emptyList())
+        val siteUrl = site.url("/").toString().trimEnd('/')
+        val repository = repository(noDeviceRegistration)
+
+        val authorizeUrl = repository.beginOAuthLogin(siteUrl, "client")
+        repository.completeOAuthLogin("code", Uri.parse(authorizeUrl).getQueryParameter("state")!!)
+
+        assertEquals(siteUrl, credentials.getSiteUrl())
+        assertEquals("Bearer access", credentials.getAuthToken())
     }
 }
