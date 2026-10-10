@@ -3,6 +3,7 @@ package io.github.kaulith.helpdeskanalytics.ui.screens.settings
 import android.Manifest
 import android.app.Application
 import android.app.NotificationManager
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasScrollAction
@@ -14,12 +15,14 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import androidx.test.core.app.ApplicationProvider
 import io.github.kaulith.helpdeskanalytics.data.local.preferences.PreferencesManager
+import io.github.kaulith.helpdeskanalytics.notifications.NotificationHelper
 import io.github.kaulith.helpdeskanalytics.testing.FakeAgentRepository
 import io.github.kaulith.helpdeskanalytics.testing.FakeAuthRepository
 import io.github.kaulith.helpdeskanalytics.testing.FakeTicketRepository
 import io.github.kaulith.helpdeskanalytics.testing.credentialsManager
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -27,6 +30,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
+@OptIn(ExperimentalTestApi::class)
 @RunWith(RobolectricTestRunner::class)
 @Config(application = Application::class)
 class SettingsScreenTest {
@@ -73,5 +77,29 @@ class SettingsScreenTest {
 
         val posted = shadowOf(context.getSystemService(NotificationManager::class.java)).allNotifications
         assertEquals(1, posted.size)
+    }
+
+    @Test
+    fun `signing out clears the alerts already shown`() {
+        val context = ApplicationProvider.getApplicationContext<Application>()
+        shadowOf(context).grantPermissions(Manifest.permission.POST_NOTIFICATIONS)
+        val notifications = shadowOf(context.getSystemService(NotificationManager::class.java))
+        NotificationHelper(context).showNotification(title = "New ticket assigned #77595", body = "making pdf")
+        assertEquals(1, notifications.allNotifications.size)
+        val viewModel = SettingsViewModel(
+            PreferencesManager(context),
+            FakeTicketRepository(),
+            FakeAuthRepository(),
+            credentialsManager(context),
+            FakeAgentRepository()
+        )
+        composeRule.setContent { SettingsScreen(viewModel = viewModel) }
+
+        composeRule.onNode(hasScrollAction()).performScrollToNode(hasText("Disconnect"))
+        composeRule.onNodeWithText("Disconnect").performClick()
+        composeRule.onNode(hasText("Disconnect") and hasClickAction() and hasAnyAncestor(isDialog())).performClick()
+
+        composeRule.waitUntilDoesNotExist(hasText("Sign out and clear all cached data?"))
+        assertTrue(notifications.allNotifications.isEmpty())
     }
 }
