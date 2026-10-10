@@ -33,6 +33,14 @@ class NotificationApiClient(
             }
         }
 
+    /**
+     * Whether the site this device registers with runs helpdesk_push, or null when
+     * the site would not say. Asked of the site itself, because the error a missing
+     * app produces differs between Frappe versions and follows the user's language.
+     */
+    suspend fun hasPushApp(): Boolean? =
+        runCatching { PUSH_APP in service.getInstalledApps().message }.getOrNull()
+
     private fun buildService(baseUrl: String): NotificationApiService {
         val client = httpClient.newBuilder()
             .addInterceptor { chain ->
@@ -64,4 +72,8 @@ class NotificationApiClient(
             ?: Constants.PUSH_BACKEND_URL
 
     private fun siteHost(): String? = credentialsManager.siteBaseUrl()?.toHttpUrlOrNull()?.host
+
+    private companion object {
+        const val PUSH_APP = "helpdesk_push"
+    }
 }

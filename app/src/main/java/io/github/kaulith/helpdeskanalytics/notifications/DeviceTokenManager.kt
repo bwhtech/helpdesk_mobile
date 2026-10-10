@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
+import retrofit2.HttpException
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 
@@ -55,6 +56,8 @@ class DeviceTokenManager(
                     }
                     if (effectiveEmail != null) {
                         registerDevice(token, effectiveEmail)
+                    } else {
+                        workManager().cancelUniqueWork(TicketPollWorker.PERIODIC_WORK_NAME)
                     }
                     previousEmail = effectiveEmail
                 }
@@ -128,12 +131,37 @@ class DeviceTokenManager(
         return try {
             notificationApiClient.service.registerDevice(RegisterDeviceRequest(token, agentEmail))
             Log.d(TAG, "Device registered ($agentEmail)")
+            workManager().cancelUniqueWork(TicketPollWorker.PERIODIC_WORK_NAME)
             true
+        } catch (e: HttpException) {
+            val pushAppMissing = notificationApiClient.hasPushApp() == false
+            if (pushAppMissing) {
+                scheduleTicketPolling()
+            } else {
+                Log.e(TAG, "Failed to register device ($agentEmail)", e)
+            }
+            pushAppMissing
         } catch (e: Exception) {
             Log.e(TAG, "Failed to register device ($agentEmail)", e)
             false
         }
     }
+
+    // A site without helpdesk_push has nothing to push from, so the phone checks
+    // for ticket changes itself. KEEP, because every registration attempt lands here.
+    private fun scheduleTicketPolling() {
+        val request = PeriodicWorkRequestBuilder<TicketPollWorker>(
+            POLL_INTERVAL_MINUTES, TimeUnit.MINUTES
+        ).setConstraints(networkConstraints()).build()
+
+        workManager().enqueueUniquePeriodicWork(
+            TicketPollWorker.PERIODIC_WORK_NAME,
+            ExistingPeriodicWorkPolicy.KEEP,
+            request
+        )
+    }
+
+    private fun workManager() = WorkManager.getInstance(context)
 
     private suspend fun unregisterDevice(token: String, agentEmail: String) {
         try {
@@ -148,5 +176,6 @@ class DeviceTokenManager(
         private const val TAG = "DeviceTokenManager"
         private const val REFRESH_INTERVAL_HOURS = 6L
         private const val UNREGISTER_TIMEOUT_MS = 3_000L
+        private const val POLL_INTERVAL_MINUTES = 15L
     }
 }
