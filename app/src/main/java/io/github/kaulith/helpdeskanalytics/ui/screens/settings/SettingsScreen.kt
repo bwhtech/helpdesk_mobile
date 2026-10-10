@@ -33,6 +33,7 @@ import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.NotificationsActive
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material.icons.outlined.SwapHoriz
@@ -67,7 +68,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.core.app.NotificationManagerCompat
 import io.github.kaulith.helpdeskanalytics.BuildConfig
+import io.github.kaulith.helpdeskanalytics.notifications.NotificationHelper
 import io.github.kaulith.helpdeskanalytics.ui.components.InitialsAvatar
 import io.github.kaulith.helpdeskanalytics.ui.components.OnResume
 import io.github.kaulith.helpdeskanalytics.ui.theme.AppColorScheme
@@ -176,6 +179,21 @@ fun SettingsScreen(
                     label = "Alert settings",
                     description = "Sounds and channels for ticket alerts",
                     onClick = { context.startActivity(appNotificationSettingsIntent(context.packageName)) }
+                )
+                NavRow(
+                    icon = Icons.Outlined.NotificationsActive,
+                    label = "Send test notification",
+                    description = "Check how a ticket alert looks and sounds on this phone",
+                    onClick = {
+                        if (NotificationManagerCompat.from(context).areNotificationsEnabled()) {
+                            NotificationHelper(context).showNotification(
+                                title = "Test notification",
+                                body = "Ticket alerts will look like this."
+                            )
+                        } else {
+                            context.startActivity(appNotificationSettingsIntent(context.packageName))
+                        }
+                    }
                 )
             }
         }
