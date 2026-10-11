@@ -1058,7 +1058,7 @@ private fun ValuePicker(
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            modifier = Modifier.heightIn(max = 320.dp),
+            modifier = Modifier.exposedDropdownSize().heightIn(max = 320.dp),
             shape = FrappeRadius.lg
         ) {
             if (options.size > VALUE_SEARCH_THRESHOLD) {
