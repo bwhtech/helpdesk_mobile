@@ -3,6 +3,7 @@ package io.github.kaulith.helpdeskanalytics.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Check
@@ -25,11 +27,13 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.kaulith.helpdeskanalytics.domain.model.SiteProfile
+import io.github.kaulith.helpdeskanalytics.ui.theme.FrappeRadius
 import io.github.kaulith.helpdeskanalytics.ui.theme.Spacing
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,7 +60,7 @@ fun SiteSelectorSheet(
                 .padding(horizontal = Spacing.base),
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(start = Spacing.md),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
@@ -75,46 +79,60 @@ fun SiteSelectorSheet(
                 }
             }
 
-            Spacer(Modifier.height(Spacing.sm))
+            Spacer(Modifier.height(Spacing.md))
             SectionLabel("Current")
             SiteRow(site = activeSite, isSelected = true, onClick = onDismiss)
 
             if (otherSites.isNotEmpty()) {
-                Spacer(Modifier.height(Spacing.sm))
+                Spacer(Modifier.height(Spacing.base))
                 SectionLabel("Other sites")
-                otherSites.forEach { site ->
-                    SiteRow(site = site, isSelected = false, onClick = {
-                        onSiteSelected(site)
-                        onDismiss()
-                    })
+                Column(verticalArrangement = Arrangement.spacedBy(Spacing.xs)) {
+                    otherSites.forEach { site ->
+                        SiteRow(site = site, isSelected = false, onClick = {
+                            onSiteSelected(site)
+                            onDismiss()
+                        })
+                    }
                 }
             }
 
-            HorizontalDivider(color = cs.outlineVariant)
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = Spacing.md),
+                color = cs.outlineVariant,
+            )
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .clip(FrappeRadius.lg)
                     .clickable(role = Role.Button) {
                         onAddSite()
                         onDismiss()
                     }
-                    .padding(vertical = Spacing.md),
+                    .padding(Spacing.md),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(Spacing.md),
             ) {
-                Icon(
-                    imageVector = Icons.Outlined.Add,
-                    contentDescription = null,
-                    tint = cs.onSurfaceVariant,
-                    modifier = Modifier.size(20.dp),
-                )
+                // As wide as an avatar, so the label lines up with the site names above.
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(cs.surfaceContainerHighest, CircleShape),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Add,
+                        contentDescription = null,
+                        tint = cs.onSurfaceVariant,
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
                 Text(
                     text = "Add site",
                     style = MaterialTheme.typography.bodyLarge,
                     color = cs.onSurface,
                 )
             }
-            Spacer(Modifier.height(Spacing.xl))
+            Spacer(Modifier.height(Spacing.lg))
         }
     }
 }
@@ -126,7 +144,7 @@ private fun SectionLabel(text: String) {
         style = MaterialTheme.typography.labelSmall,
         fontWeight = FontWeight.SemiBold,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(vertical = Spacing.xs),
+        modifier = Modifier.padding(start = Spacing.md, bottom = Spacing.sm),
     )
 }
 
@@ -136,9 +154,10 @@ private fun SiteRow(site: SiteProfile, isSelected: Boolean, onClick: () -> Unit)
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clip(FrappeRadius.lg)
             .background(if (isSelected) cs.primaryContainer else cs.surfaceContainerLow)
             .clickable(role = Role.Button, onClick = onClick)
-            .padding(vertical = Spacing.sm, horizontal = Spacing.xs),
+            .padding(Spacing.md),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Spacing.md),
     ) {
@@ -165,7 +184,7 @@ private fun SiteRow(site: SiteProfile, isSelected: Boolean, onClick: () -> Unit)
                 imageVector = Icons.Outlined.Check,
                 contentDescription = "Selected",
                 tint = cs.onPrimaryContainer,
-                modifier = Modifier.size(18.dp),
+                modifier = Modifier.size(20.dp),
             )
         }
     }
