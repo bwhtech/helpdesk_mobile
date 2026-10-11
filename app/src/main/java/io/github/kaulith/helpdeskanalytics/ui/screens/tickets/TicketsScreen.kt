@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.ErrorOutline
@@ -412,7 +413,8 @@ private fun SortMenu(currentSort: SortOption, onSortChange: (SortOption) -> Unit
         )
         DropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
+            shape = FrappeRadius.lg
         ) {
             SortOption.entries.forEach { option ->
                 DropdownMenuItem(
@@ -420,7 +422,10 @@ private fun SortMenu(currentSort: SortOption, onSortChange: (SortOption) -> Unit
                     onClick = {
                         onSortChange(option)
                         expanded = false
-                    }
+                    },
+                    trailingIcon = if (option == currentSort) {
+                        { Icon(Icons.Outlined.Check, null, Modifier.size(18.dp)) }
+                    } else null
                 )
             }
         }
