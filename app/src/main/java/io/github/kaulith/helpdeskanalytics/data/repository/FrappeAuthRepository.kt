@@ -100,7 +100,9 @@ class FrappeAuthRepository(
         saveSession()
         apiServiceProvider.invalidate()
         return try {
-            Result.Success(loadSignedInUser())
+            val user = loadSignedInUser()
+            deviceRegistration.registerNow()
+            Result.Success(user)
         } catch (e: Exception) {
             if (isNewProfile) credentialsManager.removeProfile() else credentialsManager.clearSession()
             previousProfileId?.let(::useProfile)
