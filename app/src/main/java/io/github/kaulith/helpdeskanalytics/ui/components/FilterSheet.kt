@@ -67,8 +67,14 @@ fun <T> FilterSheet(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var rows by remember { mutableStateOf(conditions) }
     var showsPreset by remember { mutableStateOf(presetLabel != null) }
+    val cs = MaterialTheme.colorScheme
 
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = cs.surfaceContainerLow,
+        contentColor = cs.onSurface,
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
