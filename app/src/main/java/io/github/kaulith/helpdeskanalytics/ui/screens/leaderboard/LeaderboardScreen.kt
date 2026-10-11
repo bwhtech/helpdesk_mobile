@@ -291,7 +291,10 @@ private fun AgentRow(agent: AgentPerformance) {
             horizontalArrangement = Arrangement.spacedBy(Spacing.md)
         ) {
             RankBadge(agent.rank)
-            InitialsAvatar(name = agent.agentName)
+            InitialsAvatar(
+                name = agent.agentName,
+                isSelected = agent.isCurrentUser || agent.rank <= 3
+            )
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = agent.agentName,
