@@ -1,7 +1,10 @@
 package io.github.kaulith.helpdeskanalytics.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -84,7 +87,12 @@ fun DateRangeSheet(
         firstDayOfWeek = weekDays.first()
     )
 
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = cs.surfaceContainerLow,
+        contentColor = cs.onSurface
+    ) {
         Column(modifier = Modifier.padding(horizontal = Spacing.base)) {
             Text(
                 text = rangeLabel(start, end),
@@ -196,11 +204,18 @@ private fun DayCell(
         else -> RoundedCornerShape(0)
     }
     val spanColor = if (isBetween || (isEndpoint && end != null)) cs.secondaryContainer else Color.Transparent
+    val interactionSource = remember { MutableInteractionSource() }
 
+    // The whole cell takes the tap; the ripple stays on the circle.
     Box(
         modifier = Modifier
             .aspectRatio(1f)
-            .background(spanColor, spanShape),
+            .background(spanColor, spanShape)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                enabled = inMonth && !isFuture
+            ) { onClick(day.date) },
         contentAlignment = Alignment.Center
     ) {
         if (!inMonth) return@Box
@@ -210,7 +225,7 @@ private fun DayCell(
                 .size(36.dp)
                 .clip(CircleShape)
                 .background(if (isEndpoint) cs.primary else Color.Transparent)
-                .clickable(enabled = !isFuture) { onClick(day.date) },
+                .indication(interactionSource, LocalIndication.current),
             contentAlignment = Alignment.Center
         ) {
             Text(
