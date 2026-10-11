@@ -328,7 +328,7 @@ private fun SettingsSection(
             shape = FrappeRadius.lg,
             colors = CardDefaults.cardColors(containerColor = cs.surfaceContainerLow)
         ) {
-            Column(modifier = Modifier.padding(Spacing.base)) {
+            Column(modifier = Modifier.padding(Spacing.xs)) {
                 content()
             }
         }
@@ -339,13 +339,13 @@ private fun SettingsSection(
 private fun SettingsRow(icon: ImageVector, label: String, value: String) {
     val cs = MaterialTheme.colorScheme
     Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = Spacing.sm),
+        modifier = Modifier.fillMaxWidth().padding(Spacing.md),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(Spacing.sm)
+            horizontalArrangement = Arrangement.spacedBy(Spacing.md)
         ) {
             Icon(
                 icon,
@@ -377,8 +377,9 @@ private fun NavRow(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = 48.dp)
+            .clip(FrappeRadius.lg)
             .clickable(role = Role.Button, onClick = onClick)
-            .padding(vertical = Spacing.sm),
+            .padding(Spacing.md),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Spacing.md)
     ) {
@@ -413,43 +414,45 @@ private fun ActiveSiteBlock(
     onSwitch: () -> Unit
 ) {
     val cs = MaterialTheme.colorScheme
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = Spacing.sm),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(Spacing.md)
-    ) {
-        InitialsAvatar(name = siteUrl, size = 48.dp)
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = siteUrl,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = cs.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                text = userEmail ?: "Loading...",
-                style = MaterialTheme.typography.bodySmall,
-                color = cs.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+    Column(modifier = Modifier.padding(Spacing.md)) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(vertical = Spacing.sm),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Spacing.md)
+        ) {
+            InitialsAvatar(name = siteUrl, size = 48.dp)
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = siteUrl,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = cs.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = userEmail ?: "Loading...",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = cs.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
-    }
-    Spacer(Modifier.height(Spacing.sm))
-    OutlinedButton(
-        onClick = onSwitch,
-        modifier = Modifier.fillMaxWidth(),
-        shape = FrappeRadius.full
-    ) {
-        Icon(
-            if (canSwitch) Icons.Outlined.SwapHoriz else Icons.Outlined.Add,
-            contentDescription = null,
-            modifier = Modifier.size(18.dp)
-        )
-        Spacer(Modifier.size(Spacing.sm))
-        Text(if (canSwitch) "Switch site" else "Add site")
+        Spacer(Modifier.height(Spacing.sm))
+        OutlinedButton(
+            onClick = onSwitch,
+            modifier = Modifier.fillMaxWidth(),
+            shape = FrappeRadius.full
+        ) {
+            Icon(
+                if (canSwitch) Icons.Outlined.SwapHoriz else Icons.Outlined.Add,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(Modifier.size(Spacing.sm))
+            Text(if (canSwitch) "Switch site" else "Add site")
+        }
     }
 }
 
@@ -460,39 +463,41 @@ private fun ActiveAgentBlock(
     onSwitch: () -> Unit
 ) {
     val cs = MaterialTheme.colorScheme
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = Spacing.sm),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(Spacing.md)
-    ) {
-        InitialsAvatar(name = name ?: "All", size = 48.dp)
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = name ?: "All agents",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = cs.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                text = email ?: "Viewing data for all agents",
-                style = MaterialTheme.typography.bodySmall,
-                color = cs.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+    Column(modifier = Modifier.padding(Spacing.md)) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(vertical = Spacing.sm),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Spacing.md)
+        ) {
+            InitialsAvatar(name = name ?: "All", size = 48.dp)
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = name ?: "All agents",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = cs.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = email ?: "Viewing data for all agents",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = cs.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
-    }
-    Spacer(Modifier.height(Spacing.sm))
-    OutlinedButton(
-        onClick = onSwitch,
-        modifier = Modifier.fillMaxWidth(),
-        shape = FrappeRadius.full
-    ) {
-        Icon(Icons.Outlined.SwapHoriz, contentDescription = null, modifier = Modifier.size(18.dp))
-        Spacer(Modifier.size(Spacing.sm))
-        Text(if (name != null) "Switch agent" else "Select agent")
+        Spacer(Modifier.height(Spacing.sm))
+        OutlinedButton(
+            onClick = onSwitch,
+            modifier = Modifier.fillMaxWidth(),
+            shape = FrappeRadius.full
+        ) {
+            Icon(Icons.Outlined.SwapHoriz, contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.size(Spacing.sm))
+            Text(if (name != null) "Switch agent" else "Select agent")
+        }
     }
 }
 
@@ -509,7 +514,8 @@ private fun AppearanceBlock(
         "Theme",
         style = MaterialTheme.typography.labelLarge,
         fontWeight = FontWeight.SemiBold,
-        color = cs.onSurfaceVariant
+        color = cs.onSurfaceVariant,
+        modifier = Modifier.padding(start = Spacing.md, top = Spacing.md)
     )
     Spacer(Modifier.height(Spacing.xs))
     listOf("system" to "System default", "light" to "Light", "dark" to "Dark").forEach { (k, label) ->
@@ -518,13 +524,13 @@ private fun AppearanceBlock(
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(min = 48.dp)
-                .clip(FrappeRadius.md)
+                .clip(FrappeRadius.lg)
                 .selectable(
                     selected = selected,
                     role = Role.RadioButton,
                     onClick = { onThemeModeChange(k) }
                 )
-                .padding(vertical = 6.dp, horizontal = 4.dp),
+                .padding(horizontal = Spacing.md, vertical = Spacing.xs),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -541,11 +547,12 @@ private fun AppearanceBlock(
         "Accent",
         style = MaterialTheme.typography.labelLarge,
         fontWeight = FontWeight.SemiBold,
-        color = cs.onSurfaceVariant
+        color = cs.onSurfaceVariant,
+        modifier = Modifier.padding(start = Spacing.md)
     )
     Spacer(Modifier.height(Spacing.sm))
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.md),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         AppColorScheme.entries.forEach { scheme ->
@@ -592,7 +599,8 @@ private fun AppearanceBlock(
     Text(
         text = AppColorScheme.fromKey(colorScheme).label,
         style = MaterialTheme.typography.bodySmall,
-        color = cs.onSurfaceVariant
+        color = cs.onSurfaceVariant,
+        modifier = Modifier.padding(start = Spacing.md, bottom = Spacing.md)
     )
 }
 
