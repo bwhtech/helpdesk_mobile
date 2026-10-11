@@ -25,6 +25,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.outlined.Logout
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Assessment
 import androidx.compose.material.icons.outlined.BatteryAlert
 import androidx.compose.material.icons.outlined.Build
@@ -82,6 +83,8 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun SettingsScreen(
     onLogout: () -> Unit = {},
+    onAddSite: () -> Unit = {},
+    onSiteChanged: () -> Unit = {},
     onOpenReports: () -> Unit = {},
     onSwitchAgent: () -> Unit = {},
     viewModel: SettingsViewModel = koinViewModel()
@@ -100,11 +103,17 @@ fun SettingsScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        viewModel.logout {
-                            // Alerts still in the tray belong to the session that just ended.
-                            NotificationManagerCompat.from(context).cancelAll()
-                            onLogout()
-                        }
+                        // Alerts still in the tray belong to the session that just ended.
+                        viewModel.logout(
+                            onLogout = {
+                                NotificationManagerCompat.from(context).cancelAll()
+                                onLogout()
+                            },
+                            onSiteChanged = {
+                                NotificationManagerCompat.from(context).cancelAll()
+                                onSiteChanged()
+                            }
+                        )
                     },
                     colors = ButtonDefaults.textButtonColors(contentColor = cs.error)
                 ) { Text("Disconnect") }
@@ -154,6 +163,26 @@ fun SettingsScreen(
                     icon = Icons.Outlined.Shield,
                     label = "Role",
                     value = uiState.userRole.ifEmpty { "N/A" }
+                )
+                uiState.otherSites.forEach { site ->
+                    NavRow(
+                        icon = Icons.Outlined.SwapHoriz,
+                        label = site.siteUrl,
+                        description = "Switch to this site",
+                        onClick = {
+                            viewModel.switchSite(site.id) {
+                                // Alerts still in the tray belong to the site left behind.
+                                NotificationManagerCompat.from(context).cancelAll()
+                                onSiteChanged()
+                            }
+                        }
+                    )
+                }
+                NavRow(
+                    icon = Icons.Outlined.Add,
+                    label = "Add site",
+                    description = "Sign in to another helpdesk",
+                    onClick = onAddSite
                 )
             }
         }

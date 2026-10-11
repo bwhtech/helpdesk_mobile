@@ -1,5 +1,6 @@
 package io.github.kaulith.helpdeskanalytics.testing
 
+import io.github.kaulith.helpdeskanalytics.domain.model.SiteProfile
 import io.github.kaulith.helpdeskanalytics.domain.model.User
 import io.github.kaulith.helpdeskanalytics.domain.repository.AuthRepository
 import io.github.kaulith.helpdeskanalytics.util.Result
@@ -8,6 +9,8 @@ class FakeAuthRepository : AuthRepository {
 
     var discoveredClientId: String? = null
     var isLoggedOut = false
+    var otherSites = emptyList<SiteProfile>()
+    var siteSwitchedTo: String? = null
     var loginResult: Result<User> = Result.Success(
         User(email = "ann@x.io", fullName = "Ann", roles = emptyList(), hasTeamLeadPermission = true)
     )
@@ -24,5 +27,11 @@ class FakeAuthRepository : AuthRepository {
 
     override suspend fun logout() {
         isLoggedOut = true
+    }
+
+    override fun otherSites() = otherSites
+
+    override suspend fun switchSite(profileId: String) {
+        siteSwitchedTo = profileId
     }
 }

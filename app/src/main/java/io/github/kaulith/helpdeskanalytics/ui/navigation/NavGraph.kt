@@ -21,20 +21,22 @@ fun AppNavGraph(
     }
 
     val navController = rememberNavController()
+    // Everything on screen belongs to the site that was in use, so none of it is kept.
+    val showMain = {
+        navController.navigate(Screen.Main.route) {
+            popUpTo(navController.graph.id) { inclusive = true }
+        }
+    }
     NavHost(navController = navController, startDestination = startDestination) {
         composable(Screen.Login.route) {
-            LoginScreen(
-                onLoginSuccess = {
-                    navController.navigate(Screen.Main.route) {
-                        popUpTo(Screen.Login.route) { inclusive = true }
-                    }
-                }
-            )
+            LoginScreen(onLoginSuccess = showMain)
         }
         composable(Screen.Main.route) {
             MainScreen(
                 pendingTicket = pendingTicket,
                 onPendingTicketHandled = onPendingTicketHandled,
+                onAddSite = { navController.navigate(Screen.Login.route) },
+                onSiteChanged = showMain,
                 onLogout = {
                     navController.navigate(Screen.Login.route) {
                         popUpTo(Screen.Main.route) { inclusive = true }

@@ -40,6 +40,15 @@ class CredentialsManager(
 
     fun hasProfile(siteUrl: String): Boolean = profileIdOf(siteUrl) != null
 
+    /** The site of every profile that is signed in, by profile id. */
+    fun signedInSites(): Map<String, String> =
+        profileStore.profileIds().mapNotNull { profileId ->
+            val prefs = profilePrefs(profileId)
+            val isSignedIn = prefs.contains(KEY_ACCESS_TOKEN) ||
+                (prefs.contains(KEY_API_KEY) && prefs.contains(KEY_API_SECRET))
+            prefs.getDecrypted(KEY_SITE_URL)?.takeIf { isSignedIn }?.let { profileId to it }
+        }.toMap()
+
     /** Signs in to a site with API keys; see [activateProfile] for where they land. */
     fun saveCredentials(siteUrl: String, apiKey: String, apiSecret: String) {
         activateProfile(siteUrl)

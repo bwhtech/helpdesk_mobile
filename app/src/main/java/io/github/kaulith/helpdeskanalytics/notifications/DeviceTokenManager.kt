@@ -81,7 +81,7 @@ class DeviceTokenManager(
         )
     }
 
-    fun registerNow() {
+    override fun registerNow() {
         val request = OneTimeWorkRequestBuilder<DeviceRegistrationWorker>()
             .setConstraints(networkConstraints())
             .build()

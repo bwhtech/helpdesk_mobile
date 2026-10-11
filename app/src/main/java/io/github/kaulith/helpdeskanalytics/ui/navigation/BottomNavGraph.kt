@@ -22,6 +22,8 @@ import io.github.kaulith.helpdeskanalytics.ui.screens.tickets.TicketsScreen
 fun BottomNavGraph(
     navController: NavHostController,
     onLogout: () -> Unit = {},
+    onAddSite: () -> Unit = {},
+    onSiteChanged: () -> Unit = {},
     onSwitchAgent: () -> Unit = {},
 ) {
     NavHost(
@@ -70,6 +72,8 @@ fun BottomNavGraph(
             SettingsScreen(
                 onSwitchAgent = onSwitchAgent,
                 onLogout = onLogout,
+                onAddSite = onAddSite,
+                onSiteChanged = onSiteChanged,
                 onOpenReports = { navController.navigate("reports") }
             )
         }

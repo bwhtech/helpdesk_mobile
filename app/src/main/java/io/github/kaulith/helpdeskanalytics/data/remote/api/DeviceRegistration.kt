@@ -5,4 +5,7 @@ interface DeviceRegistration {
 
     /** Only works while the session can still authenticate, so before signing out clears it. */
     suspend fun unregisterCurrentDevice()
+
+    /** Registers with the site now in use, as soon as there is a network. */
+    fun registerNow()
 }

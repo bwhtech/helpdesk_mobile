@@ -1,5 +1,6 @@
 package io.github.kaulith.helpdeskanalytics.domain.repository
 
+import io.github.kaulith.helpdeskanalytics.domain.model.SiteProfile
 import io.github.kaulith.helpdeskanalytics.domain.model.User
 import io.github.kaulith.helpdeskanalytics.util.Result
 
@@ -16,5 +17,13 @@ interface AuthRepository {
     suspend fun completeOAuthLogin(code: String, state: String): Result<User>
 
     fun isLoggedIn(): Boolean
+
+    /** Signs out of the site in use. Another signed-in site, when there is one, takes over. */
     suspend fun logout()
+
+    /** The signed-in sites other than the one in use. */
+    fun otherSites(): List<SiteProfile>
+
+    /** Puts another signed-in site in use. */
+    suspend fun switchSite(profileId: String)
 }

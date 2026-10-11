@@ -66,7 +66,9 @@ import org.koin.compose.koinInject
 fun MainScreen(
     pendingTicket: PendingTicket? = null,
     onPendingTicketHandled: () -> Unit = {},
-    onLogout: () -> Unit = {}
+    onLogout: () -> Unit = {},
+    onAddSite: () -> Unit = {},
+    onSiteChanged: () -> Unit = {}
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -255,6 +257,8 @@ fun MainScreen(
                 BottomNavGraph(
                     navController = navController,
                     onLogout = onLogout,
+                    onAddSite = onAddSite,
+                    onSiteChanged = onSiteChanged,
                     onSwitchAgent = agentSwitcherViewModel::show,
                 )
             }

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.kaulith.helpdeskanalytics.data.local.credentials.CredentialsManager
 import io.github.kaulith.helpdeskanalytics.data.local.preferences.PreferencesManager
 import io.github.kaulith.helpdeskanalytics.domain.model.Agent
+import io.github.kaulith.helpdeskanalytics.domain.model.SiteProfile
 import io.github.kaulith.helpdeskanalytics.domain.repository.AgentRepository
 import io.github.kaulith.helpdeskanalytics.domain.repository.AuthRepository
 import io.github.kaulith.helpdeskanalytics.domain.repository.TicketRepository
@@ -24,7 +25,8 @@ data class SettingsUiState(
     val serverUrl: String = "",
     val userName: String = "",
     val userRole: String = "",
-    val activeAgent: Agent? = null
+    val activeAgent: Agent? = null,
+    val otherSites: List<SiteProfile> = emptyList()
 )
 
 class SettingsViewModel(
@@ -45,9 +47,12 @@ class SettingsViewModel(
     }
 
     private fun loadAccountInfo() {
-        val siteUrl = credentialsManager.getSiteUrl() ?: ""
-        val displayUrl = siteUrl.removePrefix("https://").removePrefix("http://")
-        _uiState.update { it.copy(serverUrl = displayUrl) }
+        _uiState.update { state ->
+            state.copy(
+                serverUrl = displayUrl(credentialsManager.getSiteUrl() ?: ""),
+                otherSites = authRepository.otherSites().map { it.copy(siteUrl = displayUrl(it.siteUrl)) }
+            )
+        }
 
         viewModelScope.launch {
             repository.getCurrentUser().collect { result ->
@@ -65,6 +70,8 @@ class SettingsViewModel(
             }
         }
     }
+
+    private fun displayUrl(siteUrl: String) = siteUrl.removePrefix("https://").removePrefix("http://")
 
     private fun loadPreferences() {
         viewModelScope.launch {
@@ -134,13 +141,19 @@ class SettingsViewModel(
         }
     }
 
-    fun logout(onLogout: () -> Unit) {
+    fun logout(onSiteChanged: () -> Unit = {}, onLogout: () -> Unit) {
         viewModelScope.launch {
-            authRepository.logout()
-            preferencesManager.clearProfile()
             repository.clearCache()
+            authRepository.logout()
             _uiState.update { it.copy(showLogoutDialog = false) }
-            onLogout()
+            if (authRepository.isLoggedIn()) onSiteChanged() else onLogout()
+        }
+    }
+
+    fun switchSite(profileId: String, onSiteChanged: () -> Unit) {
+        viewModelScope.launch {
+            authRepository.switchSite(profileId)
+            onSiteChanged()
         }
     }
 }

@@ -8,6 +8,7 @@ import io.github.kaulith.helpdeskanalytics.data.remote.api.ApiServiceProvider
 import io.github.kaulith.helpdeskanalytics.data.remote.api.DeviceRegistration
 import io.github.kaulith.helpdeskanalytics.data.remote.api.OAuthClient
 import io.github.kaulith.helpdeskanalytics.data.remote.toNetworkError
+import io.github.kaulith.helpdeskanalytics.domain.model.SiteProfile
 import io.github.kaulith.helpdeskanalytics.domain.model.User
 import io.github.kaulith.helpdeskanalytics.domain.repository.AuthRepository
 import io.github.kaulith.helpdeskanalytics.util.NetworkError
@@ -64,9 +65,27 @@ class FrappeAuthRepository(
     override suspend fun logout() {
         deviceRegistration.unregisterCurrentDevice()
         revokeOAuthSession()
+        preferencesManager.clearProfile()
         credentialsManager.clearCredentials()
+        credentialsManager.signedInSites().keys.firstOrNull()?.let(::useProfile)
         apiServiceProvider.invalidate()
-        preferencesManager.setLoggedInUserEmail(null)
+    }
+
+    override fun otherSites(): List<SiteProfile> =
+        credentialsManager.signedInSites()
+            .filterKeys { it != profileStore.activeProfileId() }
+            .map { (profileId, siteUrl) -> SiteProfile(profileId, siteUrl) }
+
+    override suspend fun switchSite(profileId: String) {
+        deviceRegistration.unregisterCurrentDevice()
+        useProfile(profileId)
+    }
+
+    // Alerts come from the site in use alone, so the device registers where it lands.
+    private fun useProfile(profileId: String) {
+        profileStore.activate(profileId)
+        apiServiceProvider.invalidate()
+        deviceRegistration.registerNow()
     }
 
     /**
@@ -77,13 +96,14 @@ class FrappeAuthRepository(
     private suspend fun signIn(siteUrl: String, saveSession: () -> Unit): Result<User> {
         val previousProfileId = profileStore.activeProfileId()
         val isNewProfile = !credentialsManager.hasProfile(siteUrl)
+        deviceRegistration.unregisterCurrentDevice()
         saveSession()
         apiServiceProvider.invalidate()
         return try {
             Result.Success(loadSignedInUser())
         } catch (e: Exception) {
             if (isNewProfile) credentialsManager.removeProfile() else credentialsManager.clearSession()
-            previousProfileId?.let(profileStore::activate)
+            previousProfileId?.let(::useProfile)
             apiServiceProvider.invalidate()
             Result.Error(e.toNetworkError())
         }
