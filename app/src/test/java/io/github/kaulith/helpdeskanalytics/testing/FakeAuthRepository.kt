@@ -29,7 +29,7 @@ class FakeAuthRepository : AuthRepository {
         isLoggedOut = true
     }
 
-    override fun otherSites() = otherSites
+    override suspend fun otherSites() = otherSites
 
     override suspend fun switchSite(profileId: String) {
         siteSwitchedTo = profileId

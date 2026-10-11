@@ -76,6 +76,8 @@ class SettingsScreenTest {
         )
         composeRule.setContent { SettingsScreen(viewModel = viewModel) }
 
+        composeRule.waitUntilExactlyOneExists(hasText("Switch site"))
+        composeRule.onNodeWithText("Switch site").performClick()
         composeRule.onNodeWithText("helpdesk-mb.fsn.frappe.cloud").performClick()
 
         composeRule.waitUntil { authRepository.siteSwitchedTo == "helpdesk-mb" }

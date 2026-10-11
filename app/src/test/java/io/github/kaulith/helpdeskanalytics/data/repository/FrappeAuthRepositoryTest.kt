@@ -69,13 +69,13 @@ class FrappeAuthRepositoryTest {
     }
 
     @Test
-    fun `signing out keeps the profile of the site for signing back in`() = runBlocking {
+    fun `signing out removes the profile of the site`() = runBlocking {
         credentials.saveCredentials("https://support.frappe.io", "key", "secret")
 
         repository(noDeviceRegistration).logout()
 
         assertFalse(credentials.hasCredentials())
-        assertTrue(credentials.hasProfile("https://support.frappe.io"))
+        assertFalse(credentials.hasProfile("https://support.frappe.io"))
     }
 
     @Test
