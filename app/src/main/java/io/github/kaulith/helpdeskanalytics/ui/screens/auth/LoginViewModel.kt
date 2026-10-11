@@ -34,7 +34,8 @@ data class LoginUiState(
 
 class LoginViewModel(
     private val authRepository: AuthRepository,
-    private val agentRepository: AgentRepository,
+    // Looked up when the sign-in is through; the one from before it belongs to no site.
+    private val agentRepository: () -> AgentRepository,
     private val oAuthRedirectHolder: OAuthRedirectHolder
 ) : ViewModel() {
 
@@ -164,7 +165,7 @@ class LoginViewModel(
     private suspend fun applyResult(result: Result<*>, unauthorizedMessage: String) {
         when (result) {
             is Result.Success -> {
-                agentRepository.selectLoginUserAsAgent()
+                agentRepository().selectLoginUserAsAgent()
                 _uiState.update { it.copy(isLoading = false, isLoginSuccess = true) }
             }
             is Result.Error -> {

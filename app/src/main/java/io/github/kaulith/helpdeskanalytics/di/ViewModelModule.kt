@@ -10,11 +10,12 @@ import io.github.kaulith.helpdeskanalytics.ui.agent.AgentSwitcherViewModel
 import io.github.kaulith.helpdeskanalytics.ui.screens.settings.SettingsViewModel
 import io.github.kaulith.helpdeskanalytics.ui.screens.tickets.TicketDetailViewModel
 import io.github.kaulith.helpdeskanalytics.ui.screens.tickets.TicketListViewModel
+import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 val viewModelModule = module {
-    viewModelOf(::LoginViewModel)
+    viewModel { LoginViewModel(get(), { get() }, get()) }
     viewModelOf(::DashboardViewModel)
     viewModelOf(::TicketListViewModel)
     viewModelOf(::TicketDetailViewModel)

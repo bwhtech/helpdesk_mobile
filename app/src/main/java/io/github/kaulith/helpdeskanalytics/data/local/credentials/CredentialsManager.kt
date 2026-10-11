@@ -144,12 +144,12 @@ class CredentialsManager(
     }
 
     fun getOAuthRequest(): OAuthRequest? {
-        return OAuthRequest(
-            siteUrl = oAuthRequestPrefs.getDecrypted(KEY_SITE_URL) ?: return null,
-            clientId = oAuthRequestPrefs.getDecrypted(KEY_OAUTH_CLIENT_ID) ?: return null,
-            state = oAuthRequestPrefs.getDecrypted(KEY_OAUTH_STATE) ?: return null,
-            codeVerifier = oAuthRequestPrefs.getDecrypted(KEY_OAUTH_VERIFIER) ?: return null
-        )
+        val siteUrl = oAuthRequestPrefs.getDecrypted(KEY_SITE_URL)
+        val clientId = oAuthRequestPrefs.getDecrypted(KEY_OAUTH_CLIENT_ID)
+        val state = oAuthRequestPrefs.getDecrypted(KEY_OAUTH_STATE)
+        val codeVerifier = oAuthRequestPrefs.getDecrypted(KEY_OAUTH_VERIFIER)
+        if (siteUrl == null || clientId == null || state == null || codeVerifier == null) return null
+        return OAuthRequest(siteUrl, clientId, state, codeVerifier)
     }
 
     fun clearOAuthRequest() {
