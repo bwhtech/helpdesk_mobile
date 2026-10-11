@@ -32,7 +32,6 @@ import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.NotificationsActive
 import androidx.compose.material.icons.outlined.Person
@@ -74,6 +73,8 @@ import io.github.kaulith.helpdeskanalytics.BuildConfig
 import io.github.kaulith.helpdeskanalytics.notifications.NotificationHelper
 import io.github.kaulith.helpdeskanalytics.ui.components.InitialsAvatar
 import io.github.kaulith.helpdeskanalytics.ui.components.OnResume
+import io.github.kaulith.helpdeskanalytics.domain.model.SiteProfile
+import io.github.kaulith.helpdeskanalytics.ui.components.SiteSelectorSheet
 import io.github.kaulith.helpdeskanalytics.ui.theme.AppColorScheme
 import io.github.kaulith.helpdeskanalytics.ui.theme.FrappeRadius
 import io.github.kaulith.helpdeskanalytics.ui.theme.Spacing
@@ -94,6 +95,7 @@ fun SettingsScreen(
     val context = LocalContext.current
     var batteryUnrestricted by remember { mutableStateOf(isBatteryUnrestricted(context)) }
     OnResume { batteryUnrestricted = isBatteryUnrestricted(context) }
+    var showSiteSheet by remember { mutableStateOf(false) }
 
     if (uiState.showLogoutDialog) {
         AlertDialog(
@@ -125,6 +127,22 @@ fun SettingsScreen(
         )
     }
 
+    if (showSiteSheet) {
+        SiteSelectorSheet(
+            activeSite = SiteProfile(id = "", siteUrl = uiState.serverUrl, userEmail = uiState.userEmail),
+            otherSites = uiState.otherSites,
+            onSiteSelected = { site ->
+                viewModel.switchSite(site.id) {
+                    // Alerts still in the tray belong to the site left behind.
+                    NotificationManagerCompat.from(context).cancelAll()
+                    onSiteChanged()
+                }
+            },
+            onAddSite = onAddSite,
+            onDismiss = { showSiteSheet = false }
+        )
+    }
+
     if (uiState.showClearCacheDialog) {
         AlertDialog(
             onDismissRequest = viewModel::dismissClearCacheDialog,
@@ -148,12 +166,18 @@ fun SettingsScreen(
         verticalArrangement = Arrangement.spacedBy(Spacing.base)
     ) {
         item {
-            SettingsSection(title = "Account") {
-                SettingsRow(
-                    icon = Icons.Outlined.Language,
-                    label = "Server",
-                    value = uiState.serverUrl.ifEmpty { "Not connected" }
+            SettingsSection(title = "Active site") {
+                ActiveSiteBlock(
+                    siteUrl = uiState.serverUrl.ifEmpty { "Not connected" },
+                    userEmail = uiState.userEmail,
+                    canSwitch = uiState.otherSites.isNotEmpty(),
+                    onSwitch = { if (uiState.otherSites.isNotEmpty()) showSiteSheet = true else onAddSite() }
                 )
+            }
+        }
+
+        item {
+            SettingsSection(title = "Account") {
                 SettingsRow(
                     icon = Icons.Outlined.Person,
                     label = "User",
@@ -163,26 +187,6 @@ fun SettingsScreen(
                     icon = Icons.Outlined.Shield,
                     label = "Role",
                     value = uiState.userRole.ifEmpty { "N/A" }
-                )
-                uiState.otherSites.forEach { site ->
-                    NavRow(
-                        icon = Icons.Outlined.SwapHoriz,
-                        label = site.siteUrl,
-                        description = "Switch to this site",
-                        onClick = {
-                            viewModel.switchSite(site.id) {
-                                // Alerts still in the tray belong to the site left behind.
-                                NotificationManagerCompat.from(context).cancelAll()
-                                onSiteChanged()
-                            }
-                        }
-                    )
-                }
-                NavRow(
-                    icon = Icons.Outlined.Add,
-                    label = "Add site",
-                    description = "Sign in to another helpdesk",
-                    onClick = onAddSite
                 )
             }
         }
@@ -398,6 +402,54 @@ private fun NavRow(
             tint = cs.onSurfaceVariant,
             modifier = Modifier.size(20.dp)
         )
+    }
+}
+
+@Composable
+private fun ActiveSiteBlock(
+    siteUrl: String,
+    userEmail: String?,
+    canSwitch: Boolean,
+    onSwitch: () -> Unit
+) {
+    val cs = MaterialTheme.colorScheme
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = Spacing.sm),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Spacing.md)
+    ) {
+        InitialsAvatar(name = siteUrl, size = 48.dp)
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = siteUrl,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = cs.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = userEmail ?: "Loading...",
+                style = MaterialTheme.typography.bodySmall,
+                color = cs.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+    Spacer(Modifier.height(Spacing.sm))
+    OutlinedButton(
+        onClick = onSwitch,
+        modifier = Modifier.fillMaxWidth(),
+        shape = FrappeRadius.full
+    ) {
+        Icon(
+            if (canSwitch) Icons.Outlined.SwapHoriz else Icons.Outlined.Add,
+            contentDescription = null,
+            modifier = Modifier.size(18.dp)
+        )
+        Spacer(Modifier.size(Spacing.sm))
+        Text(if (canSwitch) "Switch site" else "Add site")
     }
 }
 

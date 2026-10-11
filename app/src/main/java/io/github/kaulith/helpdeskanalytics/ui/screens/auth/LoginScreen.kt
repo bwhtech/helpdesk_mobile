@@ -61,6 +61,7 @@ private const val API_CREDENTIALS_GUIDE_URL =
 @Composable
 fun LoginScreen(
     onLoginSuccess: () -> Unit,
+    onCancel: (() -> Unit)? = null,
     viewModel: LoginViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -280,6 +281,12 @@ fun LoginScreen(
                     text = if (uiState.useApiKey) "Sign in with your account" else "Use an API key instead",
                     style = MaterialTheme.typography.bodyMedium
                 )
+            }
+
+            if (onCancel != null) {
+                TextButton(onClick = onCancel, enabled = !uiState.isLoading) {
+                    Text(text = "Cancel", style = MaterialTheme.typography.bodyMedium)
+                }
             }
 
             if (uiState.useApiKey) {

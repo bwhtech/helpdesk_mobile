@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import io.github.kaulith.helpdeskanalytics.data.local.profiles.ProfileStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "helpdesk_prefs")
@@ -112,6 +113,9 @@ class PreferencesManager(
     val loggedInUserEmail: Flow<String?> = context.dataStore.data.map { prefs ->
         prefs[siteKeys.loggedInUserEmail]
     }
+
+    suspend fun loggedInUserEmail(profileId: String): String? =
+        context.dataStore.data.first()[SiteKeys(profileId).loggedInUserEmail]
 
     suspend fun setLoggedInUserEmail(email: String?) {
         context.dataStore.edit { prefs ->

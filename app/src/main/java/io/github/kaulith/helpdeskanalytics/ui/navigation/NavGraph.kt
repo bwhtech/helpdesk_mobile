@@ -33,7 +33,12 @@ fun AppNavGraph(
     }
     NavHost(navController = navController, startDestination = startDestination) {
         composable(Screen.Login.route) {
-            LoginScreen(onLoginSuccess = showMain)
+            // Opened over a site in use, it is adding another and can be backed out of.
+            val isAddingSite = navController.previousBackStackEntry != null
+            LoginScreen(
+                onLoginSuccess = showMain,
+                onCancel = if (isAddingSite) ({ navController.popBackStack(); Unit }) else null
+            )
         }
         composable(Screen.Main.route) {
             MainScreen(

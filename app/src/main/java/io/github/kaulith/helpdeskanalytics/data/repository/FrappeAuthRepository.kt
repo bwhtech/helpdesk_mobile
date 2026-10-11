@@ -66,15 +66,17 @@ class FrappeAuthRepository(
         deviceRegistration.unregisterCurrentDevice()
         revokeOAuthSession()
         preferencesManager.clearProfile()
-        credentialsManager.clearCredentials()
+        credentialsManager.removeProfile()
         credentialsManager.signedInSites().keys.firstOrNull()?.let(::useProfile)
         apiServiceProvider.invalidate()
     }
 
-    override fun otherSites(): List<SiteProfile> =
+    override suspend fun otherSites(): List<SiteProfile> =
         credentialsManager.signedInSites()
             .filterKeys { it != profileStore.activeProfileId() }
-            .map { (profileId, siteUrl) -> SiteProfile(profileId, siteUrl) }
+            .map { (profileId, siteUrl) ->
+                SiteProfile(profileId, siteUrl, preferencesManager.loggedInUserEmail(profileId))
+            }
 
     override suspend fun switchSite(profileId: String) {
         deviceRegistration.unregisterCurrentDevice()

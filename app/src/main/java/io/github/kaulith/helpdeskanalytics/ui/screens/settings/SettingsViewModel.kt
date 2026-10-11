@@ -23,6 +23,7 @@ data class SettingsUiState(
     val showLogoutDialog: Boolean = false,
     val showClearCacheDialog: Boolean = false,
     val serverUrl: String = "",
+    val userEmail: String? = null,
     val userName: String = "",
     val userRole: String = "",
     val activeAgent: Agent? = null,
@@ -47,11 +48,11 @@ class SettingsViewModel(
     }
 
     private fun loadAccountInfo() {
-        _uiState.update { state ->
-            state.copy(
-                serverUrl = displayUrl(credentialsManager.getSiteUrl() ?: ""),
-                otherSites = authRepository.otherSites().map { it.copy(siteUrl = displayUrl(it.siteUrl)) }
-            )
+        _uiState.update { it.copy(serverUrl = displayUrl(credentialsManager.getSiteUrl() ?: "")) }
+
+        viewModelScope.launch {
+            val otherSites = authRepository.otherSites().map { it.copy(siteUrl = displayUrl(it.siteUrl)) }
+            _uiState.update { it.copy(otherSites = otherSites) }
         }
 
         viewModelScope.launch {
@@ -61,6 +62,7 @@ class SettingsViewModel(
                     _uiState.update {
                         it.copy(
                             userName = user.fullName ?: user.email,
+                            userEmail = user.email,
                             userRole = user.roles.firstOrNull { r ->
                                 r.startsWith("HD")
                             } ?: user.roles.firstOrNull() ?: ""

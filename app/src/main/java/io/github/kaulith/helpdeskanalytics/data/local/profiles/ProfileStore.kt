@@ -4,7 +4,7 @@ import android.content.Context
 import io.github.kaulith.helpdeskanalytics.util.Constants
 
 /** The helpdesk sites the app holds a profile for, and which of them is in use. */
-class ProfileStore(context: Context) {
+class ProfileStore(private val context: Context) {
 
     private val prefs =
         context.getSharedPreferences(Constants.PROFILES_PREFERENCES_NAME, Context.MODE_PRIVATE)
@@ -27,8 +27,9 @@ class ProfileStore(context: Context) {
         if (profileId != previous) onActiveProfileChanged()
     }
 
-    /** A profile that was in use hands over to the first one left. */
+    /** Takes the database of the profile with it. One that was in use hands over to the first left. */
     fun remove(profileId: String) {
+        context.deleteDatabase(storageName(Constants.DATABASE_NAME, profileId))
         val remaining = profileIds() - profileId
         val previous = activeProfileId()
         val active = previous.takeIf { it != profileId } ?: remaining.firstOrNull()

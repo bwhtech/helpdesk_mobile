@@ -18,11 +18,14 @@ interface AuthRepository {
 
     fun isLoggedIn(): Boolean
 
-    /** Signs out of the site in use. Another signed-in site, when there is one, takes over. */
+    /**
+     * Signs out of the site in use and removes what the phone kept of it. Another
+     * signed-in site, when there is one, takes over.
+     */
     suspend fun logout()
 
     /** The signed-in sites other than the one in use. */
-    fun otherSites(): List<SiteProfile>
+    suspend fun otherSites(): List<SiteProfile>
 
     /** Puts another signed-in site in use. */
     suspend fun switchSite(profileId: String)

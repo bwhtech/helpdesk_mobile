@@ -187,17 +187,7 @@ class CredentialsManager(
 
     fun getActiveAgentEmail(): String? = getString(KEY_ACTIVE_AGENT)
 
-    /**
-     * Signs out of the profile in use. The profile and its site stay, so signing in
-     * to the site again finds what the profile kept on this device.
-     */
-    fun clearCredentials() {
-        val prefs = prefs ?: return
-        val siteUrl = prefs.getString(KEY_SITE_URL, null)
-        prefs.edit().clear().putString(KEY_SITE_URL, siteUrl).apply()
-    }
-
-    /** Removes the profile in use; another profile, when there is one, takes over. */
+    /** Removes the profile in use and what it kept; another, when there is one, takes over. */
     fun removeProfile() {
         val profileId = profileStore.activeProfileId() ?: return
         // Written out before the file goes, or a pending write would bring it back.
