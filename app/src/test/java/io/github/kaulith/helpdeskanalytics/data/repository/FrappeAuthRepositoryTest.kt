@@ -44,6 +44,8 @@ class FrappeAuthRepositoryTest {
 
     private val noDeviceRegistration = object : DeviceRegistration {
         override suspend fun unregisterCurrentDevice() = Unit
+
+        override fun registerNow() = Unit
     }
 
     @After
@@ -57,6 +59,8 @@ class FrappeAuthRepositoryTest {
             override suspend fun unregisterCurrentDevice() {
                 signedInWhenUnregistered = credentials.hasCredentials()
             }
+
+            override fun registerNow() = Unit
         })
 
         repository.logout()
@@ -72,6 +76,27 @@ class FrappeAuthRepositoryTest {
 
         assertFalse(credentials.hasCredentials())
         assertTrue(credentials.hasProfile("https://support.frappe.io"))
+    }
+
+    @Test
+    fun `signing out of one site puts another signed-in site in use`() = runBlocking {
+        credentials.saveCredentials("https://support.frappe.io", "key", "secret")
+        credentials.saveCredentials("https://helpdesk-mb.fsn.frappe.cloud", "key", "secret")
+
+        repository(noDeviceRegistration).logout()
+
+        assertEquals("https://support.frappe.io", credentials.getSiteUrl())
+    }
+
+    @Test
+    fun `switching site puts the picked site in use`() = runBlocking {
+        credentials.saveCredentials("https://support.frappe.io", "key", "secret")
+        credentials.saveCredentials("https://helpdesk-mb.fsn.frappe.cloud", "key", "secret")
+        val repository = repository(noDeviceRegistration)
+
+        repository.switchSite(repository.otherSites().single().id)
+
+        assertEquals("https://support.frappe.io", credentials.getSiteUrl())
     }
 
     @Test
