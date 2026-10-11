@@ -823,6 +823,7 @@ private fun DropdownField(
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
+            modifier = Modifier.exposedDropdownSize().heightIn(max = 320.dp),
             shape = FrappeRadius.lg
         ) {
             items.forEach { item ->
