@@ -8,6 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import io.github.kaulith.helpdeskanalytics.domain.repository.AuthRepository
 import io.github.kaulith.helpdeskanalytics.ui.screens.MainScreen
 import io.github.kaulith.helpdeskanalytics.ui.screens.auth.LoginScreen
+import io.github.kaulith.helpdeskanalytics.ui.screens.auth.OAuthRedirectHolder
 import org.koin.compose.koinInject
 
 @Composable
@@ -16,8 +17,11 @@ fun AppNavGraph(
     onPendingTicketHandled: () -> Unit = {}
 ) {
     val authRepository: AuthRepository = koinInject()
+    val oAuthRedirectHolder: OAuthRedirectHolder = koinInject()
     val startDestination = remember {
-        if (authRepository.isLoggedIn()) Screen.Main.route else Screen.Login.route
+        // A redirect that restarted the app is a sign-in to another site left to finish.
+        val isSigningIn = oAuthRedirectHolder.redirect.value != null
+        if (authRepository.isLoggedIn() && !isSigningIn) Screen.Main.route else Screen.Login.route
     }
 
     val navController = rememberNavController()

@@ -58,6 +58,8 @@ class CredentialsManager(
             putEncrypted(KEY_SITE_URL, siteUrl.trimEnd('/'))
             putEncrypted(KEY_API_KEY, apiKey)
             putEncrypted(KEY_API_SECRET, apiSecret)
+            remove(KEY_ACCESS_TOKEN)
+            remove(KEY_REFRESH_TOKEN)
         }
     }
 
@@ -93,6 +95,8 @@ class CredentialsManager(
         edit {
             putEncrypted(KEY_SITE_URL, siteUrl.trimEnd('/'))
             putEncrypted(KEY_OAUTH_CLIENT_ID, clientId)
+            remove(KEY_API_KEY)
+            remove(KEY_API_SECRET)
         }
         saveOAuthSession(accessToken, refreshToken)
     }
