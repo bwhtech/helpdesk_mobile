@@ -3,6 +3,7 @@ package io.github.kaulith.helpdeskanalytics.ui.screens.settings
 import android.app.Application
 import androidx.test.core.app.ApplicationProvider
 import io.github.kaulith.helpdeskanalytics.data.local.preferences.PreferencesManager
+import io.github.kaulith.helpdeskanalytics.data.local.profiles.ProfileStore
 import io.github.kaulith.helpdeskanalytics.testing.FakeAgentRepository
 import io.github.kaulith.helpdeskanalytics.testing.FakeAuthRepository
 import io.github.kaulith.helpdeskanalytics.testing.FakeTicketRepository
@@ -35,7 +36,7 @@ class SettingsViewModelTest {
     private val credentialsManager = credentialsManager(context)
     private val viewModel by lazy {
         SettingsViewModel(
-            PreferencesManager(context),
+            PreferencesManager(context, ProfileStore(context)),
             repository,
             authRepository,
             credentialsManager,

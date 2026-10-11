@@ -4,12 +4,14 @@ import android.app.Application
 import coil.ImageLoader
 import coil.ImageLoaderFactory
 import io.github.kaulith.helpdeskanalytics.data.local.credentials.CredentialsManager
+import io.github.kaulith.helpdeskanalytics.data.local.profiles.ProfileStore
 import io.github.kaulith.helpdeskanalytics.data.remote.api.AgentSessionManager
 import io.github.kaulith.helpdeskanalytics.data.remote.interceptor.AuthInterceptor
 import io.github.kaulith.helpdeskanalytics.data.sync.SyncManager
 import io.github.kaulith.helpdeskanalytics.di.appModule
 import io.github.kaulith.helpdeskanalytics.di.databaseModule
 import io.github.kaulith.helpdeskanalytics.di.networkModule
+import io.github.kaulith.helpdeskanalytics.di.reloadProfileModules
 import io.github.kaulith.helpdeskanalytics.di.repositoryModule
 import io.github.kaulith.helpdeskanalytics.di.viewModelModule
 import io.github.kaulith.helpdeskanalytics.notifications.DeviceTokenManager
@@ -34,6 +36,7 @@ class HelpdeskAnalyticsApp : Application(), ImageLoaderFactory {
                 viewModelModule
             )
         }
+        get<ProfileStore>().onActiveProfileChanged = ::reloadProfileModules
         get<NotificationHelper>().createChannel()
         SyncManager(this).schedulePeriodic()
         get<DeviceTokenManager>().start()

@@ -6,6 +6,7 @@ import android.app.Notification
 import android.app.NotificationManager
 import androidx.test.core.app.ApplicationProvider
 import io.github.kaulith.helpdeskanalytics.data.local.preferences.PreferencesManager
+import io.github.kaulith.helpdeskanalytics.data.local.profiles.ProfileStore
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.TicketDto
 import io.github.kaulith.helpdeskanalytics.testing.FakeApiServiceProvider
 import io.github.kaulith.helpdeskanalytics.testing.FakeFrappeApiService
@@ -24,7 +25,7 @@ import org.robolectric.annotation.Config
 class TicketPollerTest {
 
     private val context = ApplicationProvider.getApplicationContext<Application>()
-    private val preferencesManager = PreferencesManager(context)
+    private val preferencesManager = PreferencesManager(context, ProfileStore(context))
     private val service = FakeFrappeApiService()
     private val poller = TicketPoller(FakeApiServiceProvider(service), preferencesManager, NotificationHelper(context))
 

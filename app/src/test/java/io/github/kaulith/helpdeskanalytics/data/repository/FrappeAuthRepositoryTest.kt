@@ -37,7 +37,7 @@ class FrappeAuthRepositoryTest {
         credentials,
         ProfileStore(context),
         FakeApiServiceProvider(service),
-        PreferencesManager(context),
+        PreferencesManager(context, ProfileStore(context)),
         OAuthClient(credentials, OkHttpClient()),
         deviceRegistration
     )

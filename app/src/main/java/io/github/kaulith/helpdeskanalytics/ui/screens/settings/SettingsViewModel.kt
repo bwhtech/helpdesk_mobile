@@ -137,7 +137,7 @@ class SettingsViewModel(
     fun logout(onLogout: () -> Unit) {
         viewModelScope.launch {
             authRepository.logout()
-            preferencesManager.clearAll()
+            preferencesManager.clearProfile()
             repository.clearCache()
             _uiState.update { it.copy(showLogoutDialog = false) }
             onLogout()

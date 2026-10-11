@@ -200,7 +200,7 @@ class CredentialsManager(
     }
 
     private fun profileFileName(profileId: String) =
-        ProfileStore.fileName(Constants.CREDENTIALS_PREFERENCES_NAME, profileId)
+        ProfileStore.storageName(Constants.CREDENTIALS_PREFERENCES_NAME, profileId)
 
     private fun profilePrefs(profileId: String): SharedPreferences =
         context.getSharedPreferences(profileFileName(profileId), Context.MODE_PRIVATE)

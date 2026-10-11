@@ -6,6 +6,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import io.github.kaulith.helpdeskanalytics.data.local.database.AppDatabase
 import io.github.kaulith.helpdeskanalytics.data.local.database.entities.UserEntity
 import io.github.kaulith.helpdeskanalytics.data.local.preferences.PreferencesManager
+import io.github.kaulith.helpdeskanalytics.data.local.profiles.ProfileStore
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.AgentDto
 import io.github.kaulith.helpdeskanalytics.domain.model.Agent
 import io.github.kaulith.helpdeskanalytics.testing.FakeAgentSessionManager
@@ -32,7 +33,7 @@ class FrappeAgentRepositoryTest {
     private val database = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
         .allowMainThreadQueries()
         .build()
-    private val preferencesManager = PreferencesManager(context)
+    private val preferencesManager = PreferencesManager(context, ProfileStore(context))
     private val service = FakeFrappeApiService().apply {
         agents = listOf(agentDto("rahul.agrawal@frappe.io", "Rahul Agrawal"), agentDto("ann@x.io", "Ann"))
     }

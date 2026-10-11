@@ -3,6 +3,7 @@ package io.github.kaulith.helpdeskanalytics.di
 import androidx.room.Room
 import io.github.kaulith.helpdeskanalytics.data.local.database.ALL_MIGRATIONS
 import io.github.kaulith.helpdeskanalytics.data.local.database.AppDatabase
+import io.github.kaulith.helpdeskanalytics.data.local.profiles.ProfileStore
 import io.github.kaulith.helpdeskanalytics.util.Constants
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
@@ -12,11 +13,18 @@ private val PRE_SCHEMA_EXPORT_VERSIONS = intArrayOf(1, 2, 3, 4, 5)
 
 val databaseModule = module {
     single {
-        Room.databaseBuilder(
-            androidContext(),
-            AppDatabase::class.java,
-            Constants.DATABASE_NAME
-        )
+        val profileId = get<ProfileStore>().activeProfileId()
+        // Signed out, there is no profile to keep a database for.
+        val database = if (profileId == null) {
+            Room.inMemoryDatabaseBuilder(androidContext(), AppDatabase::class.java)
+        } else {
+            Room.databaseBuilder(
+                androidContext(),
+                AppDatabase::class.java,
+                ProfileStore.storageName(Constants.DATABASE_NAME, profileId)
+            )
+        }
+        database
             .addMigrations(*ALL_MIGRATIONS)
             .fallbackToDestructiveMigrationFrom(*PRE_SCHEMA_EXPORT_VERSIONS)
             .build()

@@ -13,8 +13,8 @@ class FrappeAgentSessionManager(
     private val preferencesManager: PreferencesManager,
     private val httpClient: OkHttpClient
 ) : AgentSessionManager {
-    @Volatile
-    private var activeAgentEmail: String? = credentialsManager.getActiveAgentEmail()
+    private val activeAgentEmail: String?
+        get() = credentialsManager.getActiveAgentEmail()
 
     override fun tokenForRequest(isWrite: Boolean): String? {
         val email = activeAgentEmail
@@ -40,13 +40,11 @@ class FrappeAgentSessionManager(
             minted = mintKeys(email)
         }
         credentialsManager.setActiveAgentEmail(email)
-        activeAgentEmail = email
         return minted
     }
 
     override fun deactivate() {
         credentialsManager.setActiveAgentEmail(null)
-        activeAgentEmail = null
     }
 
     private suspend fun isLoginUser(email: String): Boolean =

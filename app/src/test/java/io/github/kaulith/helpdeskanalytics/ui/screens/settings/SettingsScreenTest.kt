@@ -15,6 +15,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import androidx.test.core.app.ApplicationProvider
 import io.github.kaulith.helpdeskanalytics.data.local.preferences.PreferencesManager
+import io.github.kaulith.helpdeskanalytics.data.local.profiles.ProfileStore
 import io.github.kaulith.helpdeskanalytics.notifications.NotificationHelper
 import io.github.kaulith.helpdeskanalytics.testing.FakeAgentRepository
 import io.github.kaulith.helpdeskanalytics.testing.FakeAuthRepository
@@ -43,7 +44,7 @@ class SettingsScreenTest {
         val context = ApplicationProvider.getApplicationContext<Application>()
         val authRepository = FakeAuthRepository()
         val viewModel = SettingsViewModel(
-            PreferencesManager(context),
+            PreferencesManager(context, ProfileStore(context)),
             FakeTicketRepository(),
             authRepository,
             credentialsManager(context),
@@ -64,7 +65,7 @@ class SettingsScreenTest {
         val context = ApplicationProvider.getApplicationContext<Application>()
         shadowOf(context).grantPermissions(Manifest.permission.POST_NOTIFICATIONS)
         val viewModel = SettingsViewModel(
-            PreferencesManager(context),
+            PreferencesManager(context, ProfileStore(context)),
             FakeTicketRepository(),
             FakeAuthRepository(),
             credentialsManager(context),
@@ -87,7 +88,7 @@ class SettingsScreenTest {
         NotificationHelper(context).showNotification(title = "New ticket assigned #77595", body = "making pdf")
         assertEquals(1, notifications.allNotifications.size)
         val viewModel = SettingsViewModel(
-            PreferencesManager(context),
+            PreferencesManager(context, ProfileStore(context)),
             FakeTicketRepository(),
             FakeAuthRepository(),
             credentialsManager(context),

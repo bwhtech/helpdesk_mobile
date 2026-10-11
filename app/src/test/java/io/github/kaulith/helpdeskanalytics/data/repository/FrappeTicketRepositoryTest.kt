@@ -5,6 +5,7 @@ import androidx.room.Room
 import androidx.test.platform.app.InstrumentationRegistry
 import io.github.kaulith.helpdeskanalytics.data.local.database.AppDatabase
 import io.github.kaulith.helpdeskanalytics.data.local.preferences.PreferencesManager
+import io.github.kaulith.helpdeskanalytics.data.local.profiles.ProfileStore
 import io.github.kaulith.helpdeskanalytics.data.mapper.toEntity
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.RoleDto
 import io.github.kaulith.helpdeskanalytics.data.remote.dto.TicketActivitiesDto
@@ -44,7 +45,7 @@ class FrappeTicketRepositoryTest {
     private val database = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
         .allowMainThreadQueries()
         .build()
-    private val preferencesManager = PreferencesManager(context)
+    private val preferencesManager = PreferencesManager(context, ProfileStore(context))
     private val service = FakeFrappeApiService()
     private val repository = FrappeTicketRepository(
         apiServiceProvider = FakeApiServiceProvider(service),
