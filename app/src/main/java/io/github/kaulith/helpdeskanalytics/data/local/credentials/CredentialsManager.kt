@@ -38,6 +38,8 @@ class CredentialsManager(
         adoptFirstProfile()
     }
 
+    fun activeProfileId(): String? = profileStore.activeProfileId()
+
     fun hasProfile(siteUrl: String): Boolean = profileIdOf(siteUrl) != null
 
     /** The site of every profile that is signed in, by profile id. */
@@ -95,7 +97,11 @@ class CredentialsManager(
         saveOAuthSession(accessToken, refreshToken)
     }
 
-    fun saveOAuthSession(accessToken: String, refreshToken: String?) = edit {
+    fun saveOAuthSession(
+        accessToken: String,
+        refreshToken: String?,
+        profileId: String? = activeProfileId()
+    ) = edit(profileId) {
         putEncrypted(KEY_ACCESS_TOKEN, accessToken)
         if (refreshToken != null) putEncrypted(KEY_REFRESH_TOKEN, refreshToken)
     }
@@ -106,7 +112,7 @@ class CredentialsManager(
 
     fun getOAuthClientId(): String? = getString(KEY_OAUTH_CLIENT_ID)
 
-    fun clearOAuthSession() = edit {
+    fun clearOAuthSession(profileId: String? = activeProfileId()) = edit(profileId) {
         remove(KEY_ACCESS_TOKEN)
         remove(KEY_REFRESH_TOKEN)
     }
@@ -214,8 +220,8 @@ class CredentialsManager(
     private fun profilePrefs(profileId: String): SharedPreferences =
         context.getSharedPreferences(profileFileName(profileId), Context.MODE_PRIVATE)
 
-    private fun edit(block: SharedPreferences.Editor.() -> Unit) {
-        prefs?.edit()?.apply(block)?.apply()
+    private fun edit(profileId: String? = activeProfileId(), block: SharedPreferences.Editor.() -> Unit) {
+        profileId?.let(::profilePrefs)?.edit()?.apply(block)?.apply()
     }
 
     private fun getString(key: String): String? = prefs?.getDecrypted(key)

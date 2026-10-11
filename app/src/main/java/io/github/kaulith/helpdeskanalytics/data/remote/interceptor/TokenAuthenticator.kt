@@ -16,12 +16,16 @@ class TokenAuthenticator(
     private val oAuthClient: OAuthClient
 ) : Authenticator {
 
+    private val profileId = credentialsManager.activeProfileId()
+
     override fun authenticate(route: Route?, response: Response): Request? {
         val tokenHeader = TOKEN_HEADERS.firstOrNull {
             response.request.header(it)?.startsWith(BEARER_PREFIX) == true
         } ?: return null
         val failedToken = response.request.header(tokenHeader) ?: return null
         if (priorResponseCount(response) > 1) return null
+        // The session now held is another site's; it must not be sent to this one.
+        if (credentialsManager.activeProfileId() != profileId) return null
 
         val token = synchronized(this) {
             // A parallel request may have refreshed already; reuse that rather than

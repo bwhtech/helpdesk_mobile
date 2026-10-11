@@ -1,5 +1,6 @@
 package io.github.kaulith.helpdeskanalytics.di
 
+import io.github.kaulith.helpdeskanalytics.data.remote.api.ProfileApiServiceProvider
 import io.github.kaulith.helpdeskanalytics.data.repository.FrappeAgentRepository
 import io.github.kaulith.helpdeskanalytics.data.repository.FrappeAuthRepository
 import io.github.kaulith.helpdeskanalytics.data.repository.FrappeReportDataRepository
@@ -17,10 +18,16 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
 val repositoryModule = module {
-    singleOf(::FrappeTicketRepository) { bind<TicketRepository>() }
+    singleOf(::ProfileApiServiceProvider)
+    // What caches a site reads it through the provider tied to the profile in use.
+    single<TicketRepository> {
+        FrappeTicketRepository(get<ProfileApiServiceProvider>(), get(), get(), get(), get(), get())
+    }
     singleOf(::FrappeAuthRepository) { bind<AuthRepository>() }
-    singleOf(::FrappeAgentRepository) { bind<AgentRepository>() }
-    singleOf(::FrappeTeamRepository) { bind<TeamRepository>() }
+    single<AgentRepository> {
+        FrappeAgentRepository(get<ProfileApiServiceProvider>(), get(), get(), get(), get())
+    }
+    single<TeamRepository> { FrappeTeamRepository(get<ProfileApiServiceProvider>(), get()) }
     singleOf(::ReportTemplateRepositoryImpl) { bind<ReportRepository>() }
-    singleOf(::FrappeReportDataRepository) { bind<ReportDataRepository>() }
+    single<ReportDataRepository> { FrappeReportDataRepository(get<ProfileApiServiceProvider>()) }
 }

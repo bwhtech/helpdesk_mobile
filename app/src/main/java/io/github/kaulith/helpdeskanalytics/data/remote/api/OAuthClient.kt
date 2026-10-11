@@ -75,11 +75,15 @@ class OAuthClient(
     /**
      * Refreshes the stored session and returns the new Authorization value. Runs on
      * OkHttp's own thread from the authenticator, so it blocks rather than suspends.
+     * The new tokens go to the profile the refresh started for, whichever is in use
+     * by the time the site answers.
      */
     fun refreshSession(): String? {
+        val profileId = credentialsManager.activeProfileId() ?: return null
         val siteUrl = credentialsManager.getSiteUrl() ?: return null
         val clientId = credentialsManager.getOAuthClientId() ?: return null
         val refreshToken = credentialsManager.getRefreshToken() ?: return null
+        if (credentialsManager.activeProfileId() != profileId) return null
 
         return try {
             val token = runBlocking {
@@ -92,13 +96,14 @@ class OAuthClient(
             val accessToken = token.accessToken ?: return null
             credentialsManager.saveOAuthSession(
                 accessToken = accessToken,
-                refreshToken = token.refreshToken ?: refreshToken
+                refreshToken = token.refreshToken ?: refreshToken,
+                profileId = profileId
             )
             "Bearer $accessToken"
         } catch (e: HttpException) {
             // The refresh token itself was rejected, so the session is unrecoverable.
             // A transport failure is not, and must leave it in place to retry.
-            if (e.code() in REFRESH_REJECTED) credentialsManager.clearOAuthSession()
+            if (e.code() in REFRESH_REJECTED) credentialsManager.clearOAuthSession(profileId)
             null
         } catch (e: Exception) {
             Log.d(TAG, "Token refresh failed", e)
