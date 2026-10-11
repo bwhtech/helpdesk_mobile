@@ -78,6 +78,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
@@ -366,7 +367,7 @@ fun ReportBuilderScreen(
                     BuilderSection("Measures") {
                         config.aggregates.forEachIndexed { index, aggregate ->
                             Row(
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                                modifier = Modifier.fillMaxWidth().padding(vertical = Spacing.xs),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
@@ -421,12 +422,14 @@ fun ReportBuilderScreen(
                                     else "Select all"
                                 )
                             }
-                        }
+                        },
+                        padded = false
                     ) {
                         Text(
                             text = "${config.columns.size} of ${ReportColumn.entries.size} shown",
                             style = MaterialTheme.typography.bodySmall,
-                            color = cs.onSurfaceVariant
+                            color = cs.onSurfaceVariant,
+                            modifier = Modifier.padding(start = Spacing.base, top = Spacing.base)
                         )
                         Spacer(Modifier.height(Spacing.xs))
                         ReportColumn.entries.forEach { column ->
@@ -434,13 +437,15 @@ fun ReportBuilderScreen(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
+                                    .padding(horizontal = Spacing.xs)
                                     .heightIn(min = 48.dp)
+                                    .clip(FrappeRadius.lg)
                                     .toggleable(
                                         value = checked,
                                         role = Role.Checkbox,
                                         onValueChange = { viewModel.toggleColumn(column) }
                                     )
-                                    .padding(vertical = 4.dp),
+                                    .padding(horizontal = Spacing.md, vertical = Spacing.xs),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
@@ -452,14 +457,18 @@ fun ReportBuilderScreen(
                                 Checkbox(checked = checked, onCheckedChange = null)
                             }
                         }
+                        Spacer(Modifier.height(Spacing.xs))
                     }
                 }
             }
 
             item {
-                BuilderSection("Filters") {
+                BuilderSection("Filters", padded = false) {
                     if (config.filters.isEmpty()) {
                         Row(
+                            modifier = Modifier.padding(
+                                start = Spacing.base, top = Spacing.base, end = Spacing.base
+                            ),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(Spacing.sm)
                         ) {
@@ -476,15 +485,18 @@ fun ReportBuilderScreen(
                             )
                         }
                     } else {
+                        Spacer(Modifier.height(Spacing.xs))
                         config.filters.forEachIndexed { index, filter ->
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
+                                    .padding(horizontal = Spacing.xs)
                                     .heightIn(min = 48.dp)
+                                    .clip(FrappeRadius.lg)
                                     .clickable(role = Role.Button) {
                                         filterEditor = FilterEditor(index, filter)
                                     }
-                                    .padding(vertical = 4.dp),
+                                    .padding(horizontal = Spacing.md, vertical = Spacing.xs),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
@@ -515,13 +527,17 @@ fun ReportBuilderScreen(
                                 }
                             }
                             if (index < config.filters.lastIndex) {
-                                HorizontalDivider(color = cs.outlineVariant)
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(horizontal = Spacing.base),
+                                    color = cs.outlineVariant
+                                )
                             }
                         }
                     }
                     Spacer(Modifier.height(Spacing.sm))
                     OutlinedButton(
                         onClick = { filterEditor = FilterEditor(null, null) },
+                        modifier = Modifier.padding(start = Spacing.base, bottom = Spacing.base),
                         shape = FrappeRadius.full
                     ) {
                         Icon(Icons.Outlined.Add, contentDescription = null, modifier = Modifier.size(18.dp))
