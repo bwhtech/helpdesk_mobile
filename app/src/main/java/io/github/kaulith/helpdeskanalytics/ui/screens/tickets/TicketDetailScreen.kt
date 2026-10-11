@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
@@ -733,8 +732,8 @@ private fun AttachmentStrip(attachments: List<Attachment>) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .border(1.dp, cs.outlineVariant, RoundedCornerShape(12.dp))
+                    .clip(FrappeRadius.md)
+                    .border(1.dp, cs.outlineVariant, FrappeRadius.md)
                     .clickable(
                         role = Role.Button,
                         onClickLabel = openLabel,

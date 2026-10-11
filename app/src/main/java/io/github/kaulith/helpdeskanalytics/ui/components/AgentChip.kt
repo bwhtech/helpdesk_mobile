@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -20,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.kaulith.helpdeskanalytics.domain.model.Agent
+import io.github.kaulith.helpdeskanalytics.ui.theme.FrappeRadius
 import io.github.kaulith.helpdeskanalytics.ui.theme.Spacing
 
 /** Shows which agent the app is acting as, and opens the picker to switch. */
@@ -30,7 +30,7 @@ fun AgentChip(
     modifier: Modifier = Modifier,
 ) {
     val cs = MaterialTheme.colorScheme
-    val shape = RoundedCornerShape(9999.dp)
+    val shape = FrappeRadius.full
     Row(
         modifier = modifier
             .padding(end = Spacing.sm)
