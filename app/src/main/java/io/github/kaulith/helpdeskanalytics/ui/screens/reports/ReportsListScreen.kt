@@ -238,7 +238,11 @@ private fun TemplateRow(
                         tint = cs.onSurfaceVariant
                     )
                 }
-                DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                DropdownMenu(
+                    expanded = menuOpen,
+                    onDismissRequest = { menuOpen = false },
+                    shape = FrappeRadius.lg
+                ) {
                     if (config != null) {
                         DropdownMenuItem(
                             text = { Text("Duplicate") },

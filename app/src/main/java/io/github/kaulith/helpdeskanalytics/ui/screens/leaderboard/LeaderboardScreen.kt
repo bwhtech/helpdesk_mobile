@@ -146,7 +146,11 @@ private fun PeriodChip(
             ),
             border = AssistChipDefaults.assistChipBorder(enabled = true, borderColor = cs.accentOutline)
         )
-        DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+        DropdownMenu(
+            expanded = menuOpen,
+            onDismissRequest = { menuOpen = false },
+            shape = FrappeRadius.lg
+        ) {
             LeaderboardPeriod.presets.forEach { preset ->
                 DropdownMenuItem(
                     text = { Text(preset.label) },

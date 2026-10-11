@@ -26,6 +26,7 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.OpenInNew
 import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.outlined.AttachFile
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Visibility
@@ -516,7 +517,8 @@ private fun <T> ChipPicker(
         )
         DropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
+            shape = FrappeRadius.lg
         ) {
             options.forEach { option ->
                 DropdownMenuItem(
@@ -524,7 +526,10 @@ private fun <T> ChipPicker(
                     onClick = {
                         onChange(option)
                         expanded = false
-                    }
+                    },
+                    trailingIcon = if (option == current) {
+                        { Icon(Icons.Outlined.Check, null, Modifier.size(18.dp)) }
+                    } else null
                 )
             }
         }

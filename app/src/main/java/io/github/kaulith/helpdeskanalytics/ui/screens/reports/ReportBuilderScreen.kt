@@ -27,6 +27,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.FilterAltOff
@@ -805,7 +806,8 @@ private fun DropdownField(
         )
         DropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
+            shape = FrappeRadius.lg
         ) {
             items.forEach { item ->
                 DropdownMenuItem(
@@ -813,7 +815,10 @@ private fun DropdownField(
                     onClick = {
                         onSelect(item.key)
                         expanded = false
-                    }
+                    },
+                    trailingIcon = if (item.label == value) {
+                        { Icon(Icons.Outlined.Check, null, Modifier.size(18.dp)) }
+                    } else null
                 )
             }
         }
@@ -1036,7 +1041,8 @@ private fun ValuePicker(
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            modifier = Modifier.heightIn(max = 320.dp)
+            modifier = Modifier.heightIn(max = 320.dp),
+            shape = FrappeRadius.lg
         ) {
             if (options.size > VALUE_SEARCH_THRESHOLD) {
                 OutlinedTextField(
@@ -1057,7 +1063,10 @@ private fun ValuePicker(
                         onSelect(option.value)
                         search = ""
                         expanded = false
-                    }
+                    },
+                    trailingIcon = if (option.label == selectedLabel) {
+                        { Icon(Icons.Outlined.Check, null, Modifier.size(18.dp)) }
+                    } else null
                 )
             }
             if (matches.isEmpty()) {
@@ -1210,7 +1219,8 @@ private fun ReportPreviewOverlay(
                         }
                         DropdownMenu(
                             expanded = showSaveMenu,
-                            onDismissRequest = { showSaveMenu = false }
+                            onDismissRequest = { showSaveMenu = false },
+                            shape = FrappeRadius.lg
                         ) {
                             DropdownMenuItem(
                                 text = { Text("Save CSV to device") },

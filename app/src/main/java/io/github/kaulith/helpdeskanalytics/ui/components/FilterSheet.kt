@@ -13,6 +13,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material3.Button
@@ -272,11 +273,18 @@ private fun DropdownField(
             Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = null,
                 modifier = Modifier.size(18.dp))
         }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            shape = FrappeRadius.lg,
+        ) {
             options.forEachIndexed { i, option ->
                 DropdownMenuItem(
                     text = { Text(option) },
                     onClick = { onSelectedIndex(i); expanded = false },
+                    trailingIcon = if (option == label) {
+                        { Icon(Icons.Outlined.Check, null, Modifier.size(18.dp)) }
+                    } else null,
                 )
             }
         }
