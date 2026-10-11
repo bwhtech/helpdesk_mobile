@@ -111,6 +111,26 @@ class FrappeAuthRepositoryTest {
     }
 
     @Test
+    fun `signing in again registers the device it unregistered on the way`() = runBlocking {
+        credentials.saveCredentials("https://support.frappe.io", "key", "secret")
+        service.user = UserDto("ann@x.io", "Ann", "ann@x.io", emptyList())
+        var isRegistered = true
+        val repository = repository(object : DeviceRegistration {
+            override suspend fun unregisterCurrentDevice() {
+                isRegistered = false
+            }
+
+            override fun registerNow() {
+                isRegistered = true
+            }
+        })
+
+        repository.validateCredentials("https://support.frappe.io", "key", "secret")
+
+        assertTrue(isRegistered)
+    }
+
+    @Test
     fun `signing in with API keys replaces the OAuth session of the site`() = runBlocking {
         credentials.saveOAuthLogin("https://support.frappe.io", "client", "access", "refresh")
         service.user = UserDto("ann@x.io", "Ann", "ann@x.io", emptyList())
