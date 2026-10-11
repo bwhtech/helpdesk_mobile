@@ -3,6 +3,7 @@ package io.github.kaulith.helpdeskanalytics.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -35,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -77,7 +80,7 @@ fun AgentSelectorSheet(
                 .padding(horizontal = Spacing.base),
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(start = Spacing.md),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
@@ -113,12 +116,15 @@ fun AgentSelectorSheet(
 
             Spacer(Modifier.height(Spacing.md))
 
-            LazyColumn(modifier = Modifier.weight(1f)) {
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(Spacing.xs),
+            ) {
                 if (activeAgent != null && searchQuery.isBlank()) {
                     item { SectionLabel("Current") }
                     item { AgentRow(agent = activeAgent, isSelected = true, onClick = onDismiss) }
                     item {
-                        Spacer(Modifier.height(Spacing.sm))
+                        Spacer(Modifier.height(Spacing.md))
                         SectionLabel("All agents")
                     }
                 }
@@ -139,30 +145,42 @@ fun AgentSelectorSheet(
                             text = "No agents found for \"$searchQuery\"",
                             style = MaterialTheme.typography.bodyMedium,
                             color = cs.onSurfaceVariant,
-                            modifier = Modifier.padding(vertical = Spacing.lg),
+                            modifier = Modifier.padding(horizontal = Spacing.md, vertical = Spacing.lg),
                         )
                     }
                 }
 
                 item {
-                    HorizontalDivider(color = cs.outlineVariant)
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = Spacing.sm),
+                        color = cs.outlineVariant,
+                    )
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .clip(FrappeRadius.lg)
                             .clickable(role = Role.Button) {
                                 onAgentSelected(null)
                                 onDismiss()
                             }
-                            .padding(vertical = Spacing.md),
+                            .padding(Spacing.md),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(Spacing.md),
                     ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Groups,
-                            contentDescription = null,
-                            tint = cs.onSurfaceVariant,
-                            modifier = Modifier.size(20.dp),
-                        )
+                        // As wide as an avatar, so the label lines up with the agent names above.
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .background(cs.surfaceContainerHighest, CircleShape),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Groups,
+                                contentDescription = null,
+                                tint = cs.onSurfaceVariant,
+                                modifier = Modifier.size(20.dp),
+                            )
+                        }
                         Text(
                             text = "View all agents",
                             style = MaterialTheme.typography.bodyLarge,
@@ -174,13 +192,13 @@ fun AgentSelectorSheet(
                                 imageVector = Icons.Outlined.Check,
                                 contentDescription = "Selected",
                                 tint = cs.primary,
-                                modifier = Modifier.size(18.dp),
+                                modifier = Modifier.size(20.dp),
                             )
                         }
                     }
                 }
 
-                item { Spacer(Modifier.height(Spacing.xl)) }
+                item { Spacer(Modifier.height(Spacing.lg)) }
             }
         }
     }
@@ -193,7 +211,7 @@ private fun SectionLabel(text: String) {
         style = MaterialTheme.typography.labelSmall,
         fontWeight = FontWeight.SemiBold,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(vertical = Spacing.xs),
+        modifier = Modifier.padding(start = Spacing.md, bottom = Spacing.xs),
     )
 }
 
@@ -203,9 +221,10 @@ private fun AgentRow(agent: Agent, isSelected: Boolean, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clip(FrappeRadius.lg)
             .background(if (isSelected) cs.primaryContainer else cs.surfaceContainerLow)
             .clickable(role = Role.Button, onClick = onClick)
-            .padding(vertical = Spacing.sm, horizontal = Spacing.xs),
+            .padding(Spacing.md),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Spacing.md),
     ) {
@@ -230,7 +249,7 @@ private fun AgentRow(agent: Agent, isSelected: Boolean, onClick: () -> Unit) {
                 imageVector = Icons.Outlined.Check,
                 contentDescription = "Selected",
                 tint = cs.onPrimaryContainer,
-                modifier = Modifier.size(18.dp),
+                modifier = Modifier.size(20.dp),
             )
         }
     }
