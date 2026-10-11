@@ -46,6 +46,7 @@ class TicketsTest : AppTest() {
         openTickets()
         composeRule.onNode(ticket("104")).performClick()
 
+        composeRule.waitUntilExactlyOneExists(hasSetTextAction(), TIMEOUT)
         composeRule.onNode(hasSetTextAction()).performTextInput("Fixed in the latest update")
         // The keyboard is still sliding the composer up, so a tap by position can miss.
         composeRule.onNodeWithText("Send").performSemanticsAction(SemanticsActions.OnClick)

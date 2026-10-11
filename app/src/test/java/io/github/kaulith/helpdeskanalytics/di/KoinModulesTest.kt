@@ -12,6 +12,6 @@ class KoinModulesTest {
     fun `every definition finds its constructor dependencies`() {
         module {
             includes(appModule, networkModule, databaseModule, repositoryModule, viewModelModule)
-        }.androidVerify()
+        }.androidVerify(extraTypes = listOf(Function0::class))
     }
 }

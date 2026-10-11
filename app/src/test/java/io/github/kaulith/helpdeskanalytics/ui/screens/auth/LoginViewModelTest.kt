@@ -33,7 +33,7 @@ class LoginViewModelTest {
     private val authRepository = FakeAuthRepository()
     private val agentRepository = FakeAgentRepository()
     private val redirectHolder = OAuthRedirectHolder()
-    private val viewModel by lazy { LoginViewModel(authRepository, agentRepository, redirectHolder) }
+    private val viewModel by lazy { LoginViewModel(authRepository, { agentRepository }, redirectHolder) }
 
     @Test
     fun `a site url without https is rejected before any request`() = runTest {

@@ -69,7 +69,7 @@ class ScreenshotTest {
 
     @Test
     fun login() {
-        val viewModel = LoginViewModel(FakeAuthRepository(), FakeAgentRepository(), OAuthRedirectHolder())
+        val viewModel = LoginViewModel(FakeAuthRepository(), { FakeAgentRepository() }, OAuthRedirectHolder())
         capture(hasText("Sign in")) { LoginScreen(onLoginSuccess = {}, viewModel = viewModel) }
     }
 
