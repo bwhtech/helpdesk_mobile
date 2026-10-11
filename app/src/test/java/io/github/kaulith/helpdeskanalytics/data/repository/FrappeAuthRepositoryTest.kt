@@ -111,6 +111,16 @@ class FrappeAuthRepositoryTest {
     }
 
     @Test
+    fun `signing in with API keys replaces the OAuth session of the site`() = runBlocking {
+        credentials.saveOAuthLogin("https://support.frappe.io", "client", "access", "refresh")
+        service.user = UserDto("ann@x.io", "Ann", "ann@x.io", emptyList())
+
+        repository(noDeviceRegistration).validateCredentials("https://support.frappe.io", "key", "secret")
+
+        assertEquals("token key:secret", credentials.getAuthToken())
+    }
+
+    @Test
     fun `signing in over OAuth keeps the session in the profile of that site`() = runBlocking {
         site.enqueue(MockResponse(body = """{"access_token":"access","refresh_token":"refresh"}"""))
         site.start()
