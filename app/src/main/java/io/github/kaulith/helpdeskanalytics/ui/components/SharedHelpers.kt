@@ -37,7 +37,7 @@ import io.github.kaulith.helpdeskanalytics.ui.theme.Spacing
  * container palette. Three-way hash bucket so adjacent rows look distinct.
  */
 @Composable
-fun InitialsAvatar(name: String, size: Dp = 36.dp) {
+fun InitialsAvatar(name: String, size: Dp = 36.dp, isSelected: Boolean = false) {
     val cs = MaterialTheme.colorScheme
     val palette = listOf(
         cs.primaryContainer to cs.onPrimaryContainer,
@@ -45,7 +45,8 @@ fun InitialsAvatar(name: String, size: Dp = 36.dp) {
         cs.tertiaryContainer to cs.onTertiaryContainer,
     )
     val hash = name.hashCode().let { if (it < 0) -it else it }
-    val (bg, fg) = palette[hash % palette.size]
+    // A selected row is filled with one of the palette's containers, which would hide the avatar.
+    val (bg, fg) = if (isSelected) cs.primary to cs.onPrimary else palette[hash % palette.size]
     Box(
         modifier = Modifier.size(size).clip(CircleShape).background(bg),
         contentAlignment = Alignment.Center,

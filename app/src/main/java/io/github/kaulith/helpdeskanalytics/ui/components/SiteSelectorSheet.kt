@@ -142,7 +142,7 @@ private fun SiteRow(site: SiteProfile, isSelected: Boolean, onClick: () -> Unit)
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Spacing.md),
     ) {
-        InitialsAvatar(name = site.siteUrl, size = 40.dp)
+        InitialsAvatar(name = site.siteUrl, size = 40.dp, isSelected = isSelected)
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = site.siteUrl,

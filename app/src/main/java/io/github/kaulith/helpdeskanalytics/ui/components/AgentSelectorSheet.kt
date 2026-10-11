@@ -209,7 +209,7 @@ private fun AgentRow(agent: Agent, isSelected: Boolean, onClick: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Spacing.md),
     ) {
-        InitialsAvatar(name = agent.name, size = 40.dp)
+        InitialsAvatar(name = agent.name, size = 40.dp, isSelected = isSelected)
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = agent.name,
