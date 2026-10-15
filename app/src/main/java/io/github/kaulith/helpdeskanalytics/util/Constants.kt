@@ -2,7 +2,6 @@ package io.github.kaulith.helpdeskanalytics.util
 
 object Constants {
     const val DATABASE_NAME = "helpdesk_analytics_db"
-    const val ENCRYPTED_PREFERENCES_NAME = "helpdesk_secure_prefs"
     const val CREDENTIALS_PREFERENCES_NAME = "helpdesk_credentials"
     const val CREDENTIALS_KEYSET_PREFERENCES_NAME = "helpdesk_credentials_keyset"
     const val OAUTH_REQUEST_PREFERENCES_NAME = "helpdesk_oauth_request"

@@ -3,9 +3,6 @@ package io.github.kaulith.helpdeskanalytics.data.local.credentials
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Base64
-import android.util.Log
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKey
 import com.google.crypto.tink.Aead
 import com.google.crypto.tink.KeyTemplates
 import com.google.crypto.tink.RegistryConfiguration
@@ -34,7 +31,7 @@ class CredentialsManager(
         context.getSharedPreferences(Constants.OAUTH_REQUEST_PREFERENCES_NAME, Context.MODE_PRIVATE)
 
     init {
-        moveEncryptedPreferences(context)
+        deleteOldEncryptedPreferences(context)
         adoptFirstProfile()
     }
 
@@ -230,40 +227,14 @@ class CredentialsManager(
     }
 
     /**
-     * Moves what 1.1 and earlier wrote with the deprecated EncryptedSharedPreferences into
-     * this store, then deletes the old file and its master key. An old store that no
-     * longer decrypts is dropped too, so the user signs in again instead of the app
-     * failing on every start.
+     * 1.1 and earlier kept credentials in EncryptedSharedPreferences, which this app no
+     * longer reads. Whatever a phone still holds from then is deleted, with its key, so
+     * no secret is left behind; the user signs in again.
      */
-    private fun moveEncryptedPreferences(context: Context) {
-        val prefs = profilePrefs(ProfileStore.FIRST_PROFILE_ID)
-        val name = Constants.ENCRYPTED_PREFERENCES_NAME
-        if (!File(context.dataDir, "shared_prefs/$name.xml").exists()) return
-        val oldValues = runCatching {
-            val masterKey = MasterKey.Builder(context)
-                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-                .build()
-            EncryptedSharedPreferences.create(
-                context,
-                name,
-                masterKey,
-                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-            ).all
-        }
-            .onFailure { Log.e(TAG, "Failed to read the old credentials", it) }
-            .getOrDefault(emptyMap())
-        val editor = prefs.edit()
-        oldValues.forEach { (key, value) ->
-            when (value) {
-                is String -> editor.putEncrypted(key, value)
-                is Boolean -> editor.putBoolean(key, value)
-            }
-        }
-        if (!editor.commit()) return
-        context.deleteSharedPreferences(name)
-        KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }
-            .deleteEntry(MasterKey.DEFAULT_MASTER_KEY_ALIAS)
+    private fun deleteOldEncryptedPreferences(context: Context) {
+        if (!File(context.dataDir, "shared_prefs/$OLD_PREFERENCES_NAME.xml").exists()) return
+        context.deleteSharedPreferences(OLD_PREFERENCES_NAME)
+        KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }.deleteEntry(OLD_MASTER_KEY_ALIAS)
     }
 
     /** What 1.2 and earlier stored belongs to no profile; it becomes the first, in place. */
@@ -285,8 +256,9 @@ class CredentialsManager(
     )
 
     companion object {
-        private const val TAG = "CredentialsManager"
         private const val ANDROID_KEYSTORE = "AndroidKeyStore"
+        private const val OLD_PREFERENCES_NAME = "helpdesk_secure_prefs"
+        private const val OLD_MASTER_KEY_ALIAS = "_androidx_security_master_key_"
         private const val KEYSET_NAME = "credentials_keyset"
         private const val MASTER_KEY_ALIAS = "helpdesk_credentials_master_key"
         private const val KEY_SITE_URL = "site_url"

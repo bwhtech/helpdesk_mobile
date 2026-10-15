@@ -183,8 +183,6 @@ dependencies {
 
     // Security - credentials encryption
     implementation("com.google.crypto.tink:tink-android:1.23.0")
-    // Only reads credentials stored by 1.1 and earlier; drop in the release after 1.2
-    implementation("androidx.security:security-crypto:1.1.0")
 
     // Background Processing - WorkManager
     implementation("androidx.work:work-runtime-ktx:2.11.2")
