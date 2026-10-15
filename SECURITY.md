@@ -7,8 +7,8 @@ next tagged release; older tags do not get patches.
 
 | Version | Supported |
 | ------- | --------- |
-| 1.1.0 (latest release) | Yes |
-| Older tags | No |
+| Latest release | Yes |
+| Older releases | No |
 
 ## Reporting a vulnerability
 
@@ -44,7 +44,8 @@ anonymous. This is an unpaid project; there is no bug bounty.
 In scope, in this repository:
 
 - storage and handling of site credentials and OAuth tokens; the app keeps API keys,
-  secrets and tokens in `EncryptedSharedPreferences` under an AES256-GCM master key
+  secrets and tokens encrypted with an AES256-GCM key held in the Android Keystore,
+  in a separate store for each site you add
 - the API client and anything that could send credentials or ticket data somewhere other
   than the configured site
 - the local Room cache of tickets and agents, and what an attacker with device access
@@ -67,6 +68,8 @@ Out of scope:
 
 ## Notes for reporters
 
-The app talks only to the site URL you configure, and it is distributed as a signed APK
-from the GitHub releases page of this repository. An APK from anywhere else is not ours
+The app talks to the helpdesk sites you add and to GitHub, to check for a newer release.
+For support.frappe.io, which cannot run the push app, the phone registers for alerts on
+the project's push server and sends that site's token there to prove who it is. The app
+is distributed as a signed APK from the GitHub releases page of this repository. An APK from anywhere else is not ours
 and is not covered by this policy.
