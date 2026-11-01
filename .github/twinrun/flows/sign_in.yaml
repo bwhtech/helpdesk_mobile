@@ -1,0 +1,20 @@
+appId: io.github.kaulith.helpdeskanalytics
+env:
+  MAESTRO_API_KEY: replay-key
+  MAESTRO_API_SECRET: replay-secret
+---
+- launchApp:
+    clearState: true
+- tapOn: "Use an API key instead"
+- tapOn: "https://support.frappe.io"
+- pressKey: Remote Dpad Down
+- eraseText: 60
+- inputText: "https://dev.localhost"
+- hideKeyboard
+- tapOn: "API Key"
+- inputText: ${MAESTRO_API_KEY}
+- tapOn: "API Secret"
+- inputText: ${MAESTRO_API_SECRET}
+- hideKeyboard
+- tapOn: "Sign in"
+- assertVisible: "Resolved today"

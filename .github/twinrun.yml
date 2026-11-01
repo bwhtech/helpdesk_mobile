@@ -1,0 +1,28 @@
+app:
+  id: io.github.kaulith.helpdeskanalytics
+build:
+  command: >-
+    sed -e 's/YOUR_MOBILESDK_APP_ID/1:000000000000:android:0000000000000000/'
+    -e 's/YOUR_FIREBASE_ANDROID_API_KEY/A00000000000000000000000000000000000000/'
+    app/google-services.json.sample > app/google-services.json
+    && ./gradlew :app:assembleDebug
+  apk: app/build/outputs/apk/debug/app-debug.apk
+backend:
+  hosts:
+    - dev.localhost
+  har: .github/twinrun/dashboard.har
+signIn: .github/twinrun/flows/sign_in.yaml
+screens:
+  - id: ticket_detail
+    deepLink: helpdesk://ticket/0253
+    identity:
+      text: Ticket ID
+  - id: ticket_detail_from_list
+    flow: .github/twinrun/flows/ticket_detail.yaml
+    identity:
+      text: Ticket ID
+  - id: leaderboard
+    flow: .github/twinrun/flows/leaderboard.yaml
+    identity:
+      text: Ranking
+      selected: true

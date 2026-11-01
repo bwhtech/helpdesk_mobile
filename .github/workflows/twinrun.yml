@@ -1,0 +1,10 @@
+name: twinrun
+
+on: pull_request
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    uses: kaulith/twinrun/.github/workflows/build.yml@c6b35c28f8d89a483bcf59d54251d52587088f1f # main
