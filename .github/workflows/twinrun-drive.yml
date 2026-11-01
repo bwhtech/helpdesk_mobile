@@ -1,0 +1,17 @@
+name: twinrun drive
+
+on:
+  workflow_run:
+    workflows: [twinrun]
+    types: [completed]
+
+permissions: {}
+
+jobs:
+  drive:
+    if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success'
+    uses: kaulith/twinrun/.github/workflows/drive.yml@c6b35c28f8d89a483bcf59d54251d52587088f1f # main
+    permissions:
+      actions: read
+      contents: write
+      pull-requests: write

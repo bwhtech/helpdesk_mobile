@@ -1,0 +1,4 @@
+appId: io.github.kaulith.helpdeskanalytics
+---
+- launchApp
+- tapOn: "Ranking"

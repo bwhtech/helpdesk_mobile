@@ -1,0 +1,5 @@
+appId: io.github.kaulith.helpdeskanalytics
+---
+- launchApp
+- tapOn: "Open: .*, opens the ticket list"
+- tapOn: "SLA trend demo 6"
