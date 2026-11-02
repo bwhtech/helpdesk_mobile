@@ -10,7 +10,7 @@ permissions: {}
 jobs:
   drive:
     if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success'
-    uses: kaulith/twinrun/.github/workflows/drive.yml@15e703432a381e72c53ff4cad43791176bd95ba3 # main
+    uses: kaulith/twinrun/.github/workflows/drive.yml@8cd3cb1b52a90eafcc477dea37e085b816291dd1 # main
     permissions:
       actions: read
       contents: write

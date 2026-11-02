@@ -7,4 +7,4 @@ permissions:
 
 jobs:
   build:
-    uses: kaulith/twinrun/.github/workflows/build.yml@15e703432a381e72c53ff4cad43791176bd95ba3 # main
+    uses: kaulith/twinrun/.github/workflows/build.yml@8cd3cb1b52a90eafcc477dea37e085b816291dd1 # main
